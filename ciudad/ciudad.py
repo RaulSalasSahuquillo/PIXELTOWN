@@ -13,5 +13,9 @@ class Ciudad:
         print(f"Dinero: {self.dinero} 💰")
         print(f"Población: {self.poblacion} 👥")
         print(f"Experiencia: {self.experiencia} 🧠")
-        print(f"Felicidad: {self.felicidad}% 🙂\n")
-        
+        if self.felicidad > 50:
+            print(f"Felicidad: {self.felicidad}% 🙂\n")
+        elif self.felicidad < 50:
+            print(f"Felicidad: {self.felicidad}% 🙁\n")
+        else:
+            print(f"Felicidad: {self.felicidad}% 😐\n")
