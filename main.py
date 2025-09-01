@@ -16,6 +16,7 @@ poblacion = 10  # Población inicial
 edificios = []  # Lista de dicts: {"tipo": str, "pos": (x, y)}
 felicidad = 50  # Felicidad inicial
 experiencia = 0  # Experiencia inicial
+dineroporhabitante = 1000 # Cada habitante aporta 1000 de dinero
 
     # Aquí podrías implementar lógica adicional, como mostrar un mensaje en pantalla
 
@@ -23,12 +24,10 @@ experiencia = 0  # Experiencia inicial
 
 def escena_intro(pantalla, reloj):  # Necesitamos el reloj para controlar la velocidad
     try:
-        # Asegúrate de que el archivo 'intro.mp4' esté en la misma carpeta
         clip = VideoFileClip('intro.mp4')
-
         # Iteramos sobre cada fotograma del vídeo
         for frame in clip.iter_frames(fps=clip.fps, dtype='uint8'):
-            # --- Manejo de eventos DENTRO del bucle ---
+            # Manejo de eventos DENTRO del bucle
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     clip.close()  # Cierra el archivo de video
@@ -327,14 +326,8 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         pantalla.blit(player_image_scaled, (450, 200))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-
-    if dinero < 500:
-        print("Dinero insuficiente. Debes conseguir dinero para que tu ciudad prospere.")
-        return "facturar"
-    
-    if felicidad < 20:
-        print("Felicidad insuficiente. Debes mejorar la calidad de vida en tu ciudad.")
-    elif felicidad < 10:
+        
+    if felicidad < 10:
         print("¡Oh, no! Los ciudadanos no estan felices.")
         time.sleep(1)
         print("¡Ha empezado un golpe de estado!")
@@ -539,19 +532,146 @@ def infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
 
 def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+    global dinero, felicidad, experiencia
+    
+    # JABÓN DE MANOS
     pantalla.fill((255, 255, 255))  # Fondo blanco
+    boton_comprar = pygame.Rect(100, 390, 310, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_comprar)
+    texto_surf_boton = fuente_normal.render("Jabón de manos Lov'yc | 250", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_comprar.collidepoint(evento.pos):
+                print("Comprando producto...")
+                if dinero >= 250:
+                    dinero -= 250
+                    felicidad += 5
+                    experiencia += 10
+                    print("Compra exitosa.")
+                    return "mapainicial"
+                else:
+                    print("Dinero insuficiente.")
+                    return "mapainicial"
     try:
         player_image = pygame.image.load('lovyc.png').convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (500, 300))
         pantalla.blit(player_image_scaled, (10, 100))
     except pygame.error:
+        print("Error cargando imagen")
         pass
 
+    # IMAGEN MASCARILLA
+    boton_mascarilla = pygame.Rect(700, 390, 310, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_mascarilla.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_mascarilla)
+    texto_surf_boton = fuente_normal.render("Mascarilla Gold Lov'yc | 150", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_mascarilla.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_mascarilla.collidepoint(evento.pos):
+                print("Comprando producto...")
+                if dinero >= 150:
+                    dinero -= 150
+                    felicidad += 5
+                    experiencia += 10
+                    print("Compra exitosa.")
+                    return "mapainicial"
+                else:
+                    print("Dinero insuficiente.")
+                    return "mapainicial"
+    try:
+        player_image = pygame.image.load('lovyc_mascarilla.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (700, 100))
+    except pygame.error:
+        pass
+    
+    boton_siguiente = pygame.Rect(900, 500, 250, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_siguiente.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_siguiente)
+    texto_surf_boton = fuente_normal.render("Siguiente", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_siguiente.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_siguiente.collidepoint(evento.pos):
+                return "productos2"
+    
+    return "productos"
+
+def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+    global dinero, felicidad, experiencia
+    pantalla.fill((255, 255, 255))
+    
+    # IMAGEN CHAMPÚ
+    boton_champu = pygame.Rect(700, 390, 310, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_champu.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_champu)
+    texto_surf_boton = fuente_normal.render("Champú Lov'yc | 200", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_champu.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_champu.collidepoint(evento.pos):
+                print("Comprando producto...")
+                if dinero >= 200:
+                    dinero -= 200
+                    felicidad += 10
+                    experiencia += 10
+                    print("Compra exitosa.")
+                    return "mapainicial"
+                else:
+                    print("Dinero insuficiente.")
+                    return "mapainicial"
+    try:
+        player_image = pygame.image.load('lovyc_champú.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (700, 100))
+    except pygame.error:
+        pass
+
+    # IMAGEN TOALLITAS
+    boton_comprar = pygame.Rect(100, 390, 310, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_comprar)
+    texto_surf_boton = fuente_normal.render("Toallitas Lov'yc | 100", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_comprar.collidepoint(evento.pos):
+                print("Comprando producto...")
+                if dinero >= 100:
+                    dinero -= 100
+                    felicidad += 5
+                    experiencia += 10
+                    print("Compra exitosa.")
+                    return "mapainicial"
+                else:
+                    print("Dinero insuficiente.")
+                    return "mapainicial"
+    try:
+        player_image = pygame.image.load('lovyc_toallitas.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (500, 300))
+        pantalla.blit(player_image_scaled, (10, 100))
+    except pygame.error:
+        pass
+    
     for evento in eventos:
         if evento.type == pygame.QUIT:
             return "salir"
+    return "productos2"
 
-    return "productos"
+
 
 
 def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
@@ -632,9 +752,9 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     config = config_edificios[tipo_edificio]
     ruta_imagen = config["imagen"]
     costo = config["costo"]
-    recompensa_exp = config["experiencia"]  # <- antes machacabas la global
+    recompensa_exp = config["experiencia"]
 
-    # --- fondo/mapa ---
+    # fondo/mapa
     pantalla.fill((255, 255, 255))
     try:
         rio_img = pygame.image.load('rio.png').convert_alpha()
@@ -683,7 +803,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
                     final_pos = (pos_raton[0] - 32, pos_raton[1] - 32)
                     edificios.append({"tipo": tipo_edificio, "pos": final_pos})
                     dinero -= costo
-                    experiencia += recompensa_exp       # <- suma correcta
+                    experiencia += recompensa_exp
                     print(f"{tipo_edificio.capitalize()} construido en: {final_pos} | +{recompensa_exp} exp")
                     return "mapainicial"
                 else:
@@ -695,8 +815,128 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
 
     return "colocando_edificio"
 
+def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
+    global dinero, experiencia, felicidad, poblacion
+    pantalla.fill((255, 255, 255))  # Fondo blanco
+    # COBRAR IMPUESTOS
+    try:
+        player_image = pygame.image.load('impuestos.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (40, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_impuestos = pygame.Rect(60, 380, 250, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_impuestos.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_impuestos)
+    texto_surf_boton = fuente_normal.render("COBRAR IMPUESTOS", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_impuestos.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_impuestos.collidepoint(evento.pos):
+                print("Cambiando a la escena de cobrar impuestos...")
+                return "impuestos"
 
+    # VENDER
+    try:
+        player_image = pygame.image.load('venderedificio.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (440, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_vendeedificio = pygame.Rect(460, 380, 250, 50)
+    color_boton = (200, 200, 100) if boton_vendeedificio.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_vendeedificio)
+    texto_surf_boton = fuente_normal.render("VENDER EDIFICIO", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_vendeedificio.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_vendeedificio.collidepoint(evento.pos):
+                print("Cambiando a la escena de vender edificio...")
+                return "vender_edificio"
 
+    # PEDIR PRÉSTAMO
+    try:
+        player_image = pygame.image.load('prestamo.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (840, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_prestamo = pygame.Rect(860, 380, 250, 50)
+    color_boton = (200, 200, 100) if boton_prestamo.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_prestamo)
+    texto_surf_boton = fuente_normal.render("PEDIR PRÉSTAMO", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_prestamo.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_prestamo.collidepoint(evento.pos):
+                print("Cambiando a la escena de pedir préstamo...")
+                return "prestamo"
+
+    return "facturar"
+
+def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_impuestos):
+    global dinero, felicidad, experiencia
+    input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
+    color_inactivo = pygame.Color('lightskyblue3')
+    color_activo = pygame.Color('dodgerblue2')
+
+    texto_usuario = caja_texto_estado['texto']
+    activo = caja_texto_estado['activo']
+    color = color_activo if activo else color_inactivo
+
+    boton_volver = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+
+    for evento in eventos:
+        if evento.type == pygame.QUIT:
+            return "salir"
+
+        if evento.type == pygame.MOUSEBUTTONDOWN:
+            if boton_volver.collidepoint(evento.pos):
+                return "menu"
+            activo = input_box.collidepoint(evento.pos)
+
+        if activo and evento.type == pygame.KEYDOWN:
+            if evento.key == pygame.K_RETURN:
+                print(f"Respuesta enviada: {texto_usuario}")
+                datos_impuestos['porcentaje'] = texto_usuario
+                texto_usuario = ""
+                impuestoapagar = poblacion * dineroporhabitante * (int(datos_impuestos['porcentaje']) / 100)
+                print(f"Has cobrado {impuestoapagar} en impuestos.")
+                dinero += int(impuestoapagar)
+                felicidad -= 10
+                experiencia += 15
+                activo = False
+                return "mapainicial"
+            elif evento.key == pygame.K_BACKSPACE:
+                texto_usuario = texto_usuario[:-1]
+            else:
+                texto_usuario += evento.unicode
+
+    caja_texto_estado['texto'] = texto_usuario
+    caja_texto_estado['activo'] = activo
+
+    pantalla.fill((220, 220, 255))
+    porcentaje = datos_impuestos.get('porcentaje', '0')
+    texto_pregunta_surf = fuente_titulo.render("¿Qué % de impuestos quieres cobrar a los ciudadanos?", True, (0, 0, 0))
+    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
+    pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+
+    texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
+    input_box.w = max(400, texto_surf.get_width() + 20)
+    pygame.draw.rect(pantalla, color, input_box, 2)
+    pantalla.blit(texto_surf, (input_box.x + 10, input_box.y + 10))
+
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_volver)
+    texto_surf_boton = fuente_normal.render("Volver al Menú", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    return "impuestos"
 
 # --- FUNCIÓN PRINCIPAL (main) ---
 def main():
@@ -716,6 +956,7 @@ def main():
     # Estado caja de texto y datos jugador
     estado_caja_texto = {"texto": "", "activo": False}
     datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
+    datos_impuestos = {"porcentaje": ""}
 
     # NUEVO: tipo de edificio seleccionado para colocar
     edificio_a_colocar = None
@@ -748,14 +989,18 @@ def main():
             estado_del_juego = infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "productos":
             estado_del_juego = productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-
+        elif estado_del_juego == "facturar":
+            estado_del_juego = facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador)
+        elif estado_del_juego == "impuestos":
+            estado_del_juego = impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
+        elif estado_del_juego == "productos2":
+            estado_del_juego = productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "construccion":
             resultado = construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
             if isinstance(resultado, tuple):
                 estado_del_juego, edificio_a_colocar = resultado  # p.ej. ("colocando_edificio", "casa")
             else:
                 estado_del_juego = resultado
-
         elif estado_del_juego == "colocando_edificio":
             if not edificio_a_colocar:
                 estado_del_juego = "construccion"
