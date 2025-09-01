@@ -77,12 +77,13 @@ def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
                 print("Cambiando a la escena del juego...")
                 return "jugando"
 
-    pantalla.fill((220, 220, 255))  # Fondo lila claro
-    titulo(pantalla, fuente_titulo, 10, 10)
-    persona(pantalla, fuente_titulo, 600, 200)
-    bipo(pantalla, fuente_titulo, 290, 200)
-    daemon(pantalla, fuente_titulo, 30, 200)
-    flecha(pantalla, fuente_titulo, 880, 230)
+    pantalla.fill((220, 220, 255))  # Fondo lila claro    
+    try:
+        player_image = pygame.image.load('PIXELTOWN_portada.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (1200, 600))
+        pantalla.blit(player_image_scaled, (0, 0))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
 
     # --- Dibujo del botón JUGAR ---
     pos_raton = pygame.mouse.get_pos()
@@ -111,7 +112,12 @@ def escena_juego(pantalla, fuente_boton, eventos, fuente_titulo):
                 return "preguntando"
 
     pantalla.fill((200, 255, 200))  # Fondo verde claro
-    bipobienvenida(pantalla, fuente_titulo, 380, 10)
+    try:
+        player_image = pygame.image.load('BIENVENIDO.png').convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (400, 400))
+        pantalla.blit(player_image_scaled, (400, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
 
     pos_raton = pygame.mouse.get_pos()
     color_volver = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
