@@ -1,19 +1,17 @@
 # PIXELTOWN - ARCHIVO PRINCIPAL DEL Juego
-# Este archivo contiene el bucle principal y la lógica para ejecutar el juego.
 
 # --- IMPORTACIÓN DE LIBRERÍAS Y MÓDULOS ---
 import os
 import pygame
 import time
 import sys
-from moviepy import VideoFileClip  # <- corregido
+from moviepy import VideoFileClip  # Querido jugador, buena suerte con importar esta librería de mierda
 from ciudad import Ciudad
 from personaje import bipo, daemon, persona, flecha, bipobienvenida
 from texto import titulo, informaciontexto1, informaciontexto2
 from bloquegrafico import rio, edificio1
 
 # --- CONFIGURACIÓN DE RUTAS ---
-# BASE_DIR será la carpeta principal del proyecto (padre de la carpeta 'code')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMAGENES = os.path.join(BASE_DIR, "imagenes")
 DIR_AUDIOS = os.path.join(BASE_DIR, "audios")
@@ -32,11 +30,17 @@ def escena_intro(pantalla, reloj):  # Necesitamos el reloj para controlar la vel
     try:
         ruta_video = os.path.join(DIR_VISUAL, 'intro.mp4')
         clip = VideoFileClip(ruta_video)
+        if clip.audio is not None:
+            temp_audio = "temp_intro_audio.mp3"
+            clip.audio.write_audiofile(temp_audio, logger=None)
+            pygame.mixer.music.load(temp_audio)
+            pygame.mixer.music.play()
         # Iteramos sobre cada fotograma del vídeo
         for frame in clip.iter_frames(fps=clip.fps, dtype='uint8'):
             # Manejo de eventos DENTRO del bucle
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
+                    pygame.mixer.music.stop()
                     clip.close()  # Cierra el archivo de video
                     return "salir"
 
