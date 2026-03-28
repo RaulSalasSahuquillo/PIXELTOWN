@@ -119,8 +119,6 @@ Resolución por defecto: **1200 × 600**. FPS del loop: **60**.
  └── venderedificio.png
 ```
 
-> **Sugerencia:** evita tildes/espacios en los nombres de archivo (por ejemplo, usa `lovyc_champu.png` en vez de `lovyc_champú.png`) y actualiza las rutas en el código si cambias la organización (por ejemplo, `assets/img/Casa.png`).
-
 ---
 
 ## 🔊/🎞️ Assets y licencias
