@@ -310,13 +310,16 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
     mostrar_texto(pantalla, fuente_normal, f"Dinero: {dinero}", 10, 90)
     mostrar_texto(pantalla, fuente_normal, f"Población: {poblacion}", 10, 130)
     mostrar_texto(pantalla, fuente_normal, f"Felicidad: {felicidad}%", 10, 170)
-    mostrar_texto(pantalla, fuente_normal, f"Edificios: {len(edificios)}", 10, 210)
+    mostrar_texto(pantalla, fuente_normal, f"Construcciones: {len(edificios)}", 10, 210)
     mostrar_texto(pantalla, fuente_normal, f"Experiencia: {experiencia}", 10, 250)
 
     try:
         casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
         supermercado_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha(), (64, 64))
         tarraco_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'tarraco.png')).convert_alpha(), (64, 64))
+        farola_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'farola.png')).convert_alpha(), (64, 64))
+        mytown_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'AdornoMYTOWNMYRULES.png')).convert_alpha(), (64, 64))
+        arbusto_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha(), (64, 64))
     except pygame.error as e:
         print(f"Error al cargar imágenes de edificios: {e}")
         return "menu"  # Salir al menú si no se encuentran las imágenes
@@ -325,7 +328,10 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
     imagenes_edificios = {
         "casa": casa_img,
         "supermercado": supermercado_img,
-        "tarraco": tarraco_img
+        "tarraco": tarraco_img,
+        "farola": farola_img,
+        "my_town_my_rules": mytown_img,
+        "arbusto": arbusto_img
     }
 
     # Dibujado de edificios existentes (usando tipo y pos correctos)
@@ -506,6 +512,63 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
     return "tienda"
 
+def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+    pantalla.fill((255, 255, 255))  # Fondo blanco
+
+    # Botón MYTOWNMYRULES
+    boton_mytownmyrules = pygame.Rect(410, 350, 250, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_mytownmyrules.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_mytownmyrules)
+    texto_surf_boton = fuente_normal.render("My Town My Rules", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_mytownmyrules.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP and boton_mytownmyrules.collidepoint(evento.pos):
+            return "colocando_edificio", "my_town_my_rules"
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'AdornoMYTOWNMYRULES.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (400, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen 'AdornoMYTOWNMYRULES.png': {e}")
+
+
+    boton_farola = pygame.Rect(10, 350, 250, 50)
+    color_boton = (200, 200, 100) if boton_farola.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_farola)
+    texto_surf_boton = fuente_normal.render("Farola", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_farola.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP and boton_farola.collidepoint(evento.pos):
+            return "colocando_edificio", "farola"
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'farola.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (30, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen 'farola.png': {e}")
+
+    # Arbusto
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (770, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen 'arbusto.png': {e}")
+
+    boton_arbusto = pygame.Rect(810, 350, 250, 50)
+    color_boton = (200, 200, 100) if boton_arbusto.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_arbusto)
+    texto_surf_boton = fuente_normal.render("Arbusto", True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_arbusto.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP and boton_arbusto.collidepoint(evento.pos):
+            return "colocando_edificio", "arbusto"
+
+    return "adorno"
 
 def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pantalla.fill((255, 255, 255))  # Fondo blanco
@@ -759,7 +822,10 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     config_edificios = {
         "casa": {"imagen": os.path.join(DIR_IMAGENES, "Casa.png"), "costo": 500, "experiencia": 100},
         "supermercado": {"imagen": os.path.join(DIR_IMAGENES, "supermercado.png"), "costo": 1500, "experiencia": 300},
-        "tarraco": {"imagen": os.path.join(DIR_IMAGENES, "tarraco.png"), "costo": 10000, "experiencia": 900}
+        "tarraco": {"imagen": os.path.join(DIR_IMAGENES, "tarraco.png"), "costo": 10000, "experiencia": 900},
+        "farola": {"imagen": os.path.join(DIR_IMAGENES, "farola.png"), "costo": 100, "experiencia": 25},
+        "my_town_my_rules": {"imagen": os.path.join(DIR_IMAGENES, "AdornoMYTOWNMYRULES.png"), "costo": 250, "experiencia": 100},
+        "arbusto": {"imagen":os.path.join(DIR_IMAGENES, "arbusto.png"), "costo": 50, "experiencia": 10}
     }
 
     if tipo_edificio not in config_edificios:
@@ -788,11 +854,21 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
         casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
         supermercado_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha(), (64, 64))
         tarraco_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'tarraco.png')).convert_alpha(), (64, 64))
+        farola_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'farola.png')).convert_alpha(), (64, 64))
+        mytown_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'AdornoMYTOWNMYRULES.png')).convert_alpha(), (64, 64))
+        arbusto_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha(), (64, 64))
     except pygame.error as e:
         print(f"Error cargando imágenes de edificios: {e}")
         return "construccion"
 
-    imagenes_edificios = {"casa": casa_img, "supermercado": supermercado_img, "tarraco": tarraco_img}
+    imagenes_edificios = {
+        "casa": casa_img, 
+        "supermercado": supermercado_img, 
+        "tarraco": tarraco_img,
+        "farola": farola_img,
+        "my_town_my_rules": mytown_img,
+        "arbusto": arbusto_img
+        }
 
     for ed in edificios:
         if ed["tipo"] in imagenes_edificios:
@@ -975,7 +1051,7 @@ def main():
     datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
     datos_impuestos = {"porcentaje": ""}
 
-    # NUEVO: tipo de edificio seleccionado para colocar
+    # tipo de edificio seleccionado para colocar
     edificio_a_colocar = None
 
     # --- BUCLE PRINCIPAL DEL JUEGO ---
@@ -1012,6 +1088,12 @@ def main():
             estado_del_juego = impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
         elif estado_del_juego == "productos2":
             estado_del_juego = productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
+        elif estado_del_juego == "adorno":
+            resultado = adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
+            if isinstance(resultado, tuple):
+                estado_del_juego, edificio_a_colocar = resultado
+            else:
+                estado_del_juego = resultado
         elif estado_del_juego == "construccion":
             resultado = construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
             if isinstance(resultado, tuple):
