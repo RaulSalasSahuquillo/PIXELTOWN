@@ -1,17 +1,17 @@
-# PIXELTOWN - ARCHIVO PRINCIPAL DEL Juego
+# PIXELTOWN - © ENEI PROJECT
 
-# --- IMPORTACIÓN DE LIBRERÍAS Y MÓDULOS ---
+# IMPORTACIÓN DE LIBRERÍAS Y MÓDULOS
 import os
 import pygame
 import time
 import sys
-from moviepy import VideoFileClip  # Querido jugador, buena suerte con importar esta librería de mierda
+from moviepy import VideoFileClip  # Querido programador, buena suerte con importar esta librería de mierda
 from ciudad import Ciudad
 from personaje import bipo, daemon, persona, flecha, bipobienvenida
 from texto import titulo, informaciontexto1, informaciontexto2
 from bloquegrafico import rio, edificio1
 
-# --- CONFIGURACIÓN DE RUTAS ---
+# CONFIGURACIÓN DE RUTAS
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMAGENES = os.path.join(BASE_DIR, "imagenes")
 DIR_AUDIOS = os.path.join(BASE_DIR, "audios")
@@ -334,7 +334,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         "arbusto": arbusto_img
     }
 
-    # Dibujado de edificios existentes (usando tipo y pos correctos)
+    # Dibujado de edificios existentes
     for edificio in edificios:
         tipo = edificio["tipo"]
         pos = edificio["pos"]
@@ -1054,7 +1054,7 @@ def main():
     # tipo de edificio seleccionado para colocar
     edificio_a_colocar = None
 
-    # --- BUCLE PRINCIPAL DEL JUEGO ---
+    # BUCLE PRINCIPAL DEL JUEGO
     while estado_del_juego != "salir":
         eventos = pygame.event.get()
 
@@ -1110,11 +1110,11 @@ def main():
 
         pygame.display.flip()
         reloj.tick(60)
-
+ 
     pygame.quit()
     sys.exit()
 
 
-# --- PUNTO DE ENTRADA DEL SCRIPT ---
+# PUNTO DE ENTRADA DEL SCRIPT
 if __name__ == '__main__':
     main()

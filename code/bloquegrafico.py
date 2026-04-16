@@ -17,7 +17,7 @@ def rio(pantalla, fuente, pos_x, pos_y):
     ]
 
     NEGRO = (0, 0, 0)
-    lineas = arte_ascii  # ← ¡Cambio aquí!
+    lineas = arte_ascii 
     pos_y_actual = pos_y
     line_height = fuente.get_height()
 
@@ -28,6 +28,7 @@ def rio(pantalla, fuente, pos_x, pos_y):
     
 def edificio1():
     print(r"""
+       ^
       / \
      / _ \
     / | | \
