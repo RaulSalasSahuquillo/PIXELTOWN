@@ -1,65 +1,79 @@
-# PIXELTOWN - © ENEI PROJECT
+"""
+PIXELTOWN - This is the main file, where all the actions of the game happen. Its purpose is to get shorter and divide it into multiple programs.
+Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
 
-# IMPORTACIÓN DE LIBRERÍAS Y MÓDULOS
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
+# IMPORTING LIBRARIES AND MODULES
 import os
 import pygame
 import time
 import sys
-from moviepy import VideoFileClip  # Querido programador, buena suerte con importar esta librería de mierda
-from ciudad import Ciudad
-from personaje import bipo, daemon, persona, flecha, bipobienvenida
-from texto import titulo, informaciontexto1, informaciontexto2
-from bloquegrafico import rio, edificio1
+from moviepy import VideoFileClip  # Dear programmer, good luck importing this trash library. Honestly, it took me hours, and I still have problems.
+from characters import bipo, daemon, persona, flecha, bipobienvenida
+from text import titulo, informaciontexto1, informaciontexto2
 
-# CONFIGURACIÓN DE RUTAS
+# PATH CONFIGURATION (Don't mess with these!)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMAGENES = os.path.join(BASE_DIR, "imagenes")
 DIR_AUDIOS = os.path.join(BASE_DIR, "audios")
 DIR_VISUAL = os.path.join(BASE_DIR, "visual")
 
-dinero = 10000  # Dinero inicial
-poblacion = 10  # Población inicial
-edificios = []  # Lista de dicts: {"tipo": str, "pos": (x, y)}
-felicidad = 50  # Felicidad inicial
-experiencia = 0  # Experiencia inicial
-dineroporhabitante = 1000 # Cada habitante aporta 1000 de dinero
+dinero = 10000  # Initial money (Don't spend it all in one place!)
+poblacion = 10  # Initial population (Small, but it will grow)
+edificios = []  # List of dicts: {"tipo": str, "pos": (x, y)}
+felicidad = 50  # Initial happiness (We really need to cheer them up)
+experiencia = 0  # Initial experience
+dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
 
-# --- DEFINICIÓN DE ESCENAS ---
 
-def escena_intro(pantalla, reloj):  # Necesitamos el reloj para controlar la velocidad
+# SCENE DEFINITION
+def escena_intro(pantalla, reloj):  # We need the clock to control the speed 
     try:
         ruta_video = os.path.join(DIR_VISUAL, 'intro.mp4')
         clip = VideoFileClip(ruta_video)
         if clip.audio is not None:
-            temp_audio = "temp_intro_audio.mp3"
+            temp_audio = "temp_intro_audio.mp3" # I create the audio file of the video so that moviepy doesn't reproduce the video without the sound
             clip.audio.write_audiofile(temp_audio, logger=None)
             pygame.mixer.music.load(temp_audio)
             pygame.mixer.music.play()
-        # Iteramos sobre cada fotograma del vídeo
+        # We iterate over each frame of the video
         for frame in clip.iter_frames(fps=clip.fps, dtype='uint8'):
-            # Manejo de eventos DENTRO del bucle
+            # Event handling INSIDE the loop
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
                     pygame.mixer.music.stop()
-                    clip.close()  # Cierra el archivo de video
+                    clip.close()  # Close the video file
                     return "salir"
 
-            # Convierte el fotograma (de numpy a surface de Pygame)
+            # Convert the frame (from numpy to Pygame surface)
             frame_surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
 
-            # Redimensiona el fotograma al tamaño de tu pantalla
+            # Resize the frame to match the screen size
             frame_scaled = pygame.transform.scale(frame_surface, pantalla.get_size())
 
-            # Dibuja el fotograma en la pantalla principal
+            # Draw the frame on the main screen
             pantalla.blit(frame_scaled, (0, 0))
 
-            # Actualiza la pantalla para mostrar el fotograma
+            # Update the screen to show the frame
             pygame.display.flip()
 
-            # Controla la velocidad para que coincida con los FPS del vídeo
+            # Control the speed to match the video's FPS
             reloj.tick(clip.fps)
 
-        clip.close()  # Cierra el archivo de video cuando termine
+        clip.close()  # Close the video file when it finishes 
 
     except FileNotFoundError:
         print("Error: No se encontró el archivo de video 'intro.mp4' en la carpeta visual. Saltando intro.")
@@ -73,7 +87,7 @@ def escena_intro(pantalla, reloj):  # Necesitamos el reloj para controlar la vel
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
 
-    # Cuando el video termina (o falla), pasamos al menú
+    # When the video finishes (or fails, fingers crossed it doesn't), we move to the menu
     return "menu"
 
 
@@ -88,7 +102,7 @@ def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
                 print("Cambiando a la escena del juego...")
                 return "jugando"
 
-    pantalla.fill((220, 220, 255))  # Fondo lila claro    
+    pantalla.fill((220, 220, 255))  # Light lilac background (Soothing, right? It took me hours to find the perfect colour. Thank me later!)    
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'PIXELTOWN_portada.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (1200, 600))
@@ -96,7 +110,7 @@ def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
-    # --- Dibujo del botón JUGAR ---
+    # Drawing the PLAY button
     pos_raton = pygame.mouse.get_pos()
     color_boton = (100, 180, 255) if boton_jugar.collidepoint(pos_raton) else (0, 128, 255)
     pygame.draw.rect(pantalla, color_boton, boton_jugar)
@@ -122,7 +136,7 @@ def escena_juego(pantalla, fuente_boton, eventos, fuente_titulo):
                 print("Continuando a la escena de pregunta...")
                 return "preguntando"
 
-    pantalla.fill((200, 255, 200))  # Fondo verde claro
+    pantalla.fill((200, 255, 200))  # Light green background
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'BIENVENIDO.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (400, 400))
@@ -262,7 +276,7 @@ def pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado
 
 def cargamapa(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pygame.mixer.music.stop()
-    pantalla.fill((220, 220, 255))  # Fondo lila claro
+    pantalla.fill((220, 220, 255))  # Light lilac background (Soothing, right?)
 
     boton_vermapa = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
 
@@ -293,7 +307,7 @@ def mostrar_texto(pantalla, fuente, texto, x, y, color=(0, 0, 0)):
 
 
 def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     boton_acciones = pygame.Rect(900, 500, 250, 50)
     pos_raton = pygame.mouse.get_pos()
 
@@ -322,9 +336,9 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         arbusto_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha(), (64, 64))
     except pygame.error as e:
         print(f"Error al cargar imágenes de edificios: {e}")
-        return "menu"  # Salir al menú si no se encuentran las imágenes
+        return "menu"  # Exit to menu if images are not found (I hope you didn't delete them!)
 
-    # Diccionario de imágenes
+    # Image dictionary
     imagenes_edificios = {
         "casa": casa_img,
         "supermercado": supermercado_img,
@@ -334,7 +348,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         "arbusto": arbusto_img
     }
 
-    # Dibujado de edificios existentes
+    # Draw existing buildings (The real estate)
     for edificio in edificios:
         tipo = edificio["tipo"]
         pos = edificio["pos"]
@@ -382,10 +396,10 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
 
 
 def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     mostrar_texto(pantalla, fuente_titulo, "Acciones", 10, 10)
 
-    # COMPRAR
+    # BUY (Time to spend)
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tienda.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -405,7 +419,7 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                 print("Cambiando a la escena de tienda...")
                 return "tienda"
 
-    # VENDER
+    # SELL
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'ganar_dinero.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -424,7 +438,7 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                 print("Cambiando a la escena facturar...")
                 return "facturar"
 
-    # INFORMACIÓN
+    # INFORMATION
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'info.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -451,8 +465,8 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     return "acciones"
 
 def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
-    # CONSTRUCCIÓN
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    # CONSTRUCTION (Bob the builder vibes)
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'construccion.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -472,7 +486,7 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                 print("Cambiando a la escena de construcción...")
                 return "construccion"
 
-    # PRODUCTOS
+    # PRODUCTS
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'productos.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -491,7 +505,7 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                 print("Cambiando a la escena de productos...")
                 return "productos"
 
-    # ADORNOS
+    # DECORATIONS (Make it pretty)
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'adorno.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -513,9 +527,9 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     return "tienda"
 
 def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
 
-    # Botón MYTOWNMYRULES
+    # MYTOWNMYRULES button
     boton_mytownmyrules = pygame.Rect(410, 350, 250, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_mytownmyrules.collidepoint(pos_raton) else (200, 200, 50)
@@ -550,7 +564,7 @@ def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     except pygame.error as e:
         print(f"No se pudo cargar la imagen 'farola.png': {e}")
 
-    # Arbusto
+    # Bush
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -571,7 +585,7 @@ def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     return "adorno"
 
 def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     informaciontexto1(pantalla, fuente_titulo, 10, 10)
 
     boton_siguiente = pygame.Rect(900, 500, 250, 50)
@@ -603,7 +617,7 @@ def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
 
 def infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     informaciontexto2(pantalla, fuente_titulo, 10, 10)
     for evento in eventos:
         if evento.type == pygame.QUIT:
@@ -614,8 +628,8 @@ def infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     global dinero, felicidad, experiencia
     
-    # JABÓN DE MANOS
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    # HAND SOAP (Clean hands are happy hands)
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     boton_comprar = pygame.Rect(100, 390, 310, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
@@ -644,7 +658,7 @@ def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
         print("Error cargando imagen")
         pass
 
-    # IMAGEN MASCARILLA
+    # FACE MASK IMAGE
     boton_mascarilla = pygame.Rect(700, 390, 310, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_mascarilla.collidepoint(pos_raton) else (200, 200, 50)
@@ -690,7 +704,7 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     global dinero, felicidad, experiencia
     pantalla.fill((255, 255, 255))
     
-    # IMAGEN CHAMPÚ
+    # SHAMPOO IMAGE
     boton_champu = pygame.Rect(700, 390, 310, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_champu.collidepoint(pos_raton) else (200, 200, 50)
@@ -718,7 +732,7 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     except pygame.error:
         pass
 
-    # IMAGEN TOALLITAS
+    # WIPES IMAGE
     boton_comprar = pygame.Rect(100, 390, 310, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
@@ -755,9 +769,9 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
 
 def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # Fondo blanco
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
 
-    # Botón casa
+    # House button
     boton_casasimple = pygame.Rect(10, 350, 250, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_casasimple.collidepoint(pos_raton) else (200, 200, 50)
@@ -769,7 +783,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
         if evento.type == pygame.MOUSEBUTTONUP and boton_casasimple.collidepoint(evento.pos):
             return "colocando_edificio", "casa"
 
-    # Imagen y botón supermercado
+    # Image and button for supermarket
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -787,7 +801,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
         if evento.type == pygame.MOUSEBUTTONUP and boton_store.collidepoint(evento.pos):
             return "colocando_edificio", "supermercado"
 
-    # Imagen casa (decorativa)
+    # House image (decorative)
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -795,7 +809,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     except pygame.error as e:
         print(f"No se pudo cargar la imagen 'Casa.png': {e}")
 
-    # Tarraco Import Export
+    # Tarraco Import Export 
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tarraco.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -837,7 +851,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     costo = config["costo"]
     recompensa_exp = config["experiencia"]
 
-    # fondo/mapa
+    # background/map
     pantalla.fill((255, 255, 255))
     try:
         rio_img = pygame.image.load(os.path.join(DIR_IMAGENES, 'rio.png')).convert_alpha()
@@ -849,7 +863,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     mostrar_texto(pantalla, fuente_normal, f"Edificios: {len(edificios)}", 10, 40)
     mostrar_texto(pantalla, fuente_normal, f"Experiencia: {experiencia}", 10, 70)
 
-    # cargar sprites
+    # load sprites
     try:
         casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
         supermercado_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha(), (64, 64))
@@ -874,7 +888,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
         if ed["tipo"] in imagenes_edificios:
             pantalla.blit(imagenes_edificios[ed["tipo"]], ed["pos"])
 
-    # fantasma
+    # ghost preview 
     pos_raton = pygame.mouse.get_pos()
     try:
         ghost = pygame.transform.scale(pygame.image.load(ruta_imagen).convert_alpha(), (64, 64))
@@ -910,8 +924,8 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
 
 def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
     global dinero, experiencia, felicidad, poblacion
-    pantalla.fill((255, 255, 255))  # Fondo blanco
-    # COBRAR IMPUESTOS
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    # COLLECT TAXES
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'impuestos.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -931,7 +945,7 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
                 print("Cambiando a la escena de cobrar impuestos...")
                 return "impuestos"
 
-    # VENDER
+    # SELL
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'venderedificio.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -950,7 +964,7 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
                 print("Cambiando a la escena de vender edificio...")
                 return "vender_edificio"
 
-    # PEDIR PRÉSTAMO
+    # ASK FOR A LOAN (Please don't go bankrupt)
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'prestamo.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
@@ -1031,30 +1045,30 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     return "impuestos"
 
-# --- FUNCIÓN PRINCIPAL (main) ---
+# MAIN FUNCTION (The boss)
 def main():
     pygame.init()
     pantalla = pygame.display.set_mode((1200, 600))
     pygame.display.set_caption("PIXELTOWN")
     reloj = pygame.time.Clock()
 
-    # --- Fuentes ---
+    # Fonts
     fuente_boton = pygame.font.Font(None, 35)
     fuente_titulo = pygame.font.SysFont('monospace', 25, bold=True)
     fuente_normal = pygame.font.Font(None, 32)
 
-    # --- Variables de estado ---
+    # State variables (Keeping track of everything)
     estado_del_juego = "intro"
 
-    # Estado caja de texto y datos jugador
+    # Text box state and player data
     estado_caja_texto = {"texto": "", "activo": False}
     datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
     datos_impuestos = {"porcentaje": ""}
 
-    # tipo de edificio seleccionado para colocar
+    # Selected building type to place
     edificio_a_colocar = None
 
-    # BUCLE PRINCIPAL DEL JUEGO
+    # MAIN GAME LOOP
     while estado_del_juego != "salir":
         eventos = pygame.event.get()
 
@@ -1097,7 +1111,7 @@ def main():
         elif estado_del_juego == "construccion":
             resultado = construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
             if isinstance(resultado, tuple):
-                estado_del_juego, edificio_a_colocar = resultado  # p.ej. ("colocando_edificio", "casa")
+                estado_del_juego, edificio_a_colocar = resultado  # e.g. ("colocando_edificio", "casa")
             else:
                 estado_del_juego = resultado
         elif estado_del_juego == "colocando_edificio":
@@ -1115,6 +1129,14 @@ def main():
     sys.exit()
 
 
-# PUNTO DE ENTRADA DEL SCRIPT
+# SCRIPT ENTRY POINT
 if __name__ == '__main__':
+    print("""
+██████╗ ██╗██╗  ██╗███████╗██╗  ████████╗ ██████╗ ██╗    ██╗███╗   ██╗
+██╔══██╗██║╚██╗██╔╝██╔════╝██║  ╚══██╔══╝██╔═══██╗██║    ██║████╗  ██║
+██████╔╝██║ ╚███╔╝ █████╗  ██║     ██║   ██║   ██║██║ █╗ ██║██╔██╗ ██║
+██╔═══╝ ██║ ██╔██╗ ██╔══╝  ██║     ██║   ██║   ██║██║███╗██║██║╚██╗██║
+██║     ██║██╔╝ ██╗███████╗███████╗██║   ╚██████╔╝╚███╔███╔╝██║ ╚████║
+╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝    ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝
+""")
     main()
