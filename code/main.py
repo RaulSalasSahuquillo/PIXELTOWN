@@ -28,7 +28,7 @@ from text import titulo, informaciontexto1, informaciontexto2
 # PATH CONFIGURATION (Don't mess with these!)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMAGENES = os.path.join(BASE_DIR, "imagenes")
-DIR_AUDIOS = os.path.join(BASE_DIR, "audios")
+DIR_PIXELTOWN_OST = os.path.join(BASE_DIR, "PIXELTOWN_OST")
 DIR_VISUAL = os.path.join(BASE_DIR, "visual")
 
 dinero = 10000  # Initial money (Don't spend it all in one place!)
@@ -37,6 +37,7 @@ edificios = []  # List of dicts: {"tipo": str, "pos": (x, y)}
 felicidad = 50  # Initial happiness (We really need to cheer them up)
 experiencia = 0  # Initial experience
 dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
+tiempo = 1 # Time in days
 
 
 # SCENE DEFINITION
@@ -82,7 +83,7 @@ def escena_intro(pantalla, reloj):  # We need the clock to control the speed
 
     try:
         time.sleep(7)
-        pygame.mixer.music.load(os.path.join(DIR_AUDIOS, "anewbegining.mp3"))
+        pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "anewbegining.mp3"))
         pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
@@ -370,7 +371,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         print("¡Ha empezado un golpe de estado!")
         try:
             if not pygame.mixer.music.get_busy():
-                pygame.mixer.music.load(os.path.join(DIR_AUDIOS, "efectodestruccion.mp3"))
+                pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "efectodestruccion.mp3"))
                 pygame.mixer.music.play()
         except pygame.error as e:
             print(f"No se pudo cargar el archivo de música: {e}")
@@ -388,7 +389,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
 
     try:
         if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load(os.path.join(DIR_AUDIOS, "Aldea_soundtrack.mp3"))
+            pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "Aldea_soundtrack.mp3"))
             pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
@@ -427,7 +428,7 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     boton_ganar_dinero = pygame.Rect(460, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_ganar_dinero.collidepoint(pos_raton) else (200, 200, 50)
+    color_boton = (200, 200, 100) if boton_ganar_dinero.collidepoint(pos_raton) else (200, 50, 50) # R, G, B
     pygame.draw.rect(pantalla, color_boton, boton_ganar_dinero)
     texto_surf_boton = fuente_normal.render("Facturar", True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_ganar_dinero.center)
@@ -581,7 +582,6 @@ def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     for evento in eventos:
         if evento.type == pygame.MOUSEBUTTONUP and boton_arbusto.collidepoint(evento.pos):
             return "colocando_edificio", "arbusto"
-
     return "adorno"
 
 def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
@@ -764,9 +764,6 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
         if evento.type == pygame.QUIT:
             return "salir"
     return "productos2"
-
-
-
 
 def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
