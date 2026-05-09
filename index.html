@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXELTOWN</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        :root {
+            --bg-color: #dcdcff;
+            --text-color: #000;
+            --box-bg: #fff;
+            --btn-blue: #0080ff;
+            --btn-blue-hover: #64b4ff;
+            --btn-red: #c83232;
+            --btn-red-hover: #ff6464;
+            --pixel-border: 4px solid #000;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background-color: #c8ffc8;
+            border: var(--pixel-border);
+            box-shadow: 8px 8px 0px rgba(0,0,0,1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin: 0 0 10px 0;
+            color: var(--btn-blue);
+            text-shadow: 4px 4px 0px #000;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            border-bottom: 4px dashed #000;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 0.9rem;
+        }
+
+        .pixel-box {
+            background-color: var(--box-bg);
+            border: var(--pixel-border);
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 8px 8px 0px rgba(0,0,0,1);
+            position: relative;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        ul li {
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 35px;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        ul li::before {
+            content: "►";
+            position: absolute;
+            left: 0;
+            color: var(--btn-red);
+        }
+
+        .code-block {
+            background-color: #000;
+            color: #0f0;
+            padding: 20px;
+            border: var(--pixel-border);
+            overflow-x: auto;
+            font-size: 0.8rem;
+            margin: 20px 0;
+            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--btn-blue);
+            color: #fff;
+            padding: 15px 20px;
+            text-decoration: none;
+            border: var(--pixel-border);
+            box-shadow: 4px 4px 0px #000;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.1s;
+            margin: 5px;
+        }
+
+        .btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 0px 0px 0px #000;
+        }
+
+        .btn:hover {
+            background-color: var(--btn-blue-hover);
+        }
+
+        .btn-red {
+            background-color: var(--btn-red);
+        }
+
+        .btn-red:hover {
+            background-color: var(--btn-red-hover);
+        }
+
+        .minigame {
+            background-color: #ffeb3b;
+            text-align: center;
+        }
+
+        .status-bar {
+            width: 100%;
+            height: 35px;
+            background-color: #000;
+            border: 4px solid #000;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .status-fill {
+            height: 100%;
+            background-color: #0f0;
+            width: 50%;
+            transition: width 0.3s;
+        }
+
+        .action-log-container {
+            background: #000;
+            color: #fff;
+            padding: 10px;
+            margin-top: 20px;
+            border: 2px solid #fff;
+        }
+
+        #action-log {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-bottom: 20px;
+            font-size: 0.7rem;
+            color: #555;
+        }
+
+        .emoji-art {
+            margin: 10px 0;
+        }
+
+        .pixel-icon {
+            height: 1.2em;
+            vertical-align: middle;
+            image-rendering: pixelated;
+            display: inline-block;
+        }
+
+        .highlight {
+            color: var(--btn-red);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 8px 8px 0px rgba(0,0,0,1); }
+            50% { transform: scale(1.02); box-shadow: 12px 12px 0px rgba(0,0,0,1); }
+            100% { transform: scale(1); box-shadow: 8px 8px 0px rgba(0,0,0,1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .floating {
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .contribute-box {
+            background-color: #ffcc00;
+            animation: pulse 2s infinite;
+            text-align: center;
+        }
+
+        .contribute-box h2 {
+            color: #d32f2f;
+            border-bottom: 4px dashed #d32f2f;
+            margin-top: 0;
+        }
+
+        .btn-github {
+            background-color: #333;
+            font-size: 1rem;
+            padding: 20px 30px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .btn-github:hover {
+            background-color: #555;
+            animation: shake 0.5s;
+            animation-iteration-count: infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="emoji-art">
+                <img src="imagenes/AdornoMYTOWNMYRULES.png" style="height: 60px; image-rendering: pixelated;" alt="clouds">
+            </div>
+            <h1>PIXELTOWN</h1>
+            <p>A 2D City-Building Simulation Game</p>
+            <div class="emoji-art">
+                <img src="imagenes/Casa.png" style="height: 50px; image-rendering: pixelated;" alt="house">
+                <img src="imagenes/supermercado.png" style="height: 50px; image-rendering: pixelated;" alt="supermarket">
+                <img src="imagenes/arbusto.png" style="height: 50px; image-rendering: pixelated;" alt="bush">
+                <img src="imagenes/farola.png" style="height: 50px; image-rendering: pixelated;" alt="streetlight">
+            </div>
+        </header>
+
+        <section class="pixel-box contribute-box">
+            <h2>WE NEED DEVELOPERS! <img src="imagenes/construccion.png" class="pixel-icon" alt="tools"></h2>
+            <p><strong>PIXELTOWN</strong> is an open-source project and we are actively looking for contributors! Do you want to build new buildings, tweak the economy, or fix bugs?</p>
+            <p>Join our team and help us make the best 2D city-builder in Python!</p>
+            <a href="https://github.com/RaulSalasSahuquillo/PIXELTOWN" target="_blank" class="btn btn-github">
+                ► CONTRIBUTE ON GITHUB
+            </a>
+        </section>
+
+        <section class="pixel-box">
+            <h2>Welcome, Mayor! <img src="imagenes/BIENVENIDO.png" class="pixel-icon" alt="hat"></h2>
+            <p>Welcome to <strong>PIXELTOWN</strong>! You are the newly appointed leader. Your job is to build the best city possible, manage resources, construct buildings, and keep your citizens happy.</p>
+            <p>Beware—if their happiness drops below 10%, a <span class="highlight">coup d'état</span> might destroy everything you've built!</p>
+        </section>
+
+        <section class="pixel-box">
+            <h2>PIXELTOWN YOUTUBE</h2>
+            <div style="text-align: center; margin-top: 20px;">
+                <iframe width="100%" height="400" src="https://www.youtube.com/embed/fiXHECX0t3A" title="PIXELTOWN: The Invitation — Build PIXELTOWN With Us | ENEI PROJECT" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="border: var(--pixel-border); box-shadow: 4px 4px 0px #000; max-width: 100%;"></iframe>
+            </div>
+        </section>
+
+        <section class="pixel-box">
+            <h2>Features <img src="imagenes/adorno.png" class="pixel-icon" alt="sparkles"></h2>
+            <ul>
+                <li><strong>Build Your Town:</strong> Construct simple houses, supermarkets, streetlights, and decorations like the "My Town My Rules" monument.</li>
+                <li><strong>Manage Economy:</strong> Earn money from your inhabitants and spend it wisely in the town shop.</li>
+                <li><strong>Keep People Happy:</strong> Buy Lov'yc Hand Soap, Gold Face Masks, Shampoo, and Wipes to boost happiness and experience.</li>
+                <li><strong>Interactive UI:</strong> Fully built with Python and Pygame, featuring retro pixel art aesthetics.</li>
+                <li><strong>Video Intro:</strong> Rendered with MoviePy for an epic cutscene at launch accompanied by an original soundtrack.</li>
+            </ul>
+        </section>
+
+        <section class="pixel-box minigame">
+            <h2>Try the Mayor's Job! <img src="imagenes/ganar_dinero.png" class="pixel-icon" alt="game"></h2>
+            <p>Keep the citizens happy or face a rebellion! Time passes, and people get sad.</p>
+            <div class="status-bar">
+                <div class="status-fill" id="happiness-fill"></div>
+            </div>
+            <p>Happiness: <span id="happiness-text">50</span>%</p>
+            <button class="btn" onclick="buyItem(250, 5, 'Lov\'yc Hand Soap')">Buy Soap (+5%)</button>
+            <button class="btn btn-red" onclick="buyItem(200, 10, 'Lov\'yc Shampoo')">Buy Shampoo (+10%)</button>
+            
+            <div class="action-log-container">
+                <p id="action-log">> You started your term as Mayor.</p>
+            </div>
+        </section>
+
+        <section class="pixel-box">
+            <h2>How to Play <img src="imagenes/info.png" class="pixel-icon" alt="rocket"></h2>
+            <p>1. Clone the repository.</p>
+            <p>2. Install the prerequisites:</p>
+            <div class="code-block">
+                pip install pygame moviepy
+            </div>
+            <p>3. Navigate to the <code>code/</code> folder and run the game:</p>
+            <div class="code-block">
+                cd code<br>
+                python main.py
+            </div>
+            <p>Follow the on-screen prompts to enter your name and your city's name. Have fun and try not to get overthrown!</p>
+        </section>
+
+        <div class="footer">
+            <p>Copyright (C) 2026 Raúl Salas Sahuquillo, ENEI PROJECT</p>
+            <p>Licensed under GNU General Public License v3 (GPL-3.0)</p>
+            <p style="margin-top: 15px; color: #888;">
+                <img src="imagenes/lovyc.png" class="pixel-icon" style="height: 1.5em; width: auto;" alt="lovyc"> 
+                Sponsored by <strong>Lov'yc</strong>, under supervision of <strong>TARRACO IMPORT EXPORT</strong> 
+                <img src="imagenes/tarraco.png" class="pixel-icon" style="height: 1.5em; width: auto;" alt="tarraco">
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let happiness = 50;
+        let gameActive = true;
+        const happinessFill = document.getElementById('happiness-fill');
+        const happinessText = document.getElementById('happiness-text');
+        const actionLog = document.getElementById('action-log');
+
+        function updateHappiness() {
+            if (!gameActive) return;
+
+            happinessFill.style.width = happiness + '%';
+            happinessText.innerText = Math.floor(happiness);
+
+            if (happiness > 50) {
+                happinessFill.style.backgroundColor = '#0f0'; // Green
+            } else if (happiness > 20) {
+                happinessFill.style.backgroundColor = '#ff0'; // Yellow
+            } else {
+                happinessFill.style.backgroundColor = '#f00'; // Red
+            }
+
+            if (happiness < 10) {
+                gameActive = false;
+                actionLog.innerText = "> COUP D'ÉTAT! Your city has been destroyed! YOU LOST!";
+                actionLog.style.color = '#ff6464';
+                happinessFill.style.width = '0%';
+                happinessText.innerText = '0';
+            }
+        }
+
+        function buyItem(cost, hapBoost, itemName) {
+            if (!gameActive) return;
+            happiness += hapBoost;
+            if (happiness > 100) happiness = 100;
+            actionLog.innerText = `> Bought ${itemName}! Happiness increased by ${hapBoost}%.`;
+            updateHappiness();
+        }
+
+        // Slowly decrease happiness over time
+        setInterval(() => {
+            if (gameActive) {
+                happiness -= 1.5;
+                updateHappiness();
+            }
+        }, 1000);
+
+        updateHappiness();
+    </script>
+</body>
+</html>
