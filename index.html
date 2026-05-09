@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -45,7 +46,7 @@
             padding: 40px 20px;
             background-color: #c8ffc8;
             border: var(--pixel-border);
-            box-shadow: 8px 8px 0px rgba(0,0,0,1);
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
         }
 
         h1 {
@@ -71,7 +72,7 @@
             border: var(--pixel-border);
             padding: 30px;
             margin-bottom: 40px;
-            box-shadow: 8px 8px 0px rgba(0,0,0,1);
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
             position: relative;
         }
 
@@ -103,7 +104,7 @@
             overflow-x: auto;
             font-size: 0.8rem;
             margin: 20px 0;
-            box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+            box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
         }
 
         .btn {
@@ -196,29 +197,80 @@
 
         /* Animations */
         @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
         }
 
         @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 8px 8px 0px rgba(0,0,0,1); }
-            50% { transform: scale(1.02); box-shadow: 12px 12px 0px rgba(0,0,0,1); }
-            100% { transform: scale(1); box-shadow: 8px 8px 0px rgba(0,0,0,1); }
+            0% {
+                transform: scale(1);
+                box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
+            }
+
+            50% {
+                transform: scale(1.02);
+                box-shadow: 12px 12px 0px rgba(0, 0, 0, 1);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
+            }
         }
 
         @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            10% { transform: translate(-1px, -2px) rotate(-1deg); }
-            20% { transform: translate(-3px, 0px) rotate(1deg); }
-            30% { transform: translate(3px, 2px) rotate(0deg); }
-            40% { transform: translate(1px, -1px) rotate(1deg); }
-            50% { transform: translate(-1px, 2px) rotate(-1deg); }
-            60% { transform: translate(-3px, 1px) rotate(0deg); }
-            70% { transform: translate(3px, 1px) rotate(-1deg); }
-            80% { transform: translate(-1px, -1px) rotate(1deg); }
-            90% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(1px, -2px) rotate(-1deg); }
+            0% {
+                transform: translate(1px, 1px) rotate(0deg);
+            }
+
+            10% {
+                transform: translate(-1px, -2px) rotate(-1deg);
+            }
+
+            20% {
+                transform: translate(-3px, 0px) rotate(1deg);
+            }
+
+            30% {
+                transform: translate(3px, 2px) rotate(0deg);
+            }
+
+            40% {
+                transform: translate(1px, -1px) rotate(1deg);
+            }
+
+            50% {
+                transform: translate(-1px, 2px) rotate(-1deg);
+            }
+
+            60% {
+                transform: translate(-3px, 1px) rotate(0deg);
+            }
+
+            70% {
+                transform: translate(3px, 1px) rotate(-1deg);
+            }
+
+            80% {
+                transform: translate(-1px, -1px) rotate(1deg);
+            }
+
+            90% {
+                transform: translate(1px, 2px) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(1px, -2px) rotate(-1deg);
+            }
         }
 
         .floating {
@@ -251,20 +303,104 @@
             animation: shake 0.5s;
             animation-iteration-count: infinite;
         }
+
+        /* IDE Styles */
+        .ide-container {
+            background-color: #000;
+            border: 4px solid #fff;
+            padding: 0;
+            margin-top: 20px;
+            box-shadow: 8px 8px 0px rgba(0, 0, 0, 1);
+        }
+
+        .ide-header {
+            background-color: #0000a8;
+            /* MS-DOS Blue */
+            color: #fff;
+            padding: 10px;
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid #fff;
+        }
+
+        .ide-toolbar {
+            background-color: #c0c0c0;
+            /* Win95 Gray */
+            padding: 10px;
+            color: #000;
+            border-bottom: 4px solid #000;
+            display: flex;
+            align-items: center;
+        }
+
+        .ide-editor {
+            width: 100%;
+            height: 400px;
+            background-color: #000;
+            color: #0f0;
+            /* Hacker Green */
+            border: none;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 10px;
+            line-height: 1.6;
+            padding: 15px;
+            resize: vertical;
+            outline: none;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: scroll;
+        }
+
+        .ide-editor:focus {
+            border: none;
+        }
+
+        .retro-select {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.7rem;
+            background-color: #fff;
+            color: #000;
+            border: 2px solid #000;
+            padding: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .retro-input {
+            width: 100%;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.8rem;
+            background-color: #000;
+            color: #0f0;
+            border: 2px solid #fff;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            outline: none;
+        }
+
+        .retro-input:focus {
+            border-color: #0f0;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="container">
         <header>
             <div class="emoji-art">
-                <img src="imagenes/AdornoMYTOWNMYRULES.png" style="height: 60px; image-rendering: pixelated;" alt="clouds">
+                <img src="imagenes/AdornoMYTOWNMYRULES.png" style="height: 60px; image-rendering: pixelated;"
+                    alt="clouds">
             </div>
             <h1>PIXELTOWN</h1>
             <p>A 2D City-Building Simulation Game</p>
             <div class="emoji-art">
                 <img src="imagenes/Casa.png" style="height: 50px; image-rendering: pixelated;" alt="house">
-                <img src="imagenes/supermercado.png" style="height: 50px; image-rendering: pixelated;" alt="supermarket">
+                <img src="imagenes/supermercado.png" style="height: 50px; image-rendering: pixelated;"
+                    alt="supermarket">
                 <img src="imagenes/arbusto.png" style="height: 50px; image-rendering: pixelated;" alt="bush">
                 <img src="imagenes/farola.png" style="height: 50px; image-rendering: pixelated;" alt="streetlight">
             </div>
@@ -272,7 +408,8 @@
 
         <section class="pixel-box contribute-box">
             <h2>WE NEED DEVELOPERS! <img src="imagenes/construccion.png" class="pixel-icon" alt="tools"></h2>
-            <p><strong>PIXELTOWN</strong> is an open-source project and we are actively looking for contributors! Do you want to build new buildings, tweak the economy, or fix bugs?</p>
+            <p><strong>PIXELTOWN</strong> is an open-source project and we are actively looking for contributors! Do you
+                want to build new buildings, tweak the economy, or fix bugs?</p>
             <p>Join our team and help us make the best 2D city-builder in Python!</p>
             <a href="https://github.com/RaulSalasSahuquillo/PIXELTOWN" target="_blank" class="btn btn-github">
                 ► CONTRIBUTE ON GITHUB
@@ -281,25 +418,36 @@
 
         <section class="pixel-box">
             <h2>Welcome, Mayor! <img src="imagenes/BIENVENIDO.png" class="pixel-icon" alt="hat"></h2>
-            <p>Welcome to <strong>PIXELTOWN</strong>! You are the newly appointed leader. Your job is to build the best city possible, manage resources, construct buildings, and keep your citizens happy.</p>
-            <p>Beware—if their happiness drops below 10%, a <span class="highlight">coup d'état</span> might destroy everything you've built!</p>
+            <p>Welcome to <strong>PIXELTOWN</strong>! You are the newly appointed leader. Your job is to build the best
+                city possible, manage resources, construct buildings, and keep your citizens happy.</p>
+            <p>Beware—if their happiness drops below 10%, a <span class="highlight">coup d'état</span> might destroy
+                everything you've built!</p>
         </section>
 
         <section class="pixel-box">
             <h2>PIXELTOWN YOUTUBE</h2>
             <div style="text-align: center; margin-top: 20px;">
-                <iframe width="100%" height="400" src="https://www.youtube.com/embed/fiXHECX0t3A" title="PIXELTOWN: The Invitation — Build PIXELTOWN With Us | ENEI PROJECT" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen style="border: var(--pixel-border); box-shadow: 4px 4px 0px #000; max-width: 100%;"></iframe>
+                <iframe width="100%" height="400" src="https://www.youtube.com/embed/fiXHECX0t3A"
+                    title="PIXELTOWN: The Invitation — Build PIXELTOWN With Us | ENEI PROJECT" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
+                    style="border: var(--pixel-border); box-shadow: 4px 4px 0px #000; max-width: 100%;"></iframe>
             </div>
         </section>
 
         <section class="pixel-box">
             <h2>Features <img src="imagenes/adorno.png" class="pixel-icon" alt="sparkles"></h2>
             <ul>
-                <li><strong>Build Your Town:</strong> Construct simple houses, supermarkets, streetlights, and decorations like the "My Town My Rules" monument.</li>
-                <li><strong>Manage Economy:</strong> Earn money from your inhabitants and spend it wisely in the town shop.</li>
-                <li><strong>Keep People Happy:</strong> Buy Lov'yc Hand Soap, Gold Face Masks, Shampoo, and Wipes to boost happiness and experience.</li>
-                <li><strong>Interactive UI:</strong> Fully built with Python and Pygame, featuring retro pixel art aesthetics.</li>
-                <li><strong>Video Intro:</strong> Rendered with MoviePy for an epic cutscene at launch accompanied by an original soundtrack.</li>
+                <li><strong>Build Your Town:</strong> Construct simple houses, supermarkets, streetlights, and
+                    decorations like the "My Town My Rules" monument.</li>
+                <li><strong>Manage Economy:</strong> Earn money from your inhabitants and spend it wisely in the town
+                    shop.</li>
+                <li><strong>Keep People Happy:</strong> Buy Lov'yc Hand Soap, Gold Face Masks, Shampoo, and Wipes to
+                    boost happiness and experience.</li>
+                <li><strong>Interactive UI:</strong> Fully built with Python and Pygame, featuring retro pixel art
+                    aesthetics.</li>
+                <li><strong>Video Intro:</strong> Rendered with MoviePy for an epic cutscene at launch accompanied by an
+                    original soundtrack.</li>
             </ul>
         </section>
 
@@ -312,7 +460,7 @@
             <p>Happiness: <span id="happiness-text">50</span>%</p>
             <button class="btn" onclick="buyItem(250, 5, 'Lov\'yc Hand Soap')">Buy Soap (+5%)</button>
             <button class="btn btn-red" onclick="buyItem(200, 10, 'Lov\'yc Shampoo')">Buy Shampoo (+10%)</button>
-            
+
             <div class="action-log-container">
                 <p id="action-log">> You started your term as Mayor.</p>
             </div>
@@ -330,67 +478,314 @@
                 cd code<br>
                 python main.py
             </div>
-            <p>Follow the on-screen prompts to enter your name and your city's name. Have fun and try not to get overthrown!</p>
+            <p>Follow the on-screen prompts to enter your name and your city's name. Have fun and try not to get
+                overthrown!</p>
+        </section>
+
+        <section class="pixel-box">
+            <h2>Web IDE: Contribute <img src="imagenes/construccion.png" class="pixel-icon" alt="tools"></h2>
+            <p>You can edit any project file right here and submit a Pull Request via email without needing GitHub!</p>
+
+            <div class="ide-container">
+                <div class="ide-header">
+                    <span>= PIXELTOWN_IDE.EXE =</span>
+                    <span style="background-color: #fff; color: #0000a8; padding: 2px 5px; cursor: pointer;">X</span>
+                </div>
+                <div class="ide-toolbar">
+                    <label for="file-selector">FILE:</label>
+                    <select id="file-selector" class="retro-select" onchange="loadFile(this.value)">
+                        <option value="code/main.py">code/main.py</option>
+                        <option value="code/characters.py">code/characters.py</option>
+                        <option value="code/text.py">code/text.py</option>
+                        <option value="index.html">index.html</option>
+                        <option value="README.md">README.md</option>
+                        <option value="CONTRIBUTING.md">CONTRIBUTING.md</option>
+                    </select>
+                </div>
+                <textarea id="ide-editor" class="ide-editor" spellcheck="false">Loading code...</textarea>
+            </div>
+
+            <div id="pr-modal"
+                style="display: none; background-color: #000; border: 4px solid #fff; padding: 20px; margin-top: 20px; text-align: left;">
+                <h3 style="color: #ffeb3b; border-bottom: 2px dashed #fff; padding-bottom: 10px; margin-top: 0;">►
+                    CONFIRM PULL REQUEST</h3>
+
+                <label style="color: #fff; font-size: 0.7rem;">Name:</label><br>
+                <input type="text" id="pr-nombre" class="retro-input" placeholder="Your name"><br>
+
+                <label style="color: #fff; font-size: 0.7rem;">Surnames:</label><br>
+                <input type="text" id="pr-apellidos" class="retro-input" placeholder="Your surnames"><br>
+
+                <label style="color: #fff; font-size: 0.7rem;">GitHub Username:</label><br>
+                <input type="text" id="pr-github" class="retro-input" placeholder="Ex: octocat"><br>
+
+                <p id="pr-status" style="font-size: 0.7rem; color: #0f0; display: none; margin-top: 15px;">> Sending...
+                </p>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-blue" onclick="sendPR()">[ SEND P.R. ]</button>
+                    <button class="btn btn-red"
+                        onclick="document.getElementById('pr-modal').style.display='none'; document.getElementById('pr-start-btn').style.display='block';">[
+                        CANCEL ]</button>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;" id="pr-start-btn">
+                <button class="btn btn-blue"
+                    onclick="document.getElementById('pr-modal').style.display='block'; document.getElementById('pr-start-btn').style.display='none';">
+                    ► PREPARE PULL REQUEST
+                </button>
+            </div>
         </section>
 
         <div class="footer">
             <p>Copyright (C) 2026 Raúl Salas Sahuquillo, ENEI PROJECT</p>
             <p>Licensed under GNU General Public License v3 (GPL-3.0)</p>
             <p style="margin-top: 15px; color: #888;">
-                <img src="imagenes/lovyc.png" class="pixel-icon" style="height: 1.5em; width: auto;" alt="lovyc"> 
-                Sponsored by <strong>Lov'yc</strong>, under supervision of <strong>TARRACO IMPORT EXPORT</strong> 
+                <img src="imagenes/lovyc.png" class="pixel-icon" style="height: 1.5em; width: auto;" alt="lovyc">
+                Sponsored by <strong>Lov'yc</strong>, under supervision of <strong>TARRACO IMPORT EXPORT</strong>
                 <img src="imagenes/tarraco.png" class="pixel-icon" style="height: 1.5em; width: auto;" alt="tarraco">
             </p>
         </div>
     </div>
 
     <script>
+        // GAME STATE VARIABLES
+        // We track the city's overall happiness here.
+        // It starts at a perfectly balanced 50%. Let's hope it stays that way!
         let happiness = 50;
+
+        // This boolean keeps track of whether the game is currently running.
+        // If it goes to false, it means the city probably burned down in a riot.
         let gameActive = true;
+
+        // DOM ELEMENT REFERENCES
+        // Grabbing the HTML elements we need to update on the screen.
+
+        // The visual bar that fills up with colors based on how happy citizens are.
         const happinessFill = document.getElementById('happiness-fill');
+
+        // The text displaying the exact happiness percentage number.
         const happinessText = document.getElementById('happiness-text');
+
+        // The console-like log area where we print what happens in the game.
         const actionLog = document.getElementById('action-log');
 
+        // HAPPINESS MANAGEMENT FUNCTION
+        // This is the core logic for visually updating the happiness bar.
+        // It checks the score and changes colors accordingly.
         function updateHappiness() {
+            // First things first: if the game is already over, don't do anything!
+            // Dead cities don't get happiness updates.
             if (!gameActive) return;
 
+            // Update the width of the visual fill bar to match the current percentage.
             happinessFill.style.width = happiness + '%';
+
+            // Update the text to show the rounded integer value of happiness.
+            // Nobody wants to see "49.532%". Math.floor keeps it nice and clean.
             happinessText.innerText = Math.floor(happiness);
 
+            // Time to add some visual feedback with colors!
             if (happiness > 50) {
-                happinessFill.style.backgroundColor = '#0f0'; // Green
+                // Above 50%? Great! Everyone is happy. Let's make it bright green.
+                happinessFill.style.backgroundColor = '#0f0';
             } else if (happiness > 20) {
-                happinessFill.style.backgroundColor = '#ff0'; // Yellow
+                // Uh oh, getting a bit tense. Yellow means "caution".
+                happinessFill.style.backgroundColor = '#ff0';
             } else {
-                happinessFill.style.backgroundColor = '#f00'; // Red
+                // Below 20%... Things are really bad. Danger red!
+                happinessFill.style.backgroundColor = '#f00';
             }
 
+            // The absolute worst-case scenario: Happiness drops below 10%.
+            // This triggers the end-game condition.
             if (happiness < 10) {
+                // Stop the game loop immediately. No more buying soap for you.
                 gameActive = false;
+
+                // Print the devastating news to the action log.
                 actionLog.innerText = "> COUP D'ÉTAT! Your city has been destroyed! YOU LOST!";
+
+                // Change the text color to a dramatic, blood-like red.
                 actionLog.style.color = '#ff6464';
+
+                // Visually crush their hopes by setting the bar to 0.
                 happinessFill.style.width = '0%';
                 happinessText.innerText = '0';
             }
         }
 
+        // SHOP PURCHASING LOGIC
+        // Called when the user clicks a button to buy items (like soap or shampoo).
         function buyItem(cost, hapBoost, itemName) {
+            // Can't buy stuff if the city is already in ruins!
             if (!gameActive) return;
+
+            // Add the boost amount to the total happiness score.
             happiness += hapBoost;
+
+            // We cap happiness at 100%. You can't be more than 100% happy, unfortunately.
             if (happiness > 100) happiness = 100;
+
+            // Log the purchase to the action console so the player knows what happened.
             actionLog.innerText = `> Bought ${itemName}! Happiness increased by ${hapBoost}%.`;
+
+            // Trigger the visual update function to reflect the new score.
             updateHappiness();
         }
 
-        // Slowly decrease happiness over time
+        // THE INEVITABLE MARCH OF TIME (GAME LOOP)
+        // This interval runs every single second, slowly draining happiness.
+        // Running a city is stressful!
         setInterval(() => {
+            // Only drain happiness if the game is actually running.
             if (gameActive) {
+                // Subtract 1.5% happiness every second. Tick tock!
                 happiness -= 1.5;
+
+                // Update the UI to show the new, slightly lower happiness.
                 updateHappiness();
             }
         }, 1000);
 
+        // Run this once at startup to initialize the UI colors and values.
         updateHappiness();
+
+        // WEB IDE: FILE LOADING LOGIC
+        // This function fetches files from the server so we can edit them right here!
+        function loadFile(filePath) {
+            // Find the textarea where the code will be displayed.
+            const editor = document.getElementById('ide-editor');
+
+            // If the editor doesn't exist (maybe the HTML was changed?), just abort.
+            if (!editor) return;
+
+            // Show a temporary loading message so the user knows something is happening.
+            editor.value = "LOADING " + filePath + "...";
+
+            // Use the Fetch API to grab the raw text of the file from the local server.
+            fetch(filePath)
+                .then(response => {
+                    // Check if the server actually found the file.
+                    if (response.ok) {
+                        // Success! Return the raw text content.
+                        return response.text();
+                    }
+                    // Oh no
+                    throw new Error('Could not load file.');
+                })
+                .then(code => {
+                    // Inject the fetched code directly into the textarea editor.
+                    editor.value = code;
+                })
+                .catch(error => {
+                    // If anything went wrong (like CORS issues locally), show an error message.
+                    editor.value = "# ERROR 404\n# We couldn't load " + filePath + " automatically.\n# Please ensure you are running the local server.\n\nprint('Hello PIXELTOWN!')";
+                });
+        }
+
+        // PULL REQUEST (PR)
+        function sendPR() {
+            // Grab the user's input from the form, and trim any accidental whitespace.
+            const nombre = document.getElementById('pr-nombre').value.trim();
+            const apellidos = document.getElementById('pr-apellidos').value.trim();
+            const github = document.getElementById('pr-github').value.trim();
+
+            // Find out which file they were editing...
+            const filePath = document.getElementById('file-selector').value;
+
+            // ...and grab the actual modified code from the editor box.
+            const code = document.getElementById('ide-editor').value;
+
+            // Basic validation: Make sure they didn't leave the fields blank!
+            if (!nombre || !apellidos || !github) {
+                // Yell at them nicely with an alert.
+                alert("ERROR: Please fill in your Name, Surnames and GitHub Username.");
+                return; // Stop the function here so we don't send an empty email.
+            }
+
+            // Grab the status text element to show feedback.
+            const statusTxt = document.getElementById('pr-status');
+
+            // Make the status text visible.
+            statusTxt.style.display = 'block';
+
+            // Turn it yellow to indicate "processing".
+            statusTxt.style.color = '#ffeb3b';
+
+            // Tell the user we are beaming the data up.
+            statusTxt.innerText = "> Transmitting data to server...";
+
+            // FORMSUBMIT AJAX REQUEST
+            // We use fetch to POST the data securely to formsubmit.co.
+            // This token ensures the email is hidden from evil internet spambots.
+            fetch("https://formsubmit.co/ajax/1e7f59d40156a68ce980a1902fa45884", {
+                method: "POST", // HTTP POST because we are sending data, not getting.
+                headers: {
+                    // Tell the server we are sending JSON data.
+                    'Content-Type': 'application/json',
+                    // Tell the server we expect JSON back in response.
+                    'Accept': 'application/json'
+                },
+                // Package all our variables into a nice JSON string payload.
+                body: JSON.stringify({
+                    _subject: "NEW PULL REQUEST - PIXELTOWN", // The email subject line.
+                    _template: "table", // Make the email look pretty with a table layout.
+                    Name: nombre, // Who is sending it?
+                    Surnames: apellidos,
+                    GitHub_User: github, // Their github handle for credits!
+                    Edited_File: filePath, // Which file did they change?
+                    Modified_Code: code // The most important part: the new code!
+                })
+            })
+                .then(response => response.json()) // Parse the server's response into a JS object.
+                .then(data => {
+                    // Did FormSubmit say it worked?
+                    if (data.success === "true" || data.success) {
+                        // Turn the text green for success!
+                        statusTxt.style.color = '#0f0';
+
+                        // Announce the victory.
+                        statusTxt.innerText = "> PULL REQUEST SENT SUCCESSFULLY!";
+
+                        // Set a timeout to clean up the UI after exactly 3 seconds.
+                        setTimeout(() => {
+                            // Hide the modal entirely so they can see the site again.
+                            document.getElementById('pr-modal').style.display = 'none';
+                            // Bring back the start button so they can submit another one if they want.
+                            document.getElementById('pr-start-btn').style.display = 'block';
+                            // Hide the success text again.
+                            statusTxt.style.display = 'none';
+                        }, 3000); // 3000 milliseconds = 3 seconds.
+                    } else {
+                        // FormSubmit returned an error, so we throw an exception to be caught below.
+                        throw new Error("Server error response.");
+                    }
+                })
+                .catch(error => {
+                    // Something went wrong! Probably a network issue or CORS block.
+                    // Turn the text angry red.
+                    statusTxt.style.color = '#ff6464';
+
+                    // Tell the user to check their wifi.
+                    statusTxt.innerText = "> ERROR SENDING. Check your internet connection.";
+
+                    // Log the actual error to the browser console for debugging purposes.
+                    console.error(error);
+                });
+        }
+        // This runs when the page first loads to set everything up
+
+        // Grab the file dropdown element
+        const fileSelector = document.getElementById('file-selector');
+
+        // If it exists on the page...
+        if (fileSelector) {
+            // Immediately load the code for whatever file is currently selected in the dropdown
+            loadFile(fileSelector.value);
+        }
     </script>
 </body>
+
 </html>
