@@ -384,6 +384,60 @@
         .retro-input:focus {
             border-color: #0f0;
         }
+        
+        .ide-close-btn {
+            background-color: #fff;
+            color: #0000a8;
+            padding: 2px 5px;
+            cursor: pointer;
+        }
+
+        /* Normal IDE Theme */
+        .ide-container.theme-normal {
+            border: 1px solid #333;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .ide-container.theme-normal .ide-header {
+            background-color: #252526;
+            color: #cccccc;
+            border-bottom: 1px solid #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .ide-container.theme-normal .ide-toolbar {
+            background-color: #333333;
+            color: #cccccc;
+            border-bottom: 1px solid #1e1e1e;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .ide-container.theme-normal .ide-editor {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .ide-container.theme-normal .retro-select {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.9rem;
+            background-color: #3c3c3c;
+            color: #cccccc;
+            border: 1px solid #555;
+            border-radius: 3px;
+        }
+        
+        .ide-container.theme-normal .ide-close-btn {
+            background-color: transparent;
+            color: #cccccc;
+        }
+        
+        .ide-container.theme-normal .ide-close-btn:hover {
+            background-color: #c83232;
+            color: #ffffff;
+        }
     </style>
 </head>
 
@@ -469,6 +523,9 @@
         <section class="pixel-box">
             <h2>How to Play <img src="imagenes/info.png" class="pixel-icon" alt="rocket"></h2>
             <p>1. Clone the repository.</p>
+            <div class="code-block">
+                git clone https://github.com/rsalas-enetres/PIXELTOWN.git
+            </div>
             <p>2. Install the prerequisites:</p>
             <div class="code-block">
                 pip install pygame moviepy
@@ -486,21 +543,30 @@
             <h2>Web IDE: Contribute <img src="imagenes/construccion.png" class="pixel-icon" alt="tools"></h2>
             <p>You can edit any project file right here and submit a Pull Request via email without needing GitHub!</p>
 
-            <div class="ide-container">
+            <div class="ide-container" id="ide-container">
                 <div class="ide-header">
                     <span>= PIXELTOWN_IDE.EXE =</span>
-                    <span style="background-color: #fff; color: #0000a8; padding: 2px 5px; cursor: pointer;">X</span>
+                    <span class="ide-close-btn">X</span>
                 </div>
                 <div class="ide-toolbar">
-                    <label for="file-selector">FILE:</label>
-                    <select id="file-selector" class="retro-select" onchange="loadFile(this.value)">
-                        <option value="code/main.py">code/main.py</option>
-                        <option value="code/characters.py">code/characters.py</option>
-                        <option value="code/text.py">code/text.py</option>
-                        <option value="index.html">index.html</option>
-                        <option value="README.md">README.md</option>
-                        <option value="CONTRIBUTING.md">CONTRIBUTING.md</option>
-                    </select>
+                    <div style="display: flex; align-items: center;">
+                        <label for="file-selector">FILE:</label>
+                        <select id="file-selector" class="retro-select" onchange="loadFile(this.value)">
+                            <option value="code/main.py">code/main.py</option>
+                            <option value="code/characters.py">code/characters.py</option>
+                            <option value="code/text.py">code/text.py</option>
+                            <option value="index.html">index.html</option>
+                            <option value="README.md">README.md</option>
+                            <option value="CONTRIBUTING.md">CONTRIBUTING.md</option>
+                        </select>
+                    </div>
+                    <div style="margin-left: auto; display: flex; align-items: center;">
+                        <label for="theme-selector">THEME:</label>
+                        <select id="theme-selector" class="retro-select" onchange="document.getElementById('ide-container').className = this.value === 'normal' ? 'ide-container theme-normal' : 'ide-container'">
+                            <option value="retro">Retro</option>
+                            <option value="normal">Normal</option>
+                        </select>
+                    </div>
                 </div>
                 <textarea id="ide-editor" class="ide-editor" spellcheck="false">Loading code...</textarea>
             </div>
@@ -617,7 +683,6 @@
         }
 
         // SHOP PURCHASING LOGIC
-        // Called when the user clicks a button to buy items (like soap or shampoo).
         function buyItem(cost, hapBoost, itemName) {
             // Can't buy stuff if the city is already in ruins!
             if (!gameActive) return;
@@ -635,9 +700,7 @@
             updateHappiness();
         }
 
-        // THE INEVITABLE MARCH OF TIME (GAME LOOP)
         // This interval runs every single second, slowly draining happiness.
-        // Running a city is stressful!
         setInterval(() => {
             // Only drain happiness if the game is actually running.
             if (gameActive) {
