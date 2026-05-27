@@ -33,10 +33,11 @@ pip install pygame moviepy
 
 The project is structured cleanly to keep the logic and assets organized:
 
-- `code/`: Contains the core logic scripts (`main.py`, `characters.py`, `text.py`, etc.).
-- `imagenes/`: Visual assets, player sprites, and background images.
-- `audios/`: Game soundtracks and cool sound effects.
-- `visual/`: Video elements such as `intro.mp4`.
+- `code/`: Contains the core logic scripts (`main.py`, `main_es.py`, `main_en.py`, `terminal.py`, etc.).
+- `assets/`: Contains all assets used by the game:
+  - `imagenes/`: Visual assets, player sprites, and background images.
+  - `PIXELTOWN_OST/`: Game soundtracks and sound effects.
+  - `visual/`: Video elements such as `intro.mp4`.
 
 ## How to Play
 
