@@ -1,3 +1,7 @@
+import json
+import os
+from localization import load_language, _
+
 def terminalbeggining():
     print("""
 ██████╗ ██╗██╗  ██╗███████╗██╗  ████████╗ ██████╗ ██╗    ██╗███╗   ██╗
@@ -10,16 +14,20 @@ def terminalbeggining():
           
           Welcome to the PIXELTOWN terminal!
 """)
+    
     while True:
         language = input("What language do you want to play the game?\n- Spanish (ES)\n- English (EN)\n> ")
         lang_clean = language.strip().lower()
+        
         if lang_clean in ("es", "español", "spanish"):
-            from main_es import main
-            main()
+            load_language("es")
             break
         elif lang_clean in ("en", "ingles", "english", "inglés"):
-            from main_en import main
-            main()
+            load_language("en")
             break
         else:
-            print("Invalid option. Please write 'ES' or 'EN'.")
+            print("Invalid option. Please write 'ES' or 'EN'.\n")
+
+    # Una vez cargado el idioma, importamos el main único y lanzamos el juego
+    from game import main
+    main()

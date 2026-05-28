@@ -45,24 +45,25 @@ Contributions that violate these laws (e.g., adding heavy dependencies, increasi
 
 These are the existing tools and files. Read their source code before writing new ones to understand the expected style:
 
-| File               | Description                                                                 |
-|--------------------|-----------------------------------------------------------------------------|
-| `main.py`          | Main loop at 60 FPS, state machine (scenes), and global variables           |
-| `ciudad/ciudad.py` | (In development) Save structure and general city logic                      |
-| `dinero.py`        | Economic management (earnings, expenses, population vs. taxes)              |
-| `personaje.py`     | Player/inhabitant entities and variables                                    |
-| `bloquegrafico.py` | Rendering logic for tiles, houses, and buildings on the map                 |
-| `texto.py`         | Utility to simplify rendering Pygame fonts on screen                        |
+| File                  | Description                                                                 |
+|-----------------------|-----------------------------------------------------------------------------|
+| `src/main.py`         | Lightweight entry launcher that calls the terminal selection system.        |
+| `src/terminal.py`     | Console-based language selection screen; starts game main loop.            |
+| `src/localization.py` | Dynamic localization system that loads translations from JSON files.        |
+| `src/locals/`         | Resource folder containing language dictionaries (e.g., `es.json`, `en.json`).|
+| `src/game.py`         | Main game loop at 60 FPS, state machine (scenes), and global variables.     |
+| `src/characters.py`   | Player/inhabitant entities, ASCII characters, and helper structures.        |
+| `src/text.py`         | Long text utility definitions and static information screen formatting.     |
 
 ---
 
 ## How to Contribute
 
 1. **Fork and Clone**: Fork the repository, clone it locally, and create a descriptive branch for your changes.
-2. **Understand the Base Code**: Review existing modules (e.g., `texto.py` for pure utilities, `main.py` to see how events and states are managed) for examples of compatible code.
+2. **Understand the Base Code**: Review existing modules (e.g., `src/text.py` for pure utilities, `src/game.py` to see how events and states are managed) for examples of compatible code.
 3. **Make Your Changes**:
    - Ensure your code respects the size and import limits.
-   - Run `python main.py` and ensure the game maintains a stable 60 FPS.
+   - Run `python src/main.py` and ensure the game maintains a stable 60 FPS.
    - Verify there are no critical warnings in the terminal (Linting).
 4. **Update README.md**: If you added a new file or dependency, include it in the corresponding section.
 5. **Submit a Pull Request**:

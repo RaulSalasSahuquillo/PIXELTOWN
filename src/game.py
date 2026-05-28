@@ -24,6 +24,7 @@ import sys
 from moviepy import VideoFileClip  # Dear programmer, good luck importing this trash library. Honestly, it took me hours, and I still have problems.
 from characters import bipo, daemon, persona, flecha, bipobienvenida
 from text import titulo, informaciontexto1, informaciontexto2
+from localization import _
 
 # PATH CONFIGURATION (Don't mess with these!)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,6 +39,7 @@ felicidad = 50  # Initial happiness (We really need to cheer them up)
 experiencia = 0  # Initial experience
 dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
 tiempo = 1 # Time in days
+deuda = 0 # Your debt
 
 
 # SCENE DEFINITION
@@ -115,7 +117,7 @@ def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (100, 180, 255) if boton_jugar.collidepoint(pos_raton) else (0, 128, 255)
     pygame.draw.rect(pantalla, color_boton, boton_jugar)
-    texto_surf = fuente_boton.render("JUGAR", True, (0, 0, 0))
+    texto_surf = fuente_boton.render(_("play"), True, (0, 0, 0))
     texto_rect = texto_surf.get_rect(center=boton_jugar.center)
     pantalla.blit(texto_surf, texto_rect)
 
@@ -150,12 +152,12 @@ def escena_juego(pantalla, fuente_boton, eventos, fuente_titulo):
     color_continuar = (100, 180, 255) if boton_continuar.collidepoint(pos_raton) else (0, 128, 255)
 
     pygame.draw.rect(pantalla, color_volver, boton_volver)
-    texto_surf_volver = fuente_boton.render("Volver al Menú", True, (255, 255, 255))
+    texto_surf_volver = fuente_boton.render(_("back_to_menu"), True, (255, 255, 255))
     texto_rect_volver = texto_surf_volver.get_rect(center=boton_volver.center)
     pantalla.blit(texto_surf_volver, texto_rect_volver)
 
     pygame.draw.rect(pantalla, color_continuar, boton_continuar)
-    texto_surf_continuar = fuente_boton.render("Continuar", True, (255, 255, 255))
+    texto_surf_continuar = fuente_boton.render(_("continue"), True, (255, 255, 255))
     texto_rect_continuar = texto_surf_continuar.get_rect(center=boton_continuar.center)
     pantalla.blit(texto_surf_continuar, texto_rect_continuar)
 
@@ -199,7 +201,7 @@ def pregunta(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado,
     caja_texto_estado['activo'] = activo
 
     pantalla.fill((220, 220, 255))
-    texto_pregunta_surf = fuente_titulo.render("¿Cómo te llamas?", True, (0, 0, 0))
+    texto_pregunta_surf = fuente_titulo.render(_("what_is_your_name"), True, (0, 0, 0))
     texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
     pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
 
@@ -211,7 +213,7 @@ def pregunta(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado,
     pos_raton = pygame.mouse.get_pos()
     color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
     pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render("Volver al Menú", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
 
@@ -256,7 +258,7 @@ def pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado
     pantalla.fill((220, 220, 255))
     nombre_usuario = datos_jugador.get('nombre_usuario', 'Tú')
     texto_pregunta_surf = fuente_titulo.render(
-        f"Bienvenid@ a PIXELTOWN, {nombre_usuario} ¿Cómo se llama tu ciudad?", True, (0, 0, 0))
+        _("welcome_city_name").format(username=nombre_usuario), True, (0, 0, 0))
     texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
     pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
 
@@ -268,7 +270,7 @@ def pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado
     pos_raton = pygame.mouse.get_pos()
     color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
     pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render("Volver al Menú", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
 
@@ -281,14 +283,14 @@ def cargamapa(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
     boton_vermapa = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
 
-    texto_titulo_surf = fuente_titulo.render("Cargando Mapa...", True, (0, 0, 0))
+    texto_titulo_surf = fuente_titulo.render(_("loading_map"), True, (0, 0, 0))
     texto_titulo_rect = texto_titulo_surf.get_rect(center=(pantalla.get_width() // 2, 200))
     pantalla.blit(texto_titulo_surf, texto_titulo_rect)
 
     pos_raton = pygame.mouse.get_pos()
     color_boton = (255, 100, 100) if boton_vermapa.collidepoint(pos_raton) else (200, 50, 50)
     pygame.draw.rect(pantalla, color_boton, boton_vermapa)
-    texto_surf_boton = fuente_normal.render("Volver al Menú", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_vermapa.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
 
@@ -314,19 +316,20 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
 
     color_boton = (255, 100, 100) if boton_acciones.collidepoint(pos_raton) else (200, 50, 50)
     pygame.draw.rect(pantalla, color_boton, boton_acciones)
-    texto_surf_boton = fuente_normal.render("Acciones", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("actions"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_acciones.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
 
     nombre_usuario = datos_jugador.get('nombre_usuario', 'Tú')
     nombre_ciudad = datos_jugador.get('nombre_ciudad', 'PixelTown')
-    mostrar_texto(pantalla, fuente_normal, f"Líder: {nombre_usuario}", 10, 10)
-    mostrar_texto(pantalla, fuente_normal, f"Ciudad: {nombre_ciudad}", 10, 50)
-    mostrar_texto(pantalla, fuente_normal, f"Dinero: {dinero}", 10, 90)
-    mostrar_texto(pantalla, fuente_normal, f"Población: {poblacion}", 10, 130)
-    mostrar_texto(pantalla, fuente_normal, f"Felicidad: {felicidad}%", 10, 170)
-    mostrar_texto(pantalla, fuente_normal, f"Construcciones: {len(edificios)}", 10, 210)
-    mostrar_texto(pantalla, fuente_normal, f"Experiencia: {experiencia}", 10, 250)
+    mostrar_texto(pantalla, fuente_normal, _("leader").format(username=nombre_usuario), 10, 10)
+    mostrar_texto(pantalla, fuente_normal, _("city").format(cityname=nombre_ciudad), 10, 50)
+    mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 90)
+    mostrar_texto(pantalla, fuente_normal, _("population").format(population=poblacion), 10, 130)
+    mostrar_texto(pantalla, fuente_normal, _("happiness").format(happiness=felicidad), 10, 170)
+    mostrar_texto(pantalla, fuente_normal, _("buildings").format(count=len(edificios)), 10, 210)
+    mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 250)
+    mostrar_texto(pantalla, fuente_normal, _("debt").format(experience=deuda), 10, 250)
 
     try:
         casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
@@ -366,9 +369,9 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         print(f"No se pudo cargar la imagen: {e}")
         
     if felicidad < 10:
-        print("¡Oh, no! Los ciudadanos no estan felices.")
+        print(_("citizens_unhappy"))
         time.sleep(1)
-        print("¡Ha empezado un golpe de estado!")
+        print(_("coup_started"))
         try:
             if not pygame.mixer.music.get_busy():
                 pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "efectodestruccion.mp3"))
@@ -376,7 +379,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         except pygame.error as e:
             print(f"No se pudo cargar el archivo de música: {e}")
         finally:
-            print("¡La ciudad ha sido destruida!\nHAS PERDIDO")
+            print(_("game_over"))
             return "salir"
 
     for evento in eventos:
@@ -398,7 +401,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
 
 def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    mostrar_texto(pantalla, fuente_titulo, "Acciones", 10, 10)
+    mostrar_texto(pantalla, fuente_titulo, _("actions"), 10, 10)
 
     # BUY (Time to spend)
     try:
@@ -411,7 +414,7 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_comprar)
-    texto_surf_boton = fuente_normal.render("Comprar", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("buy"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -430,7 +433,7 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_ganar_dinero = pygame.Rect(460, 380, 250, 50)
     color_boton = (200, 200, 100) if boton_ganar_dinero.collidepoint(pos_raton) else (200, 50, 50) # R, G, B
     pygame.draw.rect(pantalla, color_boton, boton_ganar_dinero)
-    texto_surf_boton = fuente_normal.render("Facturar", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("invoice"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_ganar_dinero.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -449,7 +452,7 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_info = pygame.Rect(860, 380, 250, 50)
     color_boton = (200, 200, 100) if boton_info.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_info)
-    texto_surf_boton = fuente_normal.render("Información", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("information"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_info.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -478,7 +481,7 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_construccion.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_construccion)
-    texto_surf_boton = fuente_normal.render("Construcción", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("construction"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_construccion.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -497,7 +500,7 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_productos = pygame.Rect(460, 380, 250, 50)
     color_boton = (200, 200, 100) if boton_productos.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_productos)
-    texto_surf_boton = fuente_normal.render("Productos", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("products"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_productos.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -516,7 +519,7 @@ def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_adorno = pygame.Rect(860, 380, 250, 50)
     color_boton = (200, 200, 100) if boton_adorno.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_adorno)
-    texto_surf_boton = fuente_normal.render("Adornos", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("decorations"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_adorno.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -535,7 +538,7 @@ def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_mytownmyrules.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_mytownmyrules)
-    texto_surf_boton = fuente_normal.render("My Town My Rules", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("my_town_my_rules"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_mytownmyrules.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -552,7 +555,7 @@ def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_farola = pygame.Rect(10, 350, 250, 50)
     color_boton = (200, 200, 100) if boton_farola.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_farola)
-    texto_surf_boton = fuente_normal.render("Farola", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("streetlamp"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_farola.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -576,7 +579,7 @@ def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_arbusto = pygame.Rect(810, 350, 250, 50)
     color_boton = (200, 200, 100) if boton_arbusto.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_arbusto)
-    texto_surf_boton = fuente_normal.render("Arbusto", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("bush"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_arbusto.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -592,7 +595,7 @@ def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_siguiente.collidepoint(pos_raton) else (97, 175, 14)
     pygame.draw.rect(pantalla, color_boton, boton_siguiente)
-    texto_surf_boton = fuente_normal.render("Siguiente", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("next"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_siguiente.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -604,7 +607,7 @@ def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_volver = pygame.Rect(10, 500, 250, 50)
     color_boton = (200, 200, 100) if boton_volver.collidepoint(pos_raton) else (97, 175, 14)
     pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render("Volver", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("back"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -634,7 +637,7 @@ def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_comprar)
-    texto_surf_boton = fuente_normal.render("Jabón de manos Lov'yc | 250", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("hand_soap"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -645,10 +648,10 @@ def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                     dinero -= 250
                     felicidad += 5
                     experiencia += 10
-                    print("Compra exitosa.")
+                    print(_("purchase_success"))
                     return "mapainicial"
                 else:
-                    print("Dinero insuficiente.")
+                    print(_("insufficient_money"))
                     return "mapainicial"
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc.png')).convert_alpha()
@@ -663,7 +666,7 @@ def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_mascarilla.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_mascarilla)
-    texto_surf_boton = fuente_normal.render("Mascarilla Gold Lov'yc | 150", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("face_mask"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_mascarilla.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -674,10 +677,10 @@ def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                     dinero -= 150
                     felicidad += 5
                     experiencia += 10
-                    print("Compra exitosa.")
+                    print(_("purchase_success"))
                     return "mapainicial"
                 else:
-                    print("Dinero insuficiente.")
+                    print(_("insufficient_money"))
                     return "mapainicial"
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc_mascarilla.png')).convert_alpha()
@@ -690,7 +693,7 @@ def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_siguiente.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_siguiente)
-    texto_surf_boton = fuente_normal.render("Siguiente", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("next"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_siguiente.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -709,7 +712,7 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_champu.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_champu)
-    texto_surf_boton = fuente_normal.render("Champú Lov'yc | 200", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("shampoo"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_champu.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -720,10 +723,10 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                     dinero -= 200
                     felicidad += 10
                     experiencia += 10
-                    print("Compra exitosa.")
+                    print(_("purchase_success"))
                     return "mapainicial"
                 else:
-                    print("Dinero insuficiente.")
+                    print(_("insufficient_money"))
                     return "mapainicial"
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc_champú.png')).convert_alpha()
@@ -737,7 +740,7 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_comprar)
-    texto_surf_boton = fuente_normal.render("Toallitas Lov'yc | 100", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("wipes"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -748,10 +751,10 @@ def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
                     dinero -= 100
                     felicidad += 5
                     experiencia += 10
-                    print("Compra exitosa.")
+                    print(_("purchase_success"))
                     return "mapainicial"
                 else:
-                    print("Dinero insuficiente.")
+                    print(_("insufficient_money"))
                     return "mapainicial"
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc_toallitas.png')).convert_alpha()
@@ -773,7 +776,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_casasimple.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_casasimple)
-    texto_surf_boton = fuente_normal.render("Casa Simple", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("simple_house"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_casasimple.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -791,7 +794,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_store = pygame.Rect(410, 350, 250, 50)
     color_boton = (200, 200, 100) if boton_store.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_store)
-    texto_surf_boton = fuente_normal.render("Supermercado", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("supermarket"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_store.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -817,7 +820,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     boton_tarraco = pygame.Rect(810, 350, 250, 50)
     color_boton = (200, 200, 100) if boton_tarraco.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_tarraco)
-    texto_surf_boton = fuente_normal.render("Tarraco Import Export", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("tarraco"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_tarraco.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -856,9 +859,10 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
-    mostrar_texto(pantalla, fuente_normal, f"Dinero: {dinero}", 10, 10)
-    mostrar_texto(pantalla, fuente_normal, f"Edificios: {len(edificios)}", 10, 40)
-    mostrar_texto(pantalla, fuente_normal, f"Experiencia: {experiencia}", 10, 70)
+    mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 10)
+    mostrar_texto(pantalla, fuente_normal, _("buildings_short").format(count=len(edificios)), 10, 40)
+    mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 70)
+    mostrar_texto(pantalla, fuente_normal, _("debt").format(experience=deuda), 10, 70)
 
     # load sprites
     try:
@@ -895,7 +899,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
         pass
 
     mostrar_texto(pantalla, fuente_normal,
-                  f"Costo: {costo} | Clic izq: construir | Clic der: cancelar",
+                  _("placement_hint").format(cost=costo),
                   10, pantalla.get_height() - 30)
 
     for evento in eventos:
@@ -908,10 +912,10 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
                     edificios.append({"tipo": tipo_edificio, "pos": final_pos})
                     dinero -= costo
                     experiencia += recompensa_exp
-                    print(f"{tipo_edificio.capitalize()} construido en: {final_pos} | +{recompensa_exp} exp")
+                    print(_("building_built").format(type=tipo_edificio.capitalize(), pos=final_pos, exp=recompensa_exp))
                     return "mapainicial"
                 else:
-                    print("¡No tienes suficiente dinero!")
+                    print(_("not_enough_money"))
                     return "construccion"
             if evento.button == 3:
                 print("Colocación cancelada.")
@@ -933,7 +937,7 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_impuestos.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_impuestos)
-    texto_surf_boton = fuente_normal.render("COBRAR IMPUESTOS", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("collect_taxes"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_impuestos.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -952,7 +956,7 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
     boton_vendeedificio = pygame.Rect(460, 380, 250, 50)
     color_boton = (200, 200, 100) if boton_vendeedificio.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_vendeedificio)
-    texto_surf_boton = fuente_normal.render("VENDER EDIFICIO", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("sell_building"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_vendeedificio.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -971,7 +975,7 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
     boton_prestamo = pygame.Rect(860, 380, 250, 50)
     color_boton = (200, 200, 100) if boton_prestamo.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_prestamo)
-    texto_surf_boton = fuente_normal.render("PEDIR PRÉSTAMO", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("ask_loan"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_prestamo.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     for evento in eventos:
@@ -981,6 +985,75 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
                 return "prestamo"
 
     return "facturar"
+
+def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_prestamo):
+    global dinero, felicidad, experiencia, deuda
+    
+    input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
+    color_inactivo = pygame.Color('lightskyblue3')
+    color_activo = pygame.Color('dodgerblue2')
+
+    texto_usuario = caja_texto_estado['texto']
+    activo = caja_texto_estado['activo']
+    color = color_activo if activo else color_inactivo
+
+    boton_volver = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+
+    for evento in eventos:
+        if evento.type == pygame.QUIT:
+            return "salir"
+        if evento.type == pygame.MOUSEBUTTONDOWN:
+            if boton_volver.collidepoint(evento.pos):
+                return "menu"
+            activo = input_box.collidepoint(evento.pos)
+        if activo and evento.type == pygame.KEYDOWN:
+            if evento.key == pygame.K_RETURN:
+                if texto_usuario.isdigit(): 
+                    cantidad_int = int(texto_usuario)
+                    
+                    print(f"Respuesta enviada: {cantidad_int}")
+                    
+                    datos_prestamo['cantidad'] = cantidad_int
+                    datos_prestamo['deuda'] = datos_prestamo.get('deuda', 0) + cantidad_int
+                    
+                    dinero += cantidad_int
+                    experiencia += 15
+                    
+                    texto_usuario = ""
+                    activo = False
+                    return "mapainicial"
+                else:
+                    print("Por favor, introduce un número válido.")
+                    
+            elif evento.key == pygame.K_BACKSPACE:
+                texto_usuario = texto_usuario[:-1]
+            else:
+                # Avoid characters
+                if evento.unicode.isdigit(): 
+                    texto_usuario += evento.unicode
+
+    caja_texto_estado['texto'] = texto_usuario
+    caja_texto_estado['activo'] = activo
+
+    pantalla.fill((220, 220, 255))
+    
+    # render 'texto_usuario'
+    texto_pregunta_surf = fuente_titulo.render(_("borrow_question"), True, (0, 0, 0))
+    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
+    pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+
+    texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
+    input_box.w = max(400, texto_surf.get_width() + 20)
+    pygame.draw.rect(pantalla, color, input_box, 2)
+    pantalla.blit(texto_surf, (input_box.x + 10, input_box.y + 10))
+
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_volver)
+    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    return "prestamo"
 
 def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_impuestos):
     global dinero, felicidad, experiencia
@@ -1009,7 +1082,7 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
                 datos_impuestos['porcentaje'] = texto_usuario
                 texto_usuario = ""
                 impuestoapagar = poblacion * dineroporhabitante * (int(datos_impuestos['porcentaje']) / 100)
-                print(f"Has cobrado {impuestoapagar} en impuestos.")
+                print(_("tax_collected").format(amount=impuestoapagar))
                 dinero += int(impuestoapagar)
                 felicidad -= 10
                 experiencia += 15
@@ -1025,7 +1098,7 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
 
     pantalla.fill((220, 220, 255))
     porcentaje = datos_impuestos.get('porcentaje', '0')
-    texto_pregunta_surf = fuente_titulo.render("¿Qué % de impuestos quieres cobrar a los ciudadanos?", True, (0, 0, 0))
+    texto_pregunta_surf = fuente_titulo.render(_("tax_question"), True, (0, 0, 0))
     texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
     pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
 
@@ -1037,12 +1110,12 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
     pos_raton = pygame.mouse.get_pos()
     color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
     pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render("Volver al Menú", True, (255, 255, 255))
+    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     return "impuestos"
 
-# MAIN FUNCTION (The boss)
+# MAIN FUNCTION
 def main():
     pygame.init()
     pantalla = pygame.display.set_mode((1200, 600))
@@ -1093,6 +1166,8 @@ def main():
             estado_del_juego = infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "productos":
             estado_del_juego = productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
+        elif estado_del_juego == "prestamo":
+            estado_del_juego = prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
         elif estado_del_juego == "facturar":
             estado_del_juego = facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador)
         elif estado_del_juego == "impuestos":

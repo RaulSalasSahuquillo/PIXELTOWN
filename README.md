@@ -26,14 +26,14 @@ Before you dive in, make sure you have the following installed:
 
 You can install the required dependencies using pip:
 ```bash
-pip install pygame moviepy
+pip install -r requirements.txt
 ```
 
 ## Project Structure
 
 The project is structured cleanly to keep the logic and assets organized:
 
-- `code/`: Contains the core logic scripts (`main.py`, `main_es.py`, `main_en.py`, `terminal.py`, etc.).
+- `src/`: Contains the core Python scripts (`main.py`, `game.py`, `terminal.py`, `localization.py`, etc.) and the `locals/` subdirectory containing `es.json` and `en.json`.
 - `assets/`: Contains all assets used by the game:
   - `imagenes/`: Visual assets, player sprites, and background images.
   - `PIXELTOWN_OST/`: Game soundtracks and sound effects.
@@ -42,13 +42,12 @@ The project is structured cleanly to keep the logic and assets organized:
 ## How to Play
 
 1. **Clone or download** this repository.
-2. Navigate to the project directory and open the `code/` folder.
-3. Run the main file:
+2. Navigate to the project directory.
+3. Run the main launcher:
    ```bash
-   cd code
-   python main.py
+   python src/main.py
    ```
-4. Follow the on-screen prompts to enter your name and your city's name to begin your mayoral journey. Have fun and try not to get overthrown!
+4. Follow the on-screen prompts in the terminal to choose your language, then enter your name and your city's name to begin your mayoral journey. Have fun and try not to get overthrown!
 
 ## Contributing
 

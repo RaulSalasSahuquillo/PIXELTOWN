@@ -2,6 +2,22 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [1.5.0] - 2026-05-28
+
+### Added
+- **Dynamic Localization Engine**:
+  - Created `src/localization.py` to handle loading language resources and dynamically translating text keys at runtime.
+  - Added `src/locals/es.json` containing all Spanish translations for menus, stats, notifications, and info screens.
+  - Added `src/locals/en.json` containing matching English translations.
+
+### Changed
+- **Consolidated Game Source**:
+  - Unified the separate language-specific game files (`main_es.py` and `main_en.py`) into a single, dynamic codebase (`src/game.py`).
+  - Merged text templates into `src/text.py` using resource-driven localization.
+- **Codebase Reorganization**:
+  - Relocated all active python source files to a clean `src/` directory.
+  - Restored `src/main.py` and `src/terminal.py` launcher connections to use the original module functions (`game.main`).
+
 ## [1.0.0] - 2026-05-27
 
 ### Added
