@@ -924,7 +924,6 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
             if evento.button == 3:
                 print("Colocación cancelada.")
                 return "construccion"
-
     return "colocando_edificio"
 
 def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
@@ -1045,7 +1044,7 @@ def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caj
     pantalla.fill((220, 220, 255))
     
     # render 'texto_usuario'
-    lineas_pregunta = _("borrow_question").split('\n')
+    lineas_pregunta = _("borrow_question").split('\n') # Pygame doesn't know about \n by itself
     current_y = 180
     for linea in lineas_pregunta:
         texto_pregunta_surf = fuente_titulo.render(linea, True, (0, 0, 0))
