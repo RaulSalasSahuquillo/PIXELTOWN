@@ -302,11 +302,15 @@ def cargamapa(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     return "mapainicial"
 
 
-def mostrar_texto(pantalla, fuente, texto, x, y, color=(0, 0, 0)):
-    superficie_texto = fuente.render(texto, True, color)
-    rect_texto = superficie_texto.get_rect()
-    rect_texto.topleft = (x, y)
-    pantalla.blit(superficie_texto, rect_texto)
+def mostrar_texto(pantalla, fuente, texto, x, y, color=(0, 0, 0), line_spacing=5):
+    lines = texto.split("\n")
+    current_y = y
+    for line in lines:
+        # Render the actual lines
+        text_surface = fuente.render(line, True, color)
+        # Draw it on the screen
+        pantalla.blit(text_surface, (x, current_y))
+        current_y += text_surface.get_height() + line_spacing
 
 
 def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
@@ -329,7 +333,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
     mostrar_texto(pantalla, fuente_normal, _("happiness").format(happiness=felicidad), 10, 170)
     mostrar_texto(pantalla, fuente_normal, _("buildings").format(count=len(edificios)), 10, 210)
     mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 250)
-    mostrar_texto(pantalla, fuente_normal, _("debt").format(experience=deuda), 10, 250)
+    mostrar_texto(pantalla, fuente_normal, _("debt").format(debt=deuda), 10, 290)
 
     try:
         casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
@@ -862,7 +866,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 10)
     mostrar_texto(pantalla, fuente_normal, _("buildings_short").format(count=len(edificios)), 10, 40)
     mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 70)
-    mostrar_texto(pantalla, fuente_normal, _("debt").format(experience=deuda), 10, 70)
+    mostrar_texto(pantalla, fuente_normal, _("debt").format(debt=deuda), 10, 100)
 
     # load sprites
     try:
@@ -1012,13 +1016,16 @@ def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caj
                     cantidad_int = int(texto_usuario)
                     
                     print(f"Respuesta enviada: {cantidad_int}")
-                    
+                    if cantidad_int > dinero*1.3:
+                        limitedeuda = _("debt_limit")
+                        print(limitedeuda)
+                        return "mapainicial"
                     datos_prestamo['cantidad'] = cantidad_int
                     datos_prestamo['deuda'] = datos_prestamo.get('deuda', 0) + cantidad_int
                     
                     dinero += cantidad_int
                     experiencia += 15
-                    
+                    deuda += cantidad_int
                     texto_usuario = ""
                     activo = False
                     return "mapainicial"
@@ -1038,9 +1045,13 @@ def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caj
     pantalla.fill((220, 220, 255))
     
     # render 'texto_usuario'
-    texto_pregunta_surf = fuente_titulo.render(_("borrow_question"), True, (0, 0, 0))
-    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
-    pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+    lineas_pregunta = _("borrow_question").split('\n')
+    current_y = 180
+    for linea in lineas_pregunta:
+        texto_pregunta_surf = fuente_titulo.render(linea, True, (0, 0, 0))
+        texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, current_y))
+        pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+        current_y += texto_pregunta_surf.get_height() + 5
 
     texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
     input_box.w = max(400, texto_surf.get_width() + 20)

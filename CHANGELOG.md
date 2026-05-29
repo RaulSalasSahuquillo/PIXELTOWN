@@ -2,6 +2,19 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [1.6.0] - 2026-05-28
+
+### Added
+- **Debt logic**
+  - Now you can't borrow more than 30% of your net-worth.
+  - You can't type characters in the borrowing text box.
+
+### Fixed
+- **Stats**
+  - Debt was overwritten on the 'experience' info.
+  - The quantity of debt wasn't shown on the stats.
+  - The problem about pygame not reading \n properly is now fixed.
+
 ## [1.5.0] - 2026-05-28
 
 ### Added
