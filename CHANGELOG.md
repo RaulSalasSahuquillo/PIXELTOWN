@@ -2,6 +2,20 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [1.6.5] - 2026-05-26
+
+### Added
+- **Logo**
+  - PIXELTOWN now has its own logo, only for Windows users.
+
+### Changed
+- **Intro Video**
+  - To accelerate the process, I changed the moviepy library to pyvidplayer2, since it is based in C, so it runs faster.
+
+### Fixed
+- **Debt Logic**
+  - Fixed some bugs in loans.
+
 ## [1.6.0] - 2026-05-28
 
 ### Added

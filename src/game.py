@@ -21,7 +21,7 @@ import os
 import pygame
 import time
 import sys
-from moviepy import VideoFileClip  # Dear programmer, good luck importing this trash library. Honestly, it took me hours, and I still have problems.
+from pyvidplayer2 import Video
 from characters import bipo, daemon, persona, flecha, bipobienvenida
 from text import titulo, informaciontexto1, informaciontexto2
 from localization import _
@@ -43,54 +43,37 @@ deuda = 0 # Your debt
 
 
 # SCENE DEFINITION
-def escena_intro(pantalla, reloj):  # We need the clock to control the speed 
+def escena_intro(pantalla, reloj):
     try:
         ruta_video = os.path.join(DIR_VISUAL, 'intro.mp4')
-        clip = VideoFileClip(ruta_video)
-        if clip.audio is not None:
-            temp_audio = "temp_intro_audio.mp3" # I create the audio file of the video so that moviepy doesn't reproduce the video without the sound
-            clip.audio.write_audiofile(temp_audio, logger=None)
-            pygame.mixer.music.load(temp_audio)
-            pygame.mixer.music.play()
-        # We iterate over each frame of the video
-        for frame in clip.iter_frames(fps=clip.fps, dtype='uint8'):
-            # Event handling INSIDE the loop
+        video = Video(ruta_video)
+        
+        # Same dimensions as the pygame screen
+        dimensiones_pantalla = pantalla.get_size()
+        video.resize(pantalla.get_size())
+
+        while video.active:
             for evento in pygame.event.get():
                 if evento.type == pygame.QUIT:
-                    pygame.mixer.music.stop()
-                    clip.close()  # Close the video file
+                    video.close()
                     return "salir"
-
-            # Convert the frame (from numpy to Pygame surface)
-            frame_surface = pygame.surfarray.make_surface(frame.swapaxes(0, 1))
-
-            # Resize the frame to match the screen size
-            frame_scaled = pygame.transform.scale(frame_surface, pantalla.get_size())
-
-            # Draw the frame on the main screen
-            pantalla.blit(frame_scaled, (0, 0))
-
-            # Update the screen to show the frame
+            video.draw(pantalla, (0, 0), dimensiones_pantalla)
             pygame.display.flip()
+            reloj.tick(video.frame_rate) 
 
-            # Control the speed to match the video's FPS
-            reloj.tick(clip.fps)
-
-        clip.close()  # Close the video file when it finishes 
+        video.close()
 
     except FileNotFoundError:
-        print("Error: No se encontró el archivo de video 'intro.mp4' en la carpeta visual. Saltando intro.")
+        print("Error: No se encontró el archivo de video 'intro.mp4'. Saltando intro.")
     except Exception as e:
-        print(f"Ocurrió un error al reproducir el video: {e}. Saltando intro.")
+        print(f"Ocurrió un error al reproducir el video con pyvidplayer2: {e}. Saltando intro.")
 
     try:
-        time.sleep(7)
         pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "anewbegining.mp3"))
         pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
 
-    # When the video finishes (or fails, fingers crossed it doesn't), we move to the menu
     return "menu"
 
 
@@ -355,6 +338,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         "my_town_my_rules": mytown_img,
         "arbusto": arbusto_img
     }
+
 
     # Draw existing buildings (The real estate)
     for edificio in edificios:
@@ -1066,7 +1050,7 @@ def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caj
     return "prestamo"
 
 def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_impuestos):
-    global dinero, felicidad, experiencia
+    global dinero, felicidad, experiencia, deuda
     input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
     color_inactivo = pygame.Color('lightskyblue3')
     color_activo = pygame.Color('dodgerblue2')
@@ -1093,7 +1077,12 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
                 texto_usuario = ""
                 impuestoapagar = poblacion * dineroporhabitante * (int(datos_impuestos['porcentaje']) / 100)
                 print(_("tax_collected").format(amount=impuestoapagar))
-                dinero += int(impuestoapagar)
+                int_impuestoapagar = int(impuestoapagar)
+                if (deuda > 0):
+                    for i in range(int(impuestoapagar)):
+                        deuda-=1
+                        int_impuestoapagar-=1
+                dinero += int_impuestoapagar
                 felicidad -= 10
                 experiencia += 15
                 activo = False
@@ -1128,6 +1117,17 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
 # MAIN FUNCTION
 def main():
     pygame.init()
+
+    # PIXELTOWN logo, only visible for Windows users (I'm an x11/Wayland Ubuntu user, so I blindly trust in this process)
+    if sys.platform.startswith('win32'):
+        try:
+            ruta_icono = os.path.join(DIR_IMAGENES, 'pixeltown_logo.png')
+            icono = pygame.image.load(ruta_icono)
+            icono_escalado = pygame.transform.scale(icono, (32, 32))
+            pygame.display.set_icon(icono_escalado)
+        except pygame.error:
+            print("No se pudo encontrar el logo, se usará el de por defecto.")
+
     pantalla = pygame.display.set_mode((1200, 600))
     pygame.display.set_caption("PIXELTOWN")
     reloj = pygame.time.Clock()
