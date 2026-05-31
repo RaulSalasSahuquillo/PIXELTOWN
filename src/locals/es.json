@@ -45,6 +45,7 @@
   "game_over": "¡La ciudad ha sido destruida! \nHAS PERDIDO",
   "debt_limit": "¡El préstamo supera el 30% de tu dinero total!",
   "insufficient_money": "Dinero insuficiente.",
+  "level": "Nivel: {level}",
   "purchase_success": "Compra exitosa.",
   "tax_collected": "Has cobrado {amount} en impuestos.",
   "borrow_collected": "¡Has recibido {cantidad}!",

@@ -40,6 +40,7 @@ experiencia = 0  # Initial experience
 dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
 tiempo = 1 # Time in days
 deuda = 0 # Your debt
+nivel = 1 # Your level
 
 
 # SCENE DEFINITION
@@ -75,7 +76,6 @@ def escena_intro(pantalla, reloj):
         print(f"No se pudo cargar el archivo de música: {e}")
 
     return "menu"
-
 
 def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
     boton_jugar = pygame.Rect(900, 500, 200, 50)
@@ -300,7 +300,13 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     boton_acciones = pygame.Rect(900, 500, 250, 50)
     pos_raton = pygame.mouse.get_pos()
-
+    global nivel, experiencia
+    if experiencia >= 100 and nivel < 5:
+        experiencia = 0
+        nivel += 1
+    elif experiencia >= 1000 and (nivel >= 5 and nivel < 10):
+        experiencia = 0
+        nivel += 1
     color_boton = (255, 100, 100) if boton_acciones.collidepoint(pos_raton) else (200, 50, 50)
     pygame.draw.rect(pantalla, color_boton, boton_acciones)
     texto_surf_boton = fuente_normal.render(_("actions"), True, (255, 255, 255))
@@ -317,6 +323,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
     mostrar_texto(pantalla, fuente_normal, _("buildings").format(count=len(edificios)), 10, 210)
     mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 250)
     mostrar_texto(pantalla, fuente_normal, _("debt").format(debt=deuda), 10, 290)
+    mostrar_texto(pantalla, fuente_normal, _("level").format(level=nivel), 10, 330)
 
     try:
         casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
@@ -338,8 +345,6 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         "my_town_my_rules": mytown_img,
         "arbusto": arbusto_img
     }
-
-
     # Draw existing buildings (The real estate)
     for edificio in edificios:
         tipo = edificio["tipo"]
@@ -355,7 +360,6 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         pantalla.blit(player_image_scaled, (450, 200))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-        
     if felicidad < 10:
         print(_("citizens_unhappy"))
         time.sleep(1)
@@ -369,7 +373,6 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         finally:
             print(_("game_over"))
             return "salir"
-
     for evento in eventos:
         if evento.type == pygame.QUIT:
             return "salir"
@@ -377,7 +380,6 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
             if boton_acciones.collidepoint(evento.pos):
                 print("Cambiando a la escena de acciones...")
                 return "acciones"
-
     try:
         if not pygame.mixer.music.get_busy():
             pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "Aldea_soundtrack.mp3"))
@@ -851,6 +853,8 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     mostrar_texto(pantalla, fuente_normal, _("buildings_short").format(count=len(edificios)), 10, 40)
     mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 70)
     mostrar_texto(pantalla, fuente_normal, _("debt").format(debt=deuda), 10, 100)
+    mostrar_texto(pantalla, fuente_normal, _("level").format(level=nivel), 10, 130)
+
 
     # load sprites
     try:

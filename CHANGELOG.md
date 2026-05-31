@@ -2,6 +2,18 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [1.6.6] - 2026-05-26
+
+### Added
+- **Levels**
+  - Now there are levels depending on the experience you have.
+
+### Fixed
+  - Position of stats have the same space.
+
+### Changed
+  - Logic on earning experience. 
+
 ## [1.6.5] - 2026-05-26
 
 ### Added
