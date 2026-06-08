@@ -2,6 +2,20 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [1.6.7] - 2026-06-08
+
+### Added
+- **Stats Button**
+  - Added a button to view the stats.
+
+### Fixed
+- **Pygame Event AttributeError**
+  - Fixed a crash where non-mouse events (like keyboard key presses or window quit events) caused the game to crash on the initial map scene because they lacked the `.pos` attribute.
+
+### Changed
+- **Stats Button Layout**
+  - Repositioned the "View stats" button to the top-right corner of the screen and reduced its size to look cleaner.
+
 ## [1.6.6] - 2026-05-26
 
 ### Added

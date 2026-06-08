@@ -1,6 +1,7 @@
 {
   "play": "JUGAR",
   "back_to_menu": "Volver al Menú",
+  "view_stats": "Ver datos",
   "continue": "Continuar",
   "what_is_your_name": "¿Cómo te llamas?",
   "welcome_city_name": "Bienvenid@ a PIXELTOWN, {username} ¿Cómo se llama tu ciudad?",

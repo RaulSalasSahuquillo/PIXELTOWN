@@ -1,6 +1,7 @@
 {
   "play": "PLAY",
   "back_to_menu": "Back to Menu",
+  "view_stats": "View Stats",
   "continue": "Continue",
   "what_is_your_name": "What is your name?",
   "welcome_city_name": "Welcome to PIXELTOWN, {username}. What is the name of your city?",
