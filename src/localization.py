@@ -19,14 +19,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
 import os
+import sys
 
 texts = {}
 
 def load_language(lang_code):
     # Carga el archivo JSON del idioma seleccionado (es o en)
     global texts
-    base_path = os.path.dirname(__file__)
-    file_path = os.path.join(base_path, 'locals', f'{lang_code}.json')
+    # When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
+    if getattr(sys, 'frozen', False):
+        base_path = os.path.join(sys._MEIPASS, 'locals')
+    else:
+        base_path = os.path.join(os.path.dirname(__file__), 'locals')
+    file_path = os.path.join(base_path, f'{lang_code}.json')
     
     try:
         with open(file_path, 'r', encoding='utf-8') as f:

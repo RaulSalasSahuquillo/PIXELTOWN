@@ -300,13 +300,11 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 10px,
-                rgba(255,255,255,0.02) 10px,
-                rgba(255,255,255,0.02) 20px
-            );
+            background: repeating-linear-gradient(45deg,
+                    transparent,
+                    transparent 10px,
+                    rgba(255, 255, 255, 0.02) 10px,
+                    rgba(255, 255, 255, 0.02) 20px);
             animation: float 6s linear infinite;
             pointer-events: none;
         }
@@ -339,7 +337,7 @@
             margin-top: 15px;
             display: inline-block;
             position: relative;
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+            text-shadow: 1px 1px 0px rgba(0, 0, 0, 0.5);
         }
 
         .btn-download:hover {
@@ -454,7 +452,7 @@
         .retro-input:focus {
             border-color: #0f0;
         }
-        
+
         .ide-close-btn {
             background-color: #fff;
             color: #0000a8;
@@ -498,12 +496,12 @@
             border: 1px solid #555;
             border-radius: 3px;
         }
-        
+
         .ide-container.theme-normal .ide-close-btn {
             background-color: transparent;
             color: #cccccc;
         }
-        
+
         .ide-container.theme-normal .ide-close-btn:hover {
             background-color: #c83232;
             color: #ffffff;
@@ -562,13 +560,18 @@
         <section class="pixel-box download-box">
             <span class="badge">⚡ EARLY ACCESS</span>
             <h2>Download Beta v1.7.0 🎮</h2>
-            <p>Try the latest version of <strong style="color:#53edff;">PIXELTOWN</strong> right now! Includes the new <strong style="color:#ffeb3b;">Tetris</strong> and <strong style="color:#ffeb3b;">Solar System Simulator</strong> minigames.</p>
+            <p>Try the latest version of <strong style="color:#53edff;">PIXELTOWN</strong> right now! Includes the new
+                <strong style="color:#ffeb3b;">Tetris</strong> and <strong style="color:#ffeb3b;">Solar System
+                    Simulator</strong> minigames.</p>
             <br>
-            <a href="https://drive.google.com/file/d/1J2agcl7AtbHDVIyH3PRGLv8PEaNDYLA2/view?usp=drive_link" target="_blank" class="btn btn-download">
-                ⬇ DOWNLOAD FOR WINDOWS
+            <a href="https://drive.google.com/file/d/1Z2ay5ulXf3imCwDpOtFpxHenrbLMRW1x/view?usp=drive_link"
+                target="_blank" class="btn btn-download">
+                ⬇ DOWNLOAD FOR LINUX
             </a>
-            <p class="platform-note">🪟 Windows only (.exe) &nbsp;|&nbsp; ~210 MB &nbsp;|&nbsp; No installation required</p>
-            <p class="platform-note">Linux & macOS users: clone the repo and run with Python (see below)</p>
+            <p class="platform-note">🐧 Linux only &nbsp;|&nbsp; ~210 MB &nbsp;|&nbsp; No installation required (run
+                with <code>chmod +x main && ./main</code>)</p>
+            <p class="platform-note" style="color: #ffeb3b; font-weight: bold; margin-top: 10px;">🪟 Windows: coming
+                soon! Windows & macOS users can clone the repo and run with Python in the meantime.</p>
         </section>
 
         <section class="pixel-box">
@@ -651,7 +654,8 @@
                     </div>
                     <div style="margin-left: auto; display: flex; align-items: center;">
                         <label for="theme-selector">THEME:</label>
-                        <select id="theme-selector" class="retro-select" onchange="document.getElementById('ide-container').className = this.value === 'normal' ? 'ide-container theme-normal' : 'ide-container'">
+                        <select id="theme-selector" class="retro-select"
+                            onchange="document.getElementById('ide-container').className = this.value === 'normal' ? 'ide-container theme-normal' : 'ide-container'">
                             <option value="retro">Retro</option>
                             <option value="normal">Normal</option>
                         </select>
@@ -805,7 +809,7 @@
         updateHappiness();
 
         // WEB IDE: FILE LOADING LOGIC
-        // This function fetches files from the server so we can edit them right here!
+        // This function fetches files from the server or GitHub so we can edit them right here!
         function loadFile(filePath) {
             // Find the textarea where the code will be displayed.
             const editor = document.getElementById('ide-editor');
@@ -816,25 +820,39 @@
             // Show a temporary loading message so the user knows something is happening.
             editor.value = "LOADING " + filePath + "...";
 
-            // Use the Fetch API to grab the raw text of the file from the local server.
-            fetch(filePath)
-                .then(response => {
-                    // Check if the server actually found the file.
-                    if (response.ok) {
-                        // Success! Return the raw text content.
-                        return response.text();
-                    }
-                    // Oh no
-                    throw new Error('Could not load file.');
-                })
-                .then(code => {
-                    // Inject the fetched code directly into the textarea editor.
-                    editor.value = code;
-                })
-                .catch(error => {
-                    // If anything went wrong (like CORS issues locally), show an error message.
-                    editor.value = "# ERROR 404\n# We couldn't load " + filePath + " automatically.\n# Please ensure you are running the local server.\n\nprint('Hello PIXELTOWN!')";
-                });
+            // Define the candidate URLs to try fetching from:
+            const urlsToTry = [];
+            if (window.location.protocol !== 'file:') {
+                urlsToTry.push('../' + filePath);
+                urlsToTry.push('/' + filePath);
+            }
+            urlsToTry.push('https://raw.githubusercontent.com/RaulSalasSahuquillo/PIXELTOWN/master/' + filePath);
+
+            function tryFetch(index) {
+                if (index >= urlsToTry.length) {
+                    // If all options failed, show an error.
+                    editor.value = "# ERROR 404\n# We couldn't load " + filePath + " automatically.\n# Please ensure you are running the local server or have an active internet connection.\n\nprint('Hello PIXELTOWN!')";
+                    return;
+                }
+
+                fetch(urlsToTry[index])
+                    .then(response => {
+                        if (response.ok) {
+                            return response.text();
+                        }
+                        throw new Error('Could not load file.');
+                    })
+                    .then(code => {
+                        // Inject the fetched code directly into the textarea editor.
+                        editor.value = code;
+                    })
+                    .catch(() => {
+                        // Try the next source URL in the candidate array
+                        tryFetch(index + 1);
+                    });
+            }
+
+            tryFetch(0);
         }
 
         // PULL REQUEST (PR)

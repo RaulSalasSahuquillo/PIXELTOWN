@@ -19,7 +19,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame, sys, math, copy, os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMAGENES = os.path.join(BASE_DIR, "assets", "imagenes")
 
 _images = {}  # filled at runtime

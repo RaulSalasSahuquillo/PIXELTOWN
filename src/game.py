@@ -30,7 +30,11 @@ from text import titulo, informaciontexto1, informaciontexto2
 from localization import _
 
 # PATH CONFIGURATION (Don't mess with these!)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
+if getattr(sys, 'frozen', False):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DIR_IMAGENES = os.path.join(BASE_DIR, "assets", "imagenes")
 DIR_PIXELTOWN_OST = os.path.join(BASE_DIR, "assets", "PIXELTOWN_OST")
 DIR_VISUAL = os.path.join(BASE_DIR, "assets", "visual")
