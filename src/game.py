@@ -21,6 +21,9 @@ import os
 import pygame
 import time
 import sys
+from snake import run_snake
+from tetris import run_tetris
+from solarsystem import run_solarsystem
 from pyvidplayer2 import Video
 from characters import bipo, daemon, persona, flecha, bipobienvenida
 from text import titulo, informaciontexto1, informaciontexto2
@@ -404,11 +407,11 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     # BUY (Time to spend)
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tienda.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (40, 100))
+        player_image_scaled = pygame.transform.scale(player_image, (250, 250))
+        pantalla.blit(player_image_scaled, (60, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_comprar = pygame.Rect(60, 380, 250, 50)
+    boton_comprar = pygame.Rect(60, 260, 250, 50)
     pos_raton = pygame.mouse.get_pos()
     color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_comprar)
@@ -424,12 +427,12 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     # SELL
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'ganar_dinero.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (440, 100))
+        player_image_scaled = pygame.transform.scale(player_image, (250, 250))
+        pantalla.blit(player_image_scaled, (460, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_ganar_dinero = pygame.Rect(460, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_ganar_dinero.collidepoint(pos_raton) else (200, 50, 50) # R, G, B
+    boton_ganar_dinero = pygame.Rect(460, 260, 250, 50)
+    color_boton = (200, 200, 100) if boton_ganar_dinero.collidepoint(pos_raton) else (200, 200, 50) # R, G, B
     pygame.draw.rect(pantalla, color_boton, boton_ganar_dinero)
     texto_surf_boton = fuente_normal.render(_("invoice"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_ganar_dinero.center)
@@ -439,15 +442,35 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
             if boton_ganar_dinero.collidepoint(evento.pos):
                 print("Cambiando a la escena facturar...")
                 return "facturar"
+            
+    # MINIGAMES
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'minijuegos.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (250, 250))
+        pantalla.blit(player_image_scaled, (40, 300))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_minijuegos = pygame.Rect(60, 580, 250, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_minijuegos.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_minijuegos)
+    texto_surf_boton = fuente_normal.render(_("minigames"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_minijuegos.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_minijuegos.collidepoint(evento.pos):
+                print("Cambiando a la escena de minijuegos")
+                return "minijuegos"
 
     # INFORMATION
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'info.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (840, 100))
+        player_image_scaled = pygame.transform.scale(player_image, (250, 250))
+        pantalla.blit(player_image_scaled, (860, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_info = pygame.Rect(860, 380, 250, 50)
+    boton_info = pygame.Rect(860, 260, 250, 50)
     color_boton = (200, 200, 100) if boton_info.collidepoint(pos_raton) else (200, 200, 50)
     pygame.draw.rect(pantalla, color_boton, boton_info)
     texto_surf_boton = fuente_normal.render(_("information"), True, (255, 255, 255))
@@ -465,6 +488,15 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
     pygame.display.flip()
     return "acciones"
+
+def snakegame(pantalla):
+    return run_snake(pantalla)
+
+def tetrisgame(pantalla):
+    return run_tetris(pantalla)
+
+def solarsystem(pantalla):
+    return run_solarsystem(pantalla)
 
 def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
@@ -985,6 +1017,86 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
 
     return "facturar"
 
+def minijuegos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    mostrar_texto(pantalla, fuente_titulo, _("minigames"), 10, 10)
+
+    # SNAKE GAME
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'snakelogo.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (40, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_snake = pygame.Rect(60, 380, 250, 50)
+    pos_raton = pygame.mouse.get_pos()
+    color_boton = (200, 200, 100) if boton_snake.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_snake)
+    texto_surf_boton = fuente_normal.render(_("snakegame"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_snake.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_snake.collidepoint(evento.pos):
+                print("Cargando el juego de la serpiente...")
+                return "snakegame"
+        if evento.type == pygame.QUIT:
+            return "salir"
+
+    # TETRIS GAME
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tetrislogo.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (440, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_tetris = pygame.Rect(460, 380, 250, 50)
+    color_boton = (200, 200, 100) if boton_tetris.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_tetris)
+    texto_surf_boton = fuente_normal.render(_("tetrisgame"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_tetris.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_tetris.collidepoint(evento.pos):
+                print("Cargando tetris...")
+                return "tetrisgame"
+        if evento.type == pygame.QUIT:
+            return "salir"
+        
+    # SOLAR SYSTEM SIMULATOR
+    try:
+        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'solarsystemlogo.png')).convert_alpha()
+        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
+        pantalla.blit(player_image_scaled, (840, 100))
+    except pygame.error as e:
+        print(f"No se pudo cargar la imagen: {e}")
+    boton_solarsystem = pygame.Rect(860, 380, 250, 50)
+    color_boton = (200, 200, 100) if boton_solarsystem.collidepoint(pos_raton) else (200, 200, 50)
+    pygame.draw.rect(pantalla, color_boton, boton_solarsystem)
+    texto_surf_boton = fuente_normal.render(_("solarsystem"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_solarsystem.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_solarsystem.collidepoint(evento.pos):
+                print("Cargando simulador del sistema solar...")
+                return "solarsystem"
+        
+    boton_volver = pygame.Rect(10, 500, 250, 50)
+    color_boton = (200, 200, 100) if boton_volver.collidepoint(pos_raton) else (97, 175, 14)
+    pygame.draw.rect(pantalla, color_boton, boton_volver)
+    texto_surf_boton = fuente_normal.render(_("back"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
+    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    for evento in eventos:
+        if evento.type == pygame.MOUSEBUTTONUP:
+            if boton_volver.collidepoint(evento.pos):
+                print("Cambiando a mapa inicial")
+                return "mapainicial"
+
+    return "minijuegos"
+
 def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_prestamo):
     global dinero, felicidad, experiencia, deuda
     
@@ -1186,6 +1298,14 @@ def main():
             estado_del_juego = info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "infodos":
             estado_del_juego = infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
+        elif estado_del_juego == "minijuegos":
+            estado_del_juego = minijuegos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
+        elif estado_del_juego == "snakegame":
+            estado_del_juego = snakegame(pantalla)
+        elif estado_del_juego == "tetrisgame":
+            estado_del_juego = tetrisgame(pantalla)
+        elif estado_del_juego == "solarsystem":
+            estado_del_juego = solarsystem(pantalla)
         elif estado_del_juego == "productos":
             estado_del_juego = productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "prestamo":

@@ -2,6 +2,35 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [1.7.0] - 2026-06-12
+
+### Added
+- **Tetris Minigame**:
+  - Integrated `tetris.py` as a playable minigame inside PIXELTOWN.
+  - Created `run_tetris(pantalla)` using an exception-based pattern (`_TetrisExit`) to cleanly break out of nested game loops.
+  - After Game Over, the player is returned to the minigames menu instead of restarting.
+  - Pressing ESC during gameplay also returns to the minigames menu.
+- **Solar System Simulator Minigame**:
+  - Merged `solarsystem.py` (planet data) and `simulator.py` (simulation logic) into a single `solarsystem.py` module.
+  - Created `run_solarsystem(pantalla)` following the same integration pattern as Snake and Tetris.
+  - Added an on-screen EXIT button (top-right corner) to return to the minigames menu.
+  - Fixed all image paths to use `assets/imagenes/` via `os.path.join()`.
+  - Removed fullscreen mode and `sys.exit()` calls; the simulator now reuses the PIXELTOWN display.
+- **Localization**:
+  - Added `"tetrisgame"` key to `es.json` ("Tetris") and `en.json` ("Tetris").
+  - Added `"solarsystem"` key to `es.json` ("Sistema Solar") and `en.json` ("Solar System").
+
+### Fixed
+- **Minigames Menu Layout**:
+  - Snake and Tetris buttons were overlapping at the same screen position — now laid out side by side.
+  - Tetris button was incorrectly labelled as `"snakegame"` — now uses `"tetrisgame"`.
+  - Tetris button click check used `boton_snake` instead of `boton_tetris` — fixed.
+- **Game Loop**:
+  - The `"tetrisgame"` state was calling `minijuegos(pantalla)` instead of `tetrisgame(pantalla)` — fixed.
+
+### Removed
+- **`simulator.py`**: Deleted; all code merged into `solarsystem.py`.
+
 ## [1.6.7] - 2026-06-08
 
 ### Added
