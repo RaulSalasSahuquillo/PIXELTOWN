@@ -2,3 +2,8 @@
 **/__pycache__/
 
 PIXELTOWN_env/
+
+# PyInstaller
+dist/
+build/
+*.spec

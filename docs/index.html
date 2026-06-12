@@ -284,6 +284,76 @@
             text-align: center;
         }
 
+        /* Download Beta Section */
+        .download-box {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.02) 10px,
+                rgba(255,255,255,0.02) 20px
+            );
+            animation: float 6s linear infinite;
+            pointer-events: none;
+        }
+
+        .download-box h2 {
+            color: #53edff;
+            border-bottom: 4px dashed #53edff;
+            text-shadow: 0 0 10px rgba(83, 237, 255, 0.5);
+        }
+
+        .download-box p {
+            color: #b0c4de;
+        }
+
+        .download-box .badge {
+            display: inline-block;
+            background-color: #ff4757;
+            color: #fff;
+            padding: 4px 12px;
+            font-size: 0.6rem;
+            border: 2px solid #fff;
+            margin-bottom: 15px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .btn-download {
+            background: linear-gradient(180deg, #0080ff 0%, #0056b3 100%);
+            font-size: 1rem;
+            padding: 20px 35px;
+            margin-top: 15px;
+            display: inline-block;
+            position: relative;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.5);
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(180deg, #64b4ff 0%, #0080ff 100%);
+            animation: shake 0.4s;
+            animation-iteration-count: 1;
+        }
+
+        .platform-note {
+            font-size: 0.65rem;
+            color: #888;
+            margin-top: 15px;
+        }
+
         .contribute-box h2 {
             color: #d32f2f;
             border-bottom: 4px dashed #d32f2f;
@@ -489,6 +559,18 @@
             </div>
         </section>
 
+        <section class="pixel-box download-box">
+            <span class="badge">⚡ EARLY ACCESS</span>
+            <h2>Download Beta v1.7.0 🎮</h2>
+            <p>Try the latest version of <strong style="color:#53edff;">PIXELTOWN</strong> right now! Includes the new <strong style="color:#ffeb3b;">Tetris</strong> and <strong style="color:#ffeb3b;">Solar System Simulator</strong> minigames.</p>
+            <br>
+            <a href="https://github.com/RaulSalasSahuquillo/PIXELTOWN/releases/download/v1.7.0-beta/PIXELTOWN.exe" class="btn btn-download" download>
+                ⬇ DOWNLOAD FOR WINDOWS
+            </a>
+            <p class="platform-note">🪟 Windows only (.exe) &nbsp;|&nbsp; ~210 MB &nbsp;|&nbsp; No installation required</p>
+            <p class="platform-note">Linux & macOS users: clone the repo and run with Python (see below)</p>
+        </section>
+
         <section class="pixel-box">
             <h2>Features <img src="imagenes/adorno.png" class="pixel-icon" alt="sparkles"></h2>
             <ul>
@@ -502,6 +584,8 @@
                     aesthetics.</li>
                 <li><strong>Video Intro:</strong> Rendered with MoviePy for an epic cutscene at launch accompanied by an
                     original soundtrack.</li>
+                <li><strong>Minigames:</strong> Enjoy Snake, Tetris, and the Solar System Simulator — all playable
+                    directly from the in-game Minigames menu.</li>
             </ul>
         </section>
 
@@ -524,15 +608,15 @@
             <h2>How to Play <img src="imagenes/info.png" class="pixel-icon" alt="rocket"></h2>
             <p>1. Clone the repository.</p>
             <div class="code-block">
-                git clone https://github.com/rsalas-enetres/PIXELTOWN.git
+                git clone https://github.com/RaulSalasSahuquillo/PIXELTOWN.git
             </div>
             <p>2. Install the prerequisites:</p>
             <div class="code-block">
-                pip install pygame moviepy
+                pip install -r requirements.txt
             </div>
-            <p>3. Navigate to the <code>code/</code> folder and run the game:</p>
+            <p>3. Navigate to the <code>src/</code> folder and run the game:</p>
             <div class="code-block">
-                cd code<br>
+                cd src<br>
                 python main.py
             </div>
             <p>Follow the on-screen prompts to enter your name and your city's name. Have fun and try not to get
@@ -552,11 +636,16 @@
                     <div style="display: flex; align-items: center;">
                         <label for="file-selector">FILE:</label>
                         <select id="file-selector" class="retro-select" onchange="loadFile(this.value)">
-                            <option value="code/main.py">code/main.py</option>
-                            <option value="code/characters.py">code/characters.py</option>
-                            <option value="code/text.py">code/text.py</option>
-                            <option value="index.html">index.html</option>
+                            <option value="src/main.py">src/main.py</option>
+                            <option value="src/game.py">src/game.py</option>
+                            <option value="src/characters.py">src/characters.py</option>
+                            <option value="src/text.py">src/text.py</option>
+                            <option value="src/snake.py">src/snake.py</option>
+                            <option value="src/tetris.py">src/tetris.py</option>
+                            <option value="src/solarsystem.py">src/solarsystem.py</option>
+                            <option value="src/localization.py">src/localization.py</option>
                             <option value="README.md">README.md</option>
+                            <option value="CHANGELOG.md">CHANGELOG.md</option>
                             <option value="CONTRIBUTING.md">CONTRIBUTING.md</option>
                         </select>
                     </div>
