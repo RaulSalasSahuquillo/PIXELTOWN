@@ -1,3 +1,21 @@
+"""
+PIXELTOWN - Tetris logic for PIXELTOWN.
+Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+"""
+
 import random, time, pygame, sys
 from pygame.locals import *
 
@@ -165,9 +183,9 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
-    pygame.display.set_caption('Tetromino')
+    pygame.display.set_caption('PIXELTOWN - TETRIS')
 
-    showTextScreen('Tetromino')
+    showTextScreen('TETRIS')
     while True: # game loop
         #if random.randint(0, 1) == 0:
         #    pygame.mixer.music.load('tetrisb.mid')
@@ -522,14 +540,14 @@ def run_tetris(pantalla):
 
     # Resize display for the Tetris game
     DISPLAYSURF = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
-    pygame.display.set_caption('Tetromino')
+    pygame.display.set_caption('TETRIS')
     FPSCLOCK = pygame.time.Clock()
     BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
 
     return_scene = "minijuegos"
     try:
-        showTextScreen('Tetromino')
+        showTextScreen('TETRIS')
         while True:
             runGame()
             showTextScreen('Game Over')

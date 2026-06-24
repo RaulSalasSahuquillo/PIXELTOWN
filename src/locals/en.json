@@ -56,5 +56,22 @@
   "borrow_collected": "¡You recieved {cantidad}!",
   "building_built": "{type} built at: {pos} | +{exp} exp",
   "info_text_1": "Welcome to PIXELTOWN!\nHello, leader! Welcome to the world of PIXELTOWN, a place where your \ndecisions will shape a new metropolis from the ground up. Your adventure \nbegins here, with a handful of resources, a pristine land, and unlimited \npotential.\n\nIn PIXELTOWN, you are not just a player, you are the mayor, architect, and visionary.\nYour main mission is to transform this promising land into a prosperous, \nvibrant, and above all, happy city. You will have to carefully manage \nyour budget, invest in new constructions, attract new citizens, and \nensure their needs are met. Will you build a quiet residential area, \na bustling business center, or a green paradise full of parks? Each \nbuilding you place and each coin you invest will have a direct impact \non the growth and soul of your city.",
-  "info_text_2": "A Glimpse into the Future (Important Notice)\nPIXELTOWN is in a very early stage of development (pre-alpha). \nThis means that what you are seeing is only the skeleton of a much \nlarger and more ambitious project. It is like visiting the site of a \nfuture skyscraper: the foundations are already visible, but the walls, \nwindows, and all the magic that will make it shine are still missing. \nCurrently, many of the features we have planned (such as more complex \neconomic systems, special events, more variety of buildings, and advanced \ncustomization) are not yet implemented. It is very likely that you will \nencounter bugs, visual glitches, or incomplete mechanics. We ask for \nyour patience and thank you enormously for being part of this crucial \nstage. Your participation helps us test key ideas and motivates us to \nkeep building.\n\nAbout the Creator\nPIXELTOWN is a personal project developed with great passion by Raúl Salas, \nunder the name of his independent studio, ENEI PROJECT. Every line of code, \nevery pixel, and every idea is born from the desire to create a city management \ngame that is relaxing, challenging, and fun. We hope you enjoy this first \nlook at the universe of PIXELTOWN as much as we enjoyed bringing it to life. \nNow, we invite you to build the city of your dreams!"
+  "info_text_2": "A Glimpse into the Future (Important Notice)\nPIXELTOWN is in a very early stage of development (pre-alpha). \nThis means that what you are seeing is only the skeleton of a much \nlarger and more ambitious project. It is like visiting the site of a \nfuture skyscraper: the foundations are already visible, but the walls, \nwindows, and all the magic that will make it shine are still missing. \nCurrently, many of the features we have planned (such as more complex \neconomic systems, special events, more variety of buildings, and advanced \ncustomization) are not yet implemented. It is very likely that you will \nencounter bugs, visual glitches, or incomplete mechanics. We ask for \nyour patience and thank you enormously for being part of this crucial \nstage. Your participation helps us test key ideas and motivates us to \nkeep building.\n\nAbout the Creator\nPIXELTOWN is a personal project developed with great passion by Raúl Salas, \nunder the name of his independent studio, ENEI PROJECT. Every line of code, \nevery pixel, and every idea is born from the desire to create a city management \ngame that is relaxing, challenging, and fun. We hope you enjoy this first \nlook at the universe of PIXELTOWN as much as we enjoyed bringing it to life. \nNow, we invite you to build the city of your dreams!",
+  "save_progress": "Save Progress",
+  "progress_saved": "Progress saved!",
+  "guest_cannot_save": "Guest Mode (No save)",
+  "terminal_menu_title": "\n--- USER ACCESS ---",
+  "terminal_option_login": "1. Log In",
+  "terminal_option_register": "2. Register",
+  "terminal_option_guest": "3. Play as Guest",
+  "terminal_option_exit": "4. Exit",
+  "terminal_select_option": "Select an option: ",
+  "terminal_enter_username": "Username: ",
+  "terminal_enter_password": "Password: ",
+  "terminal_login_success": "Login successful! Welcome, {username}.",
+  "terminal_login_fail": "Incorrect username or password.",
+  "terminal_register_success": "User {username} registered successfully!",
+  "terminal_register_exists": "User {username} already exists.",
+  "terminal_username_empty": "Username cannot be empty.",
+  "terminal_password_empty": "Password cannot be empty."
 }

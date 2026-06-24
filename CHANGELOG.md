@@ -2,6 +2,27 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [2.0.0] - 2026-06-24
+
+### Added
+- **User Account System**:
+  - Implemented interactive console registration and login prompts inside `terminal.py`.
+  - Secured player credentials by hashing passwords with SHA-256, writing to `saves/accounts.json`.
+  - Hidden password entries during console inputs using python's `getpass` module.
+- **Game Progress Saving**:
+  - Added game state serialization storing player stats (money, population, happiness, level, debt, and experience) and town buildings dynamically to JSON files (`saves/<username>_save.json`).
+  - Added a new localized **Save Progress** button on the `mapainicial` Pygame screen.
+  - Provided floating on-screen confirmation banners ("Progress saved!") for 3 seconds after saving.
+  - Implemented automatic progress saving on normal game exit and when finishing the initial onboarding questions.
+- **Guest Mode**:
+  - Added a guest access choice that launches the game without account requirements, displaying a disabled "Guest Mode" button.
+- **Localization**:
+  - Added new Spanish and English translation keys to support login menus, status feedback, and guest warning tags.
+
+### Fixed
+- **Duplicate JSON Closing Braces**:
+  - Fixed syntax errors in `en.json` caused by extra trailing brackets.
+
 ## [1.7.0] - 2026-06-12
 
 ### Added

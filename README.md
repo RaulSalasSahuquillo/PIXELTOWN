@@ -11,18 +11,21 @@ At its core, PIXELTOWN is a resource management and town-building game. You star
 
 ## Features
 
+- **User Accounts & Login**: Register new user accounts and log in securely right inside the terminal screen. Passwords are safe and encrypted locally using SHA-256 hashing.
+- **Save & Load Progress**: Save your game state (net-worth, population, happiness, level, debt, experience, and custom buildings) dynamically. Easily reload your progress upon logging in.
 - **Interactive UI**: Fully built with Pygame.
-- **Resource Management**: Track your Money, Population, Happiness, and Experience.
-- **Building System**: Place different structures like houses and stores dynamically on your map.
+- **Resource Management**: Track your Money, Population, Happiness, Experience, Debt, and Town Level.
+- **Building System**: Place different structures like houses, stores, streetlamps, and decorations dynamically on your map.
 - **Store & Economy**: Buy items to boost stats or decorations to personalize your city.
-- **Video Intro**: Uses `moviepy` to render a video cutscene at launch.
+- **Video Intro**: Plays a dynamic introduction video at startup using `pyvidplayer2`.
+- **Guest Mode**: Play instantly without creating an account (saving progress is disabled).
 
 ## Prerequisites
 
 Before you dive in, make sure you have the following installed:
 - **Python 3.x**
-- **Pygame**: Core engine for graphics and event handling.
-- **MoviePy**: Used for rendering the video introduction.
+- **Pygame / Pygame-CE**: Core engine for graphics and event handling.
+- **Pyvidplayer2**: Used for rendering the video introduction.
 
 You can install the required dependencies using pip:
 ```bash
@@ -33,11 +36,12 @@ pip install -r requirements.txt
 
 The project is structured cleanly to keep the logic and assets organized:
 
-- `src/`: Contains the core Python scripts (`main.py`, `game.py`, `terminal.py`, `localization.py`, etc.) and the `locals/` subdirectory containing `es.json` and `en.json`.
+- `src/`: Contains the core Python scripts (`main.py`, `game.py`, `terminal.py`, `localization.py`, etc.) and the `locals/` subdirectory containing `es.json` and `en.json` translation files.
 - `assets/`: Contains all assets used by the game:
   - `imagenes/`: Visual assets, player sprites, and background images.
   - `PIXELTOWN_OST/`: Game soundtracks and sound effects.
   - `visual/`: Video elements such as `intro.mp4`.
+- `saves/`: Contains local user credentials database (`accounts.json`) and player progress files (`<username>_save.json`). (This directory is ignored by Git).
 
 ## How to Play
 
@@ -47,7 +51,9 @@ The project is structured cleanly to keep the logic and assets organized:
    ```bash
    python src/main.py
    ```
-4. Follow the on-screen prompts in the terminal to choose your language, then enter your name and your city's name to begin your mayoral journey. Have fun and try not to get overthrown!
+4. Choose your language, then **register a new account** or **log in** with your username and password (or select **Play as Guest**).
+5. If it's your first time, follow the onboarding prompts to enter your name and choose your city's name. Otherwise, it will load your previous progress automatically!
+6. Click the **Save Progress** button inside the game map or exit normally to save your progress. Have fun and try not to get overthrown!
 
 ## Contributing
 

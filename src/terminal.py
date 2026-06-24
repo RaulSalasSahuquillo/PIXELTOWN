@@ -18,7 +18,46 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import json
 import os
+import sys
+import hashlib
+import getpass
 from localization import load_language, _
+
+def get_save_dir():
+    if getattr(sys, 'frozen', False):
+        base = os.path.dirname(sys.executable)
+    else:
+        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    save_path = os.path.join(base, "saves")
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    return save_path
+
+def hash_password(password):
+    return hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+def load_accounts():
+    save_dir = get_save_dir()
+    accounts_file = os.path.join(save_dir, "accounts.json")
+    if not os.path.exists(accounts_file):
+        return {}
+    try:
+        with open(accounts_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading accounts: {e}")
+        return {}
+
+def save_accounts(accounts):
+    save_dir = get_save_dir()
+    accounts_file = os.path.join(save_dir, "accounts.json")
+    try:
+        with open(accounts_file, "w", encoding="utf-8") as f:
+            json.dump(accounts, f, indent=4)
+        return True
+    except Exception as e:
+        print(f"Error saving accounts: {e}")
+        return False
 
 def terminalbeggining():
     print("""
@@ -46,6 +85,69 @@ def terminalbeggining():
         else:
             print("Invalid option. Please write 'ES' or 'EN'.\n")
 
+    logged_in_user = None
+    accounts = load_accounts()
+
+    while True:
+        print(_("terminal_menu_title"))
+        print(_("terminal_option_login"))
+        print(_("terminal_option_register"))
+        print(_("terminal_option_guest"))
+        print(_("terminal_option_exit"))
+        
+        option = input(_("terminal_select_option")).strip()
+        
+        if option == "1":
+            # Login
+            username = input(_("terminal_enter_username")).strip()
+            if not username:
+                print(_("terminal_username_empty"))
+                continue
+            password = getpass.getpass(_("terminal_enter_password"))
+            if not password:
+                print(_("terminal_password_empty"))
+                continue
+            
+            hashed = hash_password(password)
+            if username in accounts and accounts[username] == hashed:
+                print(_("terminal_login_success").format(username=username))
+                logged_in_user = username
+                break
+            else:
+                print(_("terminal_login_fail"))
+                
+        elif option == "2":
+            # Register
+            username = input(_("terminal_enter_username")).strip()
+            if not username:
+                print(_("terminal_username_empty"))
+                continue
+            if username in accounts:
+                print(_("terminal_register_exists").format(username=username))
+                continue
+            password = getpass.getpass(_("terminal_enter_password"))
+            if not password:
+                print(_("terminal_password_empty"))
+                continue
+            
+            accounts[username] = hash_password(password)
+            if save_accounts(accounts):
+                print(_("terminal_register_success").format(username=username))
+                logged_in_user = username
+                break
+                
+        elif option == "3":
+            # Guest mode
+            logged_in_user = None
+            break
+            
+        elif option == "4":
+            # Exit
+            print("Goodbye / ¡Adiós!")
+            sys.exit(0)
+        else:
+            print("Invalid option / Opción inválida.")
+
     # Una vez cargado el idioma, importamos el main único y lanzamos el juego
     from game import main
-    main()
+    main(username=logged_in_user)

@@ -21,6 +21,7 @@ import os
 import pygame
 import time
 import sys
+import json
 from snake import run_snake
 from tetris import run_tetris
 from solarsystem import run_solarsystem
@@ -48,6 +49,91 @@ dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
 tiempo = 1 # Time in days
 deuda = 0 # Your debt
 nivel = 1 # Your level
+
+# SESSION AND SAVES STATE
+logged_in_username = None
+ultimo_guardado_time = 0
+mensaje_guardado = ""
+datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
+
+def get_save_dir():
+    if getattr(sys, 'frozen', False):
+        base = os.path.dirname(sys.executable)
+    else:
+        base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    save_path = os.path.join(base, "saves")
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
+    return save_path
+
+def get_save_path(username):
+    save_dir = get_save_dir()
+    return os.path.join(save_dir, f"{username}_save.json")
+
+def guardar_progreso(username):
+    if not username:
+        return False
+    path = get_save_path(username)
+    state = {
+        "dinero": dinero,
+        "poblacion": poblacion,
+        "edificios": edificios,
+        "felicidad": felicidad,
+        "experiencia": experiencia,
+        "dineroporhabitante": dineroporhabitante,
+        "tiempo": tiempo,
+        "deuda": deuda,
+        "nivel": nivel,
+        "datos_jugador": datos_jugador
+    }
+    try:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(state, f, indent=4)
+        print(f"Progreso guardado para {username} en {path}")
+        return True
+    except Exception as e:
+        print(f"Error al guardar progreso: {e}")
+        return False
+
+def cargar_progreso(username):
+    global dinero, poblacion, edificios, felicidad, experiencia, dineroporhabitante, tiempo, deuda, nivel, datos_jugador
+    if not username:
+        return False
+    path = get_save_path(username)
+    if not os.path.exists(path):
+        return False
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            state = json.load(f)
+        
+        dinero = state.get("dinero", 10000)
+        poblacion = state.get("poblacion", 10)
+        
+        raw_edificios = state.get("edificios", [])
+        edificios = []
+        for ed in raw_edificios:
+            pos = ed.get("pos", [0, 0])
+            edificios.append({
+                "tipo": ed.get("tipo", "casa"),
+                "pos": (pos[0], pos[1])
+            })
+            
+        felicidad = state.get("felicidad", 50)
+        experiencia = state.get("experiencia", 0)
+        dineroporhabitante = state.get("dineroporhabitante", 1000)
+        tiempo = state.get("tiempo", 1)
+        deuda = state.get("deuda", 0)
+        nivel = state.get("nivel", 1)
+        
+        loaded_datos_jugador = state.get("datos_jugador", {})
+        datos_jugador["nombre_usuario"] = loaded_datos_jugador.get("nombre_usuario", username)
+        datos_jugador["nombre_ciudad"] = loaded_datos_jugador.get("nombre_ciudad", "PixelTown")
+        
+        print(f"Progreso cargado con éxito para {username} desde {path}")
+        return True
+    except Exception as e:
+        print(f"Error al cargar progreso: {e}")
+        return False
 
 
 # SCENE DEFINITION
@@ -211,6 +297,7 @@ def pregunta(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado,
 
 
 def pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado, datos_jugador):
+    global logged_in_username
     input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
     color_inactivo = pygame.Color('lightskyblue3')
     color_activo = pygame.Color('dodgerblue2')
@@ -236,6 +323,8 @@ def pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado
                 datos_jugador['nombre_ciudad'] = texto_usuario
                 texto_usuario = ""
                 activo = False
+                if logged_in_username:
+                    guardar_progreso(logged_in_username)
                 return "cargamapa"
             elif evento.key == pygame.K_BACKSPACE:
                 texto_usuario = texto_usuario[:-1]
@@ -304,10 +393,12 @@ def mostrar_texto(pantalla, fuente, texto, x, y, color=(0, 0, 0), line_spacing=5
 
 
 def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
+    global nivel, experiencia, logged_in_username, ultimo_guardado_time, mensaje_guardado
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     boton_acciones = pygame.Rect(900, 500, 250, 50)
+    boton_guardar = pygame.Rect(50, 500, 250, 50)
     pos_raton = pygame.mouse.get_pos()
-    global nivel, experiencia
+    
     if experiencia >= 100 and nivel < 5:
         experiencia = 0
         nivel += 1
@@ -319,6 +410,24 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
     texto_surf_boton = fuente_normal.render(_("actions"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=boton_acciones.center)
     pantalla.blit(texto_surf_boton, texto_rect_boton)
+
+    # Save button drawing
+    if logged_in_username:
+        color_boton_guardar = (100, 200, 100) if boton_guardar.collidepoint(pos_raton) else (50, 150, 50)
+        texto_guardar = _("save_progress")
+    else:
+        color_boton_guardar = (180, 180, 180)
+        texto_guardar = _("guest_cannot_save")
+        
+    pygame.draw.rect(pantalla, color_boton_guardar, boton_guardar)
+    texto_surf_guardar = fuente_normal.render(texto_guardar, True, (255, 255, 255))
+    texto_rect_guardar = texto_surf_guardar.get_rect(center=boton_guardar.center)
+    pantalla.blit(texto_surf_guardar, texto_rect_guardar)
+
+    # Success/Warning message
+    if time.time() - ultimo_guardado_time < 3:
+        color_texto = (0, 128, 0) if logged_in_username else (200, 0, 0)
+        mostrar_texto(pantalla, fuente_normal, mensaje_guardado, 50, 460, color=color_texto)
 
     nombre_usuario = datos_jugador.get('nombre_usuario', 'Tú')
     nombre_ciudad = datos_jugador.get('nombre_ciudad', 'PixelTown')
@@ -395,6 +504,14 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
             if boton_acciones.collidepoint(evento.pos):
                 print("Cambiando a la escena de acciones...")
                 return "acciones"
+            if boton_guardar.collidepoint(evento.pos):
+                if logged_in_username:
+                    if guardar_progreso(logged_in_username):
+                        ultimo_guardado_time = time.time()
+                        mensaje_guardado = _("progress_saved")
+                else:
+                    ultimo_guardado_time = time.time()
+                    mensaje_guardado = _("guest_cannot_save")
     try:
         if not pygame.mixer.music.get_busy():
             pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "Aldea_soundtrack.mp3"))
@@ -1243,7 +1360,18 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
     return "impuestos"
 
 # MAIN FUNCTION
-def main():
+def main(username=None):
+    global logged_in_username, datos_jugador
+    logged_in_username = username
+
+    progreso_cargado = False
+    if username:
+        progreso_cargado = cargar_progreso(username)
+
+    if not progreso_cargado:
+        datos_jugador.clear()
+        datos_jugador.update({"nombre_usuario": "", "nombre_ciudad": ""})
+
     pygame.init()
 
     # PIXELTOWN logo, only visible for Windows users (I'm an x11/Wayland Ubuntu user, so I blindly trust in this process)
@@ -1269,8 +1397,7 @@ def main():
     estado_del_juego = "intro"
 
     # Text box state and player data
-    estado_caja_texto = {"texto": "", "activo": False}
-    datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
+    estado_caja_texto = {"texto": username if (username and not progreso_cargado) else "", "activo": False}
     datos_impuestos = {"porcentaje": ""}
 
     # Selected building type to place
@@ -1285,7 +1412,10 @@ def main():
         elif estado_del_juego == "menu":
             estado_del_juego = escena_menu(pantalla, fuente_titulo, fuente_boton, eventos)
         elif estado_del_juego == "jugando":
-            estado_del_juego = escena_juego(pantalla, fuente_boton, eventos, fuente_titulo)
+            if progreso_cargado:
+                estado_del_juego = "mapainicial"
+            else:
+                estado_del_juego = escena_juego(pantalla, fuente_boton, eventos, fuente_titulo)
         elif estado_del_juego == "preguntando":
             estado_del_juego = pregunta(pantalla, fuente_titulo, fuente_normal, eventos, estado_caja_texto, datos_jugador)
         elif estado_del_juego == "preguntando2":
@@ -1343,6 +1473,8 @@ def main():
         pygame.display.flip()
         reloj.tick(60)
  
+    if logged_in_username:
+        guardar_progreso(logged_in_username)
     pygame.quit()
     sys.exit()
 

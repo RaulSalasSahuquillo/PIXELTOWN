@@ -7,3 +7,6 @@ PIXELTOWN_env/
 dist/
 build/
 *.spec
+
+# Game Saves
+saves/
