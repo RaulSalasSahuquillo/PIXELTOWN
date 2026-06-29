@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PIXELTOWN</title>
+    <link rel="icon" type="image/png" href="imagenes/PIXELTOWN_LOGO_WEB.png">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -54,6 +55,27 @@
             margin: 0 0 10px 0;
             color: var(--btn-blue);
             text-shadow: 4px 4px 0px #000;
+        }
+
+        .logo-container {
+            margin: 0 0 10px 0;
+            text-shadow: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .web-logo {
+            max-width: 100%;
+            height: auto;
+            max-height: 180px;
+            image-rendering: pixelated;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .web-logo:hover {
+            transform: scale(1.05);
         }
 
         h2 {
@@ -517,7 +539,9 @@
                 <img src="imagenes/AdornoMYTOWNMYRULES.png" style="height: 60px; image-rendering: pixelated;"
                     alt="clouds">
             </div>
-            <h1>PIXELTOWN</h1>
+            <h1 class="logo-container">
+                <img src="imagenes/PIXELTOWN_LOGO_WEB.png" alt="PIXELTOWN" class="web-logo">
+            </h1>
             <p>A 2D City-Building Simulation Game</p>
             <div class="emoji-art">
                 <img src="imagenes/Casa.png" style="height: 50px; image-rendering: pixelated;" alt="house">
