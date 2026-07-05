@@ -56,6 +56,54 @@ ultimo_guardado_time = 0
 mensaje_guardado = ""
 datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
 
+EDIFICIOS_CONFIG = {
+    "casa": {
+        "imagen": os.path.join(DIR_IMAGENES, "Casa.png"),
+        "costo": 500,
+        "experiencia": 100,
+        "nombre": "Casa"
+    },
+    "supermercado": {
+        "imagen": os.path.join(DIR_IMAGENES, "supermercado.png"),
+        "costo": 1500,
+        "experiencia": 300,
+        "nombre": "Supermercado"
+    },
+    "tarraco": {
+        "imagen": os.path.join(DIR_IMAGENES, "tarraco.png"),
+        "costo": 10000,
+        "experiencia": 900,
+        "nombre": "Tarraco"
+    },
+    "farola": {
+        "imagen": os.path.join(DIR_IMAGENES, "farola.png"),
+        "costo": 100,
+        "experiencia": 25,
+        "nombre": "Farola"
+    },
+    "my_town_my_rules": {
+        "imagen": os.path.join(DIR_IMAGENES, "AdornoMYTOWNMYRULES.png"),
+        "costo": 250,
+        "experiencia": 100,
+        "nombre": "My Town My Rules"
+    },
+    "arbusto": {
+        "imagen": os.path.join(DIR_IMAGENES, "arbusto.png"),
+        "costo": 50,
+        "experiencia": 10,
+        "nombre": "Arbusto"
+    }
+}
+
+def obtener_precio_venta(tipo_edificio):
+    return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("costo", 0) // 2
+
+def obtener_experiencia_venta(tipo_edificio):
+    return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("experiencia", 0) // 2
+
+def obtener_nombre_edificio(tipo_edificio):
+    return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("nombre", tipo_edificio.capitalize())
+
 def get_save_dir():
     if getattr(sys, 'frozen', False):
         base = os.path.dirname(sys.executable)
@@ -984,20 +1032,11 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     global edificios, dinero, experiencia
 
-    config_edificios = {
-        "casa": {"imagen": os.path.join(DIR_IMAGENES, "Casa.png"), "costo": 500, "experiencia": 100},
-        "supermercado": {"imagen": os.path.join(DIR_IMAGENES, "supermercado.png"), "costo": 1500, "experiencia": 300},
-        "tarraco": {"imagen": os.path.join(DIR_IMAGENES, "tarraco.png"), "costo": 10000, "experiencia": 900},
-        "farola": {"imagen": os.path.join(DIR_IMAGENES, "farola.png"), "costo": 100, "experiencia": 25},
-        "my_town_my_rules": {"imagen": os.path.join(DIR_IMAGENES, "AdornoMYTOWNMYRULES.png"), "costo": 250, "experiencia": 100},
-        "arbusto": {"imagen":os.path.join(DIR_IMAGENES, "arbusto.png"), "costo": 50, "experiencia": 10}
-    }
-
-    if tipo_edificio not in config_edificios:
+    if tipo_edificio not in EDIFICIOS_CONFIG:
         print(f"Error: Tipo de edificio '{tipo_edificio}' desconocido.")
         return "construccion"
 
-    config = config_edificios[tipo_edificio]
+    config = EDIFICIOS_CONFIG[tipo_edificio]
     ruta_imagen = config["imagen"]
     costo = config["costo"]
     recompensa_exp = config["experiencia"]
@@ -1137,6 +1176,86 @@ def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, dato
                 return "prestamo"
 
     return "facturar"
+
+def vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+    global dinero, experiencia, edificios, deuda
+    pantalla.fill((255, 255, 255))
+    mostrar_texto(pantalla, fuente_titulo, _("sell_building"), 10, 10)
+    mostrar_texto(pantalla, fuente_normal, _("click_building_to_sell"), 10, 44)
+
+    pos_raton = pygame.mouse.get_pos()
+    edificio_rects = []
+    y_list = 90
+    mostrar_texto(pantalla, fuente_normal, "Edificios disponibles:", 10, y_list)
+    y_list += 30
+
+    # Load building images for the sell screen
+    imagenes_edificios = {}
+    for tipo, config in EDIFICIOS_CONFIG.items():
+        try:
+            imagenes_edificios[tipo] = pygame.transform.scale(
+                pygame.image.load(config["imagen"]).convert_alpha(),
+                (64, 64)
+            )
+        except pygame.error:
+            imagenes_edificios[tipo] = None
+
+    for idx, ed in enumerate(edificios):
+        tipo = ed["tipo"]
+        pos = ed["pos"]
+        rect = pygame.Rect(pos[0], pos[1], 64, 64)
+        edificio_rects.append((rect, ed))
+
+        if tipo in imagenes_edificios and imagenes_edificios[tipo] is not None:
+            pantalla.blit(imagenes_edificios[tipo], pos)
+        else:
+            pygame.draw.rect(pantalla, (200, 200, 200), rect)
+            pygame.draw.rect(pantalla, (0, 0, 0), rect, 2)
+
+        precio_venta = obtener_precio_venta(tipo)
+        nombre = obtener_nombre_edificio(tipo)
+        texto_info = f"{nombre} - Vende por {precio_venta}"
+        texto_surf = fuente_normal.render(texto_info, True, (0, 0, 0))
+        pantalla.blit(texto_surf, (pos[0], pos[1] + 70))
+
+        if rect.collidepoint(pos_raton):
+            pygame.draw.rect(pantalla, (255, 0, 0), rect, 3)
+            mostrar_texto(pantalla, fuente_normal, _(f"click_to_sell"), 10, 70)
+
+        lista_texto = f"{idx + 1}. {nombre}: {precio_venta}"
+        texto_surf = fuente_normal.render(lista_texto, True, (0, 0, 0))
+        pantalla.blit(texto_surf, (10, y_list + idx * 28))
+
+    if not edificios:
+        mostrar_texto(pantalla, fuente_normal, "No hay edificios para vender.", 10, 120)
+
+    for evento in eventos:
+        if evento.type == pygame.QUIT:
+            return "salir"
+        if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
+            pos_click = evento.pos
+            for rect, ed in edificio_rects:
+                if rect.collidepoint(pos_click):
+                    tipo_edificio = ed["tipo"]
+                    if tipo_edificio in EDIFICIOS_CONFIG:
+                        precio_venta = obtener_precio_venta(tipo_edificio)
+                        if deuda > 0:
+                            if precio_venta >= deuda:
+                                dinero += (precio_venta - deuda)
+                                print(_("loan_repaid").format(amount=deuda))
+                                deuda = 0
+                            else:
+                                deuda -= precio_venta
+                                print(_("loan_partially_repaid").format(amount=precio_venta, remaining=deuda))
+                        else:
+                            dinero += precio_venta
+                        experiencia += obtener_experiencia_venta(tipo_edificio)
+                        edificios.remove(ed)
+                        print(_("building_sold").format(type=obtener_nombre_edificio(tipo_edificio), price=precio_venta))
+                        return "mapainicial"
+                    else:
+                        print(f"Error: Tipo de edificio '{tipo_edificio}' desconocido.")
+    return "vender_edificio"
 
 def minijuegos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
@@ -1450,6 +1569,8 @@ def main(username=None):
             estado_del_juego = impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
         elif estado_del_juego == "productos2":
             estado_del_juego = productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
+        elif estado_del_juego == "vender_edificio":
+            estado_del_juego = vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "adorno":
             resultado = adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
             if isinstance(resultado, tuple):

@@ -2,6 +2,20 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [2.1.0] - 2026-07-05
+
+### Added
+- **Building Selling System**:
+  - Implemented the `vender_edificio` scene/screen that displays built buildings and allows the player to click on them to sell them.
+  - Automatically pays off outstanding debt first using the selling price profit.
+  - Returns 50% of the building's cost (in money) and 50% of the experience reward back to the player.
+  - Added a localized "SELL BUILDING" button in the `facturar` screen transitioning to this scene.
+- **Global Building Configuration**:
+  - Centralized the building definitions from `escena_colocacion` into a module-level `EDIFICIOS_CONFIG` dictionary.
+  - Added helper functions (`obtener_precio_venta`, `obtener_experiencia_venta`, and `obtener_nombre_edificio`) to simplify retrieve operations.
+- **Localization**:
+  - Added translation keys (`sell_building`, `click_building_to_sell`, `loan_repaid`, `loan_partially_repaid`, `building_sold`, `click_to_sell`) in Spanish (`es.json`) and English (`en.json`).
+
 ## [2.0.0] - 2026-06-24
 
 ### Added
