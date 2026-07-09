@@ -40,6 +40,11 @@ DIR_IMAGENES = os.path.join(BASE_DIR, "assets", "imagenes")
 DIR_PIXELTOWN_OST = os.path.join(BASE_DIR, "assets", "PIXELTOWN_OST")
 DIR_VISUAL = os.path.join(BASE_DIR, "assets", "visual")
 
+# Display scaling globals
+pantalla_real = None
+ancho_real = 1200
+alto_real = 600
+
 dinero = 10000  # Initial money (Don't spend it all in one place!)
 poblacion = 10  # Initial population (Small, but it will grow)
 edificios = []  # List of dicts: {"tipo": str, "pos": (x, y)}
@@ -1502,6 +1507,104 @@ def main(username=None):
             pygame.display.set_icon(icono_escalado)
         except pygame.error:
             print("No se pudo encontrar el logo, se usará el de por defecto.")
+
+    global pantalla_real, ancho_real, alto_real
+    virtual_surface = pygame.Surface((1200, 600))
+
+    _original_set_mode = pygame.display.set_mode
+    _original_flip = pygame.display.flip
+    _original_update = pygame.display.update
+    _original_get_pos = pygame.mouse.get_pos
+    _original_event_get = pygame.event.get
+
+    initial_setup = True
+    tamano_pendiente = None
+    ultimo_cambio_tiempo = 0
+
+    def custom_set_mode(size, flags=0, *args, **kwargs):
+        global pantalla_real, ancho_real, alto_real
+        nonlocal initial_setup
+        if size == (1200, 600) and initial_setup:
+            initial_setup = False
+            pantalla_real = _original_set_mode((1200, 600), flags | pygame.RESIZABLE, *args, **kwargs)
+            ancho_real, alto_real = 1200, 600
+            return virtual_surface
+        elif size == (1200, 600) and not initial_setup:
+            pantalla_real = _original_set_mode((ancho_real, alto_real), flags | pygame.RESIZABLE, *args, **kwargs)
+            return pantalla_real
+        else:
+            return _original_set_mode(size, flags, *args, **kwargs)
+
+    def custom_flip():
+        global pantalla_real, ancho_real, alto_real
+        nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        if tamano_pendiente is not None and (time.time() - ultimo_cambio_tiempo) > 0.15:
+            pantalla_real = _original_set_mode(tamano_pendiente, pygame.RESIZABLE)
+            ancho_real, alto_real = tamano_pendiente
+            tamano_pendiente = None
+        if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
+            pygame.transform.scale(virtual_surface, pantalla_real.get_size(), pantalla_real)
+        _original_flip()
+
+    def custom_update(*args, **kwargs):
+        global pantalla_real, ancho_real, alto_real
+        nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        if tamano_pendiente is not None and (time.time() - ultimo_cambio_tiempo) > 0.15:
+            pantalla_real = _original_set_mode(tamano_pendiente, pygame.RESIZABLE)
+            ancho_real, alto_real = tamano_pendiente
+            tamano_pendiente = None
+        if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
+            pygame.transform.scale(virtual_surface, pantalla_real.get_size(), pantalla_real)
+        _original_update(*args, **kwargs)
+
+    def custom_get_pos():
+        global pantalla_real
+        x, y = _original_get_pos()
+        if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
+            w, h = pantalla_real.get_size()
+            return (int(x * 1200 / w), int(y * 600 / h))
+        return (x, y)
+
+    def custom_event_get(*args, **kwargs):
+        global pantalla_real, ancho_real, alto_real
+        nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        events = _original_event_get(*args, **kwargs)
+        modified_events = []
+        for event in events:
+            if event.type == pygame.VIDEORESIZE:
+                if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
+                    tamano_pendiente = event.size
+                    ultimo_cambio_tiempo = time.time()
+            
+            if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
+                w, h = pantalla_real.get_size()
+                
+                if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
+                    pos_x = int(event.pos[0] * 1200 / w)
+                    pos_y = int(event.pos[1] * 600 / h)
+                    event_dict = dict(event.__dict__)
+                    event_dict['pos'] = (pos_x, pos_y)
+                    modified_events.append(pygame.event.Event(event.type, event_dict))
+                elif event.type == pygame.MOUSEMOTION:
+                    pos_x = int(event.pos[0] * 1200 / w)
+                    pos_y = int(event.pos[1] * 600 / h)
+                    rel_x = int(event.rel[0] * 1200 / w)
+                    rel_y = int(event.rel[1] * 600 / h)
+                    event_dict = dict(event.__dict__)
+                    event_dict['pos'] = (pos_x, pos_y)
+                    event_dict['rel'] = (rel_x, rel_y)
+                    modified_events.append(pygame.event.Event(event.type, event_dict))
+                else:
+                    modified_events.append(event)
+            else:
+                modified_events.append(event)
+        return modified_events
+
+    pygame.display.set_mode = custom_set_mode
+    pygame.display.flip = custom_flip
+    pygame.display.update = custom_update
+    pygame.mouse.get_pos = custom_get_pos
+    pygame.event.get = custom_event_get
 
     pantalla = pygame.display.set_mode((1200, 600))
     pygame.display.set_caption("PIXELTOWN")

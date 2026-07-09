@@ -11,8 +11,9 @@ At its core, PIXELTOWN is a resource management and town-building game. You star
 
 ## Features
 
-- **User Accounts & Login**: Register new user accounts and log in securely right inside the terminal screen. Passwords are safe and encrypted locally using SHA-256 hashing.
+- **User Accounts & Login**: Register new user accounts and log in securely via a graphical user interface (GUI) built with Tkinter. Passwords are safe and encrypted locally using SHA-256 hashing.
 - **Save & Load Progress**: Save your game state (net-worth, population, happiness, level, debt, experience, and custom buildings) dynamically. Easily reload your progress upon logging in.
+- **Window Resizing & Scale Support**: Support for resizing the Pygame window dynamically with automatic scaling of the 1200x600 virtual screen resolution.
 - **Interactive UI**: Fully built with Pygame.
 - **Resource Management**: Track your Money, Population, Happiness, Experience, Debt, and Town Level.
 - **Building System**: Place different structures like houses, stores, streetlamps, and decorations dynamically on your map.
@@ -24,6 +25,7 @@ At its core, PIXELTOWN is a resource management and town-building game. You star
 
 Before you dive in, make sure you have the following installed:
 - **Python 3.x**
+- **Tkinter**: GUI library (often pre-installed with Python; on Ubuntu/Debian Linux, install via `sudo apt-get install python3-tk`).
 - **Pygame / Pygame-CE**: Core engine for graphics and event handling.
 - **Pyvidplayer2**: Used for rendering the video introduction.
 
@@ -36,7 +38,17 @@ pip install -r requirements.txt
 
 The project is structured cleanly to keep the logic and assets organized:
 
-- `src/`: Contains the core Python scripts (`main.py`, `game.py`, `terminal.py`, `localization.py`, etc.) and the `locals/` subdirectory containing `es.json` and `en.json` translation files.
+- `src/`: Contains the core Python scripts and minigames:
+  - `main.py`: Launcher entry point.
+  - `terminal.py`: Tkinter-based GUI login, registration, and language selection screen.
+  - `localization.py`: Dynamic localization system to load translations from JSON resources.
+  - `game.py`: Main loop, event handling, scaling overrides, and level rendering.
+  - `characters.py`: Inhabitants and character logic.
+  - `text.py`: Onscreen text formatting utilities.
+  - `snake.py`: Playable Snake minigame.
+  - `tetris.py`: Playable Tetris minigame.
+  - `solarsystem.py`: Playable Solar System simulator minigame.
+  - `locals/`: Directory containing JSON translation resources (`es.json`, `en.json`).
 - `assets/`: Contains all assets used by the game:
   - `imagenes/`: Visual assets, player sprites, and background images.
   - `PIXELTOWN_OST/`: Game soundtracks and sound effects.

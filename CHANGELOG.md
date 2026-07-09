@@ -2,6 +2,25 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [2.2.0] - 2026-07-09
+
+### Added
+- **Tkinter GUI Login Launcher**:
+  - Replaced the legacy terminal-based login/registration menu with a graphical user interface (GUI) using Tkinter.
+  - Implemented language selection buttons (Spanish and English) with styled flag indicators.
+  - Added user authentication card forms featuring placeholders, hidden characters for passwords, input validation, error alerts/status labels, guest play mode, and window icon.
+- **Window Resizing and Scale Support**:
+  - Added custom wrapper overrides in `src/game.py` for Pygame display, mouse, and event subsystems.
+  - Implemented handling for the `pygame.VIDEORESIZE` event to allow players to resize the game window dynamically.
+  - Scaled coordinates and relative motion offsets for mouse input events dynamically, keeping them mapping to the internal 1200x600 virtual screen size.
+
+### Changed
+- **Dependencies**:
+  - Documented requirement of system Tkinter library (`python3-tk` on Linux/Ubuntu platforms).
+  - Cleaned up `requirements.txt` by removing obsolete packages (`moviepy`, `tqdm`, `proglog`, `imageio-ffmpeg`, `ImageIO`, `decorator`, `python-dotenv`).
+- **Project Structure**:
+  - Updated all documentation files (`README.md`, `CONTRIBUTING.md`, and Web IDE pages) to correctly reference the complete Python source files inside `src/`.
+
 ## [2.1.0] - 2026-07-05
 
 ### Added

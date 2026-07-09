@@ -48,12 +48,15 @@ These are the existing tools and files. Read their source code before writing ne
 | File                  | Description                                                                 |
 |-----------------------|-----------------------------------------------------------------------------|
 | `src/main.py`         | Lightweight entry launcher that calls the terminal selection system.        |
-| `src/terminal.py`     | Console-based language selection screen; starts game main loop.            |
+| `src/terminal.py`     | Tkinter-based GUI language selection, registration, and login screen.        |
 | `src/localization.py` | Dynamic localization system that loads translations from JSON files.        |
 | `src/locals/`         | Resource folder containing language dictionaries (e.g., `es.json`, `en.json`).|
-| `src/game.py`         | Main game loop at 60 FPS, state machine (scenes), and global variables.     |
+| `src/game.py`         | Main game loop at 60 FPS, display scaling wrapper, state machine (scenes), and game variables. |
 | `src/characters.py`   | Player/inhabitant entities, ASCII characters, and helper structures.        |
 | `src/text.py`         | Long text utility definitions and static information screen formatting.     |
+| `src/snake.py`        | Playable Snake minigame module called from the game launcher.               |
+| `src/tetris.py`       | Playable Tetris minigame module integrated with exception-based loops.      |
+| `src/solarsystem.py`  | Playable Solar System simulator minigame module with integrated assets.     |
 
 ---
 
