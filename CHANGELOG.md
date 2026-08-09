@@ -2,6 +2,25 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [2.2.5] - 2026-08-09
+
+### Added
+- **River Building Restriction**:
+  - Buildings can no longer be placed on top of the river in the placement scene (`escena_colocacion`).
+  - Added collision detection between the building ghost and the river area (`pygame.Rect(450, 200, 300, 300)`).
+  - Added localized feedback message (`cannot_build_on_river`) when the player attempts to build on the river.
+- **Localization**:
+  - Added new translation keys to `es.json` and `en.json`: `cannot_build_on_river`, `placement_cancelled`, `available_buildings`, `sells_for`, `no_buildings_to_sell`, `error_saving_account`.
+  - Replaced all remaining hardcoded Spanish strings in `src/game.py` and `src/terminal.py` with localized `_()` calls.
+  - Building names in `EDIFICIOS_CONFIG` now use translation keys (`nombre_key`) instead of hardcoded Spanish names, making them fully translatable.
+
+### Fixed
+- **Minigame Freeze Bug**:
+  - Fixed an issue introduced in v2.2.0 where the Snake, Tetris, and Solar System minigames would freeze on launch due to the window scaling monkey-patches interfering with the minigames' own game loops.
+  - Added a `_minigame_active` bypass flag that disables coordinate transformations while a minigame is running, and properly restores the virtual surface system on return.
+- **English Typo**:
+  - Fixed `"recieved"` → `"received"` in the `borrow_collected` translation key.
+
 ## [2.2.0] - 2026-07-09
 
 ### Added

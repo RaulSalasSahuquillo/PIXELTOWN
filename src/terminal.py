@@ -393,7 +393,7 @@ class TerminalApp:
         ent_user.bind("<Return>", lambda _e: ent_pass.focus_set())
 
         # Back button
-        btn_back = _make_button(card, "← Back",
+        btn_back = _make_button(card, _("back"),
                                 self._show_auth_screen,
                                 bg="#555", hover="#777", width=24, font_size=10)
         btn_back.pack(pady=(4, 0))
@@ -453,7 +453,7 @@ class TerminalApp:
                 self.logged_in_user = username
                 self._launch_game()
             else:
-                status.config(text="Error saving account.", fg=BTN_DANGER)
+                status.config(text=_("error_saving_account"), fg=BTN_DANGER)
 
         btn_register = _make_button(card, _("terminal_option_register").lstrip("2. ").lstrip("2.").strip(),
                                     do_register, bg=BTN_SUCCESS, hover=BTN_SUCCESS_H, width=24)
@@ -463,7 +463,7 @@ class TerminalApp:
         ent_user.bind("<Return>", lambda _e: ent_pass.focus_set())
 
         # Back button
-        btn_back = _make_button(card, "← Back",
+        btn_back = _make_button(card, _("back"),
                                 self._show_auth_screen,
                                 bg="#555", hover="#777", width=24, font_size=10)
         btn_back.pack(pady=(4, 0))

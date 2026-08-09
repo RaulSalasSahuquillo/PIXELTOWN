@@ -78,5 +78,11 @@
   "terminal_register_success": "¡Usuario {username} registrado con éxito!",
   "terminal_register_exists": "El usuario {username} ya existe.",
   "terminal_username_empty": "El nombre de usuario no puede estar vacío.",
-  "terminal_password_empty": "La contraseña no puede estar vacía."
+  "terminal_password_empty": "La contraseña no puede estar vacía.",
+  "cannot_build_on_river": "¡No puedes construir encima del río!",
+  "placement_cancelled": "Colocación cancelada.",
+  "available_buildings": "Edificios disponibles:",
+  "sells_for": "{name} - Vende por {price}",
+  "no_buildings_to_sell": "No hay edificios para vender.",
+  "error_saving_account": "Error al guardar la cuenta."
 }

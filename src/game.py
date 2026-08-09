@@ -66,37 +66,37 @@ EDIFICIOS_CONFIG = {
         "imagen": os.path.join(DIR_IMAGENES, "Casa.png"),
         "costo": 500,
         "experiencia": 100,
-        "nombre": "Casa"
+        "nombre_key": "simple_house"
     },
     "supermercado": {
         "imagen": os.path.join(DIR_IMAGENES, "supermercado.png"),
         "costo": 1500,
         "experiencia": 300,
-        "nombre": "Supermercado"
+        "nombre_key": "supermarket"
     },
     "tarraco": {
         "imagen": os.path.join(DIR_IMAGENES, "tarraco.png"),
         "costo": 10000,
         "experiencia": 900,
-        "nombre": "Tarraco"
+        "nombre_key": "tarraco"
     },
     "farola": {
         "imagen": os.path.join(DIR_IMAGENES, "farola.png"),
         "costo": 100,
         "experiencia": 25,
-        "nombre": "Farola"
+        "nombre_key": "streetlamp"
     },
     "my_town_my_rules": {
         "imagen": os.path.join(DIR_IMAGENES, "AdornoMYTOWNMYRULES.png"),
         "costo": 250,
         "experiencia": 100,
-        "nombre": "My Town My Rules"
+        "nombre_key": "my_town_my_rules"
     },
     "arbusto": {
         "imagen": os.path.join(DIR_IMAGENES, "arbusto.png"),
         "costo": 50,
         "experiencia": 10,
-        "nombre": "Arbusto"
+        "nombre_key": "bush"
     }
 }
 
@@ -107,7 +107,10 @@ def obtener_experiencia_venta(tipo_edificio):
     return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("experiencia", 0) // 2
 
 def obtener_nombre_edificio(tipo_edificio):
-    return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("nombre", tipo_edificio.capitalize())
+    key = EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("nombre_key", "")
+    if key:
+        return _(key)
+    return tipo_edificio.capitalize()
 
 def get_save_dir():
     if getattr(sys, 'frozen', False):
@@ -664,13 +667,38 @@ def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     return "acciones"
 
 def snakegame(pantalla):
-    return run_snake(pantalla)
+    global _minigame_active, pantalla_real, ancho_real, alto_real
+    _minigame_active = True
+    try:
+        result = run_snake(pantalla)
+    finally:
+        _minigame_active = False
+        # Restore the PIXELTOWN virtual-surface display system
+        pantalla_real = pygame.display._original_set_mode((ancho_real, alto_real), pygame.RESIZABLE)
+        pygame.display.set_caption("PIXELTOWN")
+    return result
 
 def tetrisgame(pantalla):
-    return run_tetris(pantalla)
+    global _minigame_active, pantalla_real, ancho_real, alto_real
+    _minigame_active = True
+    try:
+        result = run_tetris(pantalla)
+    finally:
+        _minigame_active = False
+        pantalla_real = pygame.display._original_set_mode((ancho_real, alto_real), pygame.RESIZABLE)
+        pygame.display.set_caption("PIXELTOWN")
+    return result
 
 def solarsystem(pantalla):
-    return run_solarsystem(pantalla)
+    global _minigame_active, pantalla_real, ancho_real, alto_real
+    _minigame_active = True
+    try:
+        result = run_solarsystem(pantalla)
+    finally:
+        _minigame_active = False
+        pantalla_real = pygame.display._original_set_mode((ancho_real, alto_real), pygame.RESIZABLE)
+        pygame.display.set_caption("PIXELTOWN")
+    return result
 
 def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
@@ -1054,6 +1082,9 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
+    # River zone — buildings cannot be placed here
+    RIO_RECT = pygame.Rect(450, 200, 300, 300)
+
     mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 10)
     mostrar_texto(pantalla, fuente_normal, _("buildings_short").format(count=len(edificios)), 10, 40)
     mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 70)
@@ -1106,16 +1137,20 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
             if evento.button == 1:
                 if dinero >= costo:
                     final_pos = (pos_raton[0] - 32, pos_raton[1] - 32)
-                    edificios.append({"tipo": tipo_edificio, "pos": final_pos})
-                    dinero -= costo
-                    experiencia += recompensa_exp
-                    print(_("building_built").format(type=tipo_edificio.capitalize(), pos=final_pos, exp=recompensa_exp))
-                    return "mapainicial"
+                    edificio_rect = pygame.Rect(final_pos[0], final_pos[1], 64, 64)
+                    if edificio_rect.colliderect(RIO_RECT):
+                        print(_("cannot_build_on_river"))
+                    else:
+                        edificios.append({"tipo": tipo_edificio, "pos": final_pos})
+                        dinero -= costo
+                        experiencia += recompensa_exp
+                        print(_("building_built").format(type=tipo_edificio.capitalize(), pos=final_pos, exp=recompensa_exp))
+                        return "mapainicial"
                 else:
                     print(_("not_enough_money"))
                     return "construccion"
             if evento.button == 3:
-                print("Colocación cancelada.")
+                print(_("placement_cancelled"))
                 return "construccion"
     return "colocando_edificio"
 
@@ -1191,7 +1226,7 @@ def vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_norma
     pos_raton = pygame.mouse.get_pos()
     edificio_rects = []
     y_list = 90
-    mostrar_texto(pantalla, fuente_normal, "Edificios disponibles:", 10, y_list)
+    mostrar_texto(pantalla, fuente_normal, _("available_buildings"), 10, y_list)
     y_list += 30
 
     # Load building images for the sell screen
@@ -1219,7 +1254,7 @@ def vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_norma
 
         precio_venta = obtener_precio_venta(tipo)
         nombre = obtener_nombre_edificio(tipo)
-        texto_info = f"{nombre} - Vende por {precio_venta}"
+        texto_info = _("sells_for").format(name=nombre, price=precio_venta)
         texto_surf = fuente_normal.render(texto_info, True, (0, 0, 0))
         pantalla.blit(texto_surf, (pos[0], pos[1] + 70))
 
@@ -1232,7 +1267,7 @@ def vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_norma
         pantalla.blit(texto_surf, (10, y_list + idx * 28))
 
     if not edificios:
-        mostrar_texto(pantalla, fuente_normal, "No hay edificios para vender.", 10, 120)
+        mostrar_texto(pantalla, fuente_normal, _("no_buildings_to_sell"), 10, 120)
 
     for evento in eventos:
         if evento.type == pygame.QUIT:
@@ -1517,6 +1552,8 @@ def main(username=None):
     _original_get_pos = pygame.mouse.get_pos
     _original_event_get = pygame.event.get
 
+    global _minigame_active
+    _minigame_active = False
     initial_setup = True
     tamano_pendiente = None
     ultimo_cambio_tiempo = 0
@@ -1524,6 +1561,8 @@ def main(username=None):
     def custom_set_mode(size, flags=0, *args, **kwargs):
         global pantalla_real, ancho_real, alto_real
         nonlocal initial_setup
+        if _minigame_active:
+            return _original_set_mode(size, flags, *args, **kwargs)
         if size == (1200, 600) and initial_setup:
             initial_setup = False
             pantalla_real = _original_set_mode((1200, 600), flags | pygame.RESIZABLE, *args, **kwargs)
@@ -1538,6 +1577,9 @@ def main(username=None):
     def custom_flip():
         global pantalla_real, ancho_real, alto_real
         nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        if _minigame_active:
+            _original_flip()
+            return
         if tamano_pendiente is not None and (time.time() - ultimo_cambio_tiempo) > 0.15:
             pantalla_real = _original_set_mode(tamano_pendiente, pygame.RESIZABLE)
             ancho_real, alto_real = tamano_pendiente
@@ -1549,6 +1591,9 @@ def main(username=None):
     def custom_update(*args, **kwargs):
         global pantalla_real, ancho_real, alto_real
         nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        if _minigame_active:
+            _original_update(*args, **kwargs)
+            return
         if tamano_pendiente is not None and (time.time() - ultimo_cambio_tiempo) > 0.15:
             pantalla_real = _original_set_mode(tamano_pendiente, pygame.RESIZABLE)
             ancho_real, alto_real = tamano_pendiente
@@ -1560,6 +1605,8 @@ def main(username=None):
     def custom_get_pos():
         global pantalla_real
         x, y = _original_get_pos()
+        if _minigame_active:
+            return (x, y)
         if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
             w, h = pantalla_real.get_size()
             return (int(x * 1200 / w), int(y * 600 / h))
@@ -1569,6 +1616,8 @@ def main(username=None):
         global pantalla_real, ancho_real, alto_real
         nonlocal tamano_pendiente, ultimo_cambio_tiempo
         events = _original_event_get(*args, **kwargs)
+        if _minigame_active:
+            return events
         modified_events = []
         for event in events:
             if event.type == pygame.VIDEORESIZE:
@@ -1605,6 +1654,8 @@ def main(username=None):
     pygame.display.update = custom_update
     pygame.mouse.get_pos = custom_get_pos
     pygame.event.get = custom_event_get
+    # Expose the original set_mode so minigame wrappers can restore the display
+    pygame.display._original_set_mode = _original_set_mode
 
     pantalla = pygame.display.set_mode((1200, 600))
     pygame.display.set_caption("PIXELTOWN")
