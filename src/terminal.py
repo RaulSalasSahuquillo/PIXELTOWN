@@ -142,7 +142,7 @@ def _make_entry(parent, *, show=None, placeholder=""):
 
 
 def _make_button(parent, text, command, bg=BTN_PRIMARY, hover=BTN_PRIMARY_H,
-                 fg="white", width=22, font_size=12, pady=8):
+                 fg="black", width=22, font_size=12, pady=8):
     """Create a flat button with hover colour change."""
     btn = tk.Button(
         parent,
