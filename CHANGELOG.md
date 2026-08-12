@@ -2,6 +2,34 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [2.2.6] - 2026-08-12
+
+### Added
+- **Exit Button on Info2**:
+  - Added a red button with an "X" to return to the `mapainicial` page
+- **Alert**:
+  - Added an alert text that matches the things printed in the terminal, but is displayed on screen
+  - Used for `cannot_build_on_river`
+- **Sound Toggle**
+  - Added a mute/unmute sound button
+  - When pressed, it will mute/unmute the background music, and change the icon accordingly
+  - Shown in `menu` page and `mapainicial` page
+- **`mouseDown` Variable**
+  - Added a `mouseDown` variable that correlates to if the mouse was down or not in the previous frame
+  - Used in sound toggle and exit/quit buttons
+- **Death Screen**
+  - Added a death screen after the town runs out of happiness
+  - Displays `"GAME OVER"`, reason of death, and a quit button to exit the application
+- **Width and Height variable**
+  - Added a width and height variable to easily set the size and coordinates of things
+  - Used in all full screen applicants, and the quit screen
+
+### Fixed
+- **River Hitbox**
+  - Adjusted river hitbox for no placing on the river to cover just outside the bounds of the river
+- **Button Text Color**
+  - Changed all text color within buttons on the initial screen from an unreadable white to a contrasting black
+
 ## [2.2.5] - 2026-08-09
 
 ### Added

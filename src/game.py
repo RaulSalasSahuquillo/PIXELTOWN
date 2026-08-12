@@ -40,6 +40,10 @@ DIR_IMAGENES = os.path.join(BASE_DIR, "assets", "imagenes")
 DIR_PIXELTOWN_OST = os.path.join(BASE_DIR, "assets", "PIXELTOWN_OST")
 DIR_VISUAL = os.path.join(BASE_DIR, "assets", "visual")
 
+# width and height of screen
+w = 1200
+h = 600
+
 # Display scaling globals
 pantalla_real = None
 ancho_real = 1200
@@ -54,6 +58,9 @@ dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
 tiempo = 1 # Time in days
 deuda = 0 # Your debt
 nivel = 1 # Your level
+sound_on = 1 # Volume toggle (0 for off, 1 for on)
+mouseDown = False # if mouse is down in the previous frame, it is True
+alert = ["",0] # [message, timer]
 
 # SESSION AND SAVES STATE
 logged_in_username = None
@@ -191,6 +198,36 @@ def cargar_progreso(username):
         print(f"Error al cargar progreso: {e}")
         return False
 
+def sound_button(pantalla):
+    global sound_on, mouseDown
+
+    # load image and setup rect
+    sound_imgs = [pygame.image.load(os.path.join(DIR_IMAGENES, "soundoff.png")), 
+                    pygame.image.load(os.path.join(DIR_IMAGENES, "soundon.png"))]
+    for img in range(len(sound_imgs)):
+        sound_imgs[img] = pygame.transform.scale(sound_imgs[img], (50, 50))
+    sound_rect = pygame.Rect(50, 500, 50, 50)
+
+    # checking for sound button pressed
+    if sound_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0] and not mouseDown:
+        sound_on = (sound_on + 1) % 2 # 1 -> 0, 0 -> 1
+        if sound_on == 0:
+            pygame.mixer.music.set_volume(0)
+        else:
+            pygame.mixer.music.set_volume(1)
+
+    # draw the button
+    pantalla.blit(sound_imgs[sound_on], (sound_rect.x, sound_rect.y))
+
+def show_alert(pantalla):
+    global alert, w, h
+
+    if alert[1] > 0:
+        text = pygame.font.Font(None, 16).render(alert[0], True, (0,0,0))
+        textpos = text.get_rect(centerx=w/2, centery=h*0.9)
+        pantalla.blit(text, textpos)
+
+        alert[1] -= 1
 
 # SCENE DEFINITION
 def escena_intro(pantalla, reloj):
@@ -226,8 +263,9 @@ def escena_intro(pantalla, reloj):
 
     return "menu"
 
-def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
-    boton_jugar = pygame.Rect(900, 500, 200, 50)
+def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos): # menu_scene
+    global w, h
+    boton_jugar = pygame.Rect(900, 500, 200, 50) # play button
 
     for evento in eventos:
         if evento.type == pygame.QUIT:
@@ -237,10 +275,10 @@ def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
                 print("Cambiando a la escena del juego...")
                 return "jugando"
 
-    pantalla.fill((220, 220, 255))  # Light lilac background (Soothing, right? It took me hours to find the perfect colour. Thank me later!)    
+    pantalla.fill((220, 220, 255))  # (screen) Light lilac background (Soothing, right? It took me hours to find the perfect colour. Thank me later!)    
     try:
         player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'PIXELTOWN_portada.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (1200, 600))
+        player_image_scaled = pygame.transform.scale(player_image, (w, h))
         pantalla.blit(player_image_scaled, (0, 0))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
@@ -252,6 +290,8 @@ def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos):
     texto_surf = fuente_boton.render(_("play"), True, (0, 0, 0))
     texto_rect = texto_surf.get_rect(center=boton_jugar.center)
     pantalla.blit(texto_surf, texto_rect)
+
+    sound_button(pantalla)
 
     return "menu"
 
@@ -449,10 +489,10 @@ def mostrar_texto(pantalla, fuente, texto, x, y, color=(0, 0, 0), line_spacing=5
 
 
 def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
-    global nivel, experiencia, logged_in_username, ultimo_guardado_time, mensaje_guardado
+    global nivel, experiencia, logged_in_username, ultimo_guardado_time, mensaje_guardado, alert
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     boton_acciones = pygame.Rect(900, 500, 250, 50)
-    boton_guardar = pygame.Rect(50, 500, 250, 50)
+    boton_guardar = pygame.Rect(125, 500, 250, 50)
     pos_raton = pygame.mouse.get_pos()
     
     if experiencia >= 100 and nivel < 5:
@@ -542,7 +582,6 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
         print(f"No se pudo cargar la imagen: {e}")
     if felicidad < 10:
         print(_("citizens_unhappy"))
-        time.sleep(1)
         print(_("coup_started"))
         try:
             if not pygame.mixer.music.get_busy():
@@ -552,7 +591,7 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
             print(f"No se pudo cargar el archivo de música: {e}")
         finally:
             print(_("game_over"))
-            return "salir"
+            return "gameover"
     for evento in eventos:
         if evento.type == pygame.QUIT:
             return "salir"
@@ -574,6 +613,9 @@ def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, d
             pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
+
+    sound_button(pantalla)
+    
     return "mapainicial"
 
 
@@ -852,8 +894,25 @@ def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
 
 def infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+    global mouseDown
     pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     informaciontexto2(pantalla, fuente_titulo, 10, 10)
+
+    # exit button
+    exit_button = pygame.Rect(1130, 20, 50, 50)
+    pygame.draw.rect(pantalla, (255, 100, 100), exit_button)
+
+    text = pygame.font.Font(None, 30).render("X", True, (255,255,255))
+
+    if exit_button.collidepoint(pygame.mouse.get_pos()):
+        text = pygame.font.Font(None, 38).render("X", True, (255,255,255))
+
+        if pygame.mouse.get_pressed()[0] and not mouseDown:
+            return "mapainicial"
+        
+    textpos = text.get_rect(centerx=exit_button.centerx, centery=exit_button.centery)
+    pantalla.blit(text, textpos)
+
     for evento in eventos:
         if evento.type == pygame.QUIT:
             return "salir"
@@ -1063,7 +1122,7 @@ def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
 
 
 def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
-    global edificios, dinero, experiencia
+    global edificios, dinero, experiencia, alert
 
     if tipo_edificio not in EDIFICIOS_CONFIG:
         print(f"Error: Tipo de edificio '{tipo_edificio}' desconocido.")
@@ -1083,7 +1142,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
         print(f"No se pudo cargar la imagen: {e}")
 
     # River zone — buildings cannot be placed here
-    RIO_RECT = pygame.Rect(450, 200, 300, 300)
+    RIO_RECT = pygame.Rect(488, 223, 250, 265)
 
     mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 10)
     mostrar_texto(pantalla, fuente_normal, _("buildings_short").format(count=len(edificios)), 10, 40)
@@ -1140,6 +1199,7 @@ def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
                     edificio_rect = pygame.Rect(final_pos[0], final_pos[1], 64, 64)
                     if edificio_rect.colliderect(RIO_RECT):
                         print(_("cannot_build_on_river"))
+                        alert = [_("cannot_build_on_river"), 60]
                     else:
                         edificios.append({"tipo": tipo_edificio, "pos": final_pos})
                         dinero -= costo
@@ -1518,9 +1578,49 @@ def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, ca
     pantalla.blit(texto_surf_boton, texto_rect_boton)
     return "impuestos"
 
+def gameover(pantalla, eventos):
+    global mouseDown, w, h
+
+    pantalla.fill((180,0,0))
+
+    text = pygame.font.Font(None, 128).render("GAME OVER", True, (255,255,255))
+    textpos = text.get_rect(centerx=w*0.5, centery=h*0.4)
+    pantalla.blit(text, textpos)
+
+    text = pygame.font.Font(None, 32).render(_("citizens_unhappy"), True, (255,255,255))
+    textpos = text.get_rect(centerx=w*0.5, centery=h*0.5)
+    pantalla.blit(text, textpos)
+
+    text = pygame.font.Font(None, 32).render(_("coup_started"), True, (255,255,255))
+    textpos = text.get_rect(centerx=w*0.5, centery=h*0.6)
+    pantalla.blit(text, textpos)
+
+    quit_button = pygame.Rect(w*0.4, h*0.7, w*0.2, h*0.2)
+    pygame.draw.rect(pantalla, (255, 100, 100), quit_button)
+
+    text = pygame.font.Font(None, 30).render("Quit", True, (255,255,255))
+
+    if quit_button.collidepoint(pygame.mouse.get_pos()):
+        text = pygame.font.Font(None, 38).render("Quit", True, (255,255,255))
+
+        if pygame.mouse.get_pressed()[0] and not mouseDown:
+            return "salir"
+
+    textpos = text.get_rect(centerx=quit_button.centerx, centery=quit_button.centery)
+    pantalla.blit(text, textpos)
+
+    for evento in eventos:
+        if evento.type == pygame.QUIT:
+            print("hi")
+            return "salir"
+
+    pygame.display.flip()
+
+    return "gameover"
+
 # MAIN FUNCTION
 def main(username=None):
-    global logged_in_username, datos_jugador
+    global logged_in_username, datos_jugador, mouseDown, w, h
     logged_in_username = username
 
     progreso_cargado = False
@@ -1544,7 +1644,7 @@ def main(username=None):
             print("No se pudo encontrar el logo, se usará el de por defecto.")
 
     global pantalla_real, ancho_real, alto_real
-    virtual_surface = pygame.Surface((1200, 600))
+    virtual_surface = pygame.Surface((w, h))
 
     _original_set_mode = pygame.display.set_mode
     _original_flip = pygame.display.flip
@@ -1563,12 +1663,12 @@ def main(username=None):
         nonlocal initial_setup
         if _minigame_active:
             return _original_set_mode(size, flags, *args, **kwargs)
-        if size == (1200, 600) and initial_setup:
+        if size == (w, h) and initial_setup:
             initial_setup = False
-            pantalla_real = _original_set_mode((1200, 600), flags | pygame.RESIZABLE, *args, **kwargs)
-            ancho_real, alto_real = 1200, 600
+            pantalla_real = _original_set_mode((w, h), flags | pygame.RESIZABLE, *args, **kwargs)
+            ancho_real, alto_real = w, h
             return virtual_surface
-        elif size == (1200, 600) and not initial_setup:
+        elif size == (w, h) and not initial_setup:
             pantalla_real = _original_set_mode((ancho_real, alto_real), flags | pygame.RESIZABLE, *args, **kwargs)
             return pantalla_real
         else:
@@ -1613,7 +1713,7 @@ def main(username=None):
         return (x, y)
 
     def custom_event_get(*args, **kwargs):
-        global pantalla_real, ancho_real, alto_real
+        global pantalla_real, ancho_real, alto_real, w, h
         nonlocal tamano_pendiente, ultimo_cambio_tiempo
         events = _original_event_get(*args, **kwargs)
         if _minigame_active:
@@ -1657,7 +1757,7 @@ def main(username=None):
     # Expose the original set_mode so minigame wrappers can restore the display
     pygame.display._original_set_mode = _original_set_mode
 
-    pantalla = pygame.display.set_mode((1200, 600))
+    pantalla = pygame.display.set_mode((w, h))
     pygame.display.set_caption("PIXELTOWN")
     reloj = pygame.time.Clock()
 
@@ -1676,36 +1776,36 @@ def main(username=None):
     # Selected building type to place
     edificio_a_colocar = None
 
-    # MAIN GAME LOOP
-    while estado_del_juego != "salir":
+    # MAIN GAME LOOP im literally learning spanish rn while doing this :)
+    while estado_del_juego != "salir": # quit
         eventos = pygame.event.get()
 
         if estado_del_juego == "intro":
             estado_del_juego = escena_intro(pantalla, reloj)
         elif estado_del_juego == "menu":
             estado_del_juego = escena_menu(pantalla, fuente_titulo, fuente_boton, eventos)
-        elif estado_del_juego == "jugando":
+        elif estado_del_juego == "jugando": # playing
             if progreso_cargado:
                 estado_del_juego = "mapainicial"
             else:
-                estado_del_juego = escena_juego(pantalla, fuente_boton, eventos, fuente_titulo)
-        elif estado_del_juego == "preguntando":
+                estado_del_juego = escena_juego(pantalla, fuente_boton, eventos, fuente_titulo) # game scene
+        elif estado_del_juego == "preguntando": # ask
             estado_del_juego = pregunta(pantalla, fuente_titulo, fuente_normal, eventos, estado_caja_texto, datos_jugador)
-        elif estado_del_juego == "preguntando2":
+        elif estado_del_juego == "preguntando2": # ask 2
             estado_del_juego = pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, estado_caja_texto, datos_jugador)
-        elif estado_del_juego == "cargamapa":
+        elif estado_del_juego == "cargamapa": # map loader
             estado_del_juego = cargamapa(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "mapainicial":
+        elif estado_del_juego == "mapainicial": # initial map
             estado_del_juego = mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador)
-        elif estado_del_juego == "acciones":
+        elif estado_del_juego == "acciones": # actions
             estado_del_juego = acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "tienda":
+        elif estado_del_juego == "tienda": # store
             estado_del_juego = tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "info":
             estado_del_juego = info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "infodos":
+        elif estado_del_juego == "infodos": # info2
             estado_del_juego = infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "minijuegos":
+        elif estado_del_juego == "minijuegos": # minigame
             estado_del_juego = minijuegos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "snakegame":
             estado_del_juego = snakegame(pantalla)
@@ -1713,7 +1813,7 @@ def main(username=None):
             estado_del_juego = tetrisgame(pantalla)
         elif estado_del_juego == "solarsystem":
             estado_del_juego = solarsystem(pantalla)
-        elif estado_del_juego == "productos":
+        elif estado_del_juego == "productos": # products
             estado_del_juego = productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
         elif estado_del_juego == "prestamo":
             estado_del_juego = prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
@@ -1744,6 +1844,14 @@ def main(username=None):
                 estado_del_juego = escena_colocacion(pantalla, eventos, fuente_normal, edificio_a_colocar)
                 if estado_del_juego != "colocando_edificio":
                     edificio_a_colocar = None
+        elif estado_del_juego == "gameover":
+            estado_del_juego = gameover(pantalla, eventos)
+
+        show_alert(pantalla)
+
+        mouseDown = False
+        if pygame.mouse.get_pressed()[0]:
+            mouseDown = True
 
         pygame.display.flip()
         reloj.tick(60)
