@@ -18,8 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
 
-def flecha(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = [
+def arrow(screen, font, pos_x, pos_y):
+    ascii_art = [
         "      ████      ",
         "      ████      ",
         "      ████      ",
@@ -31,18 +31,18 @@ def flecha(pantalla, fuente, pos_x, pos_y):
         "      ████      ",
     ]
 
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    BLACK = (0, 0, 0)
+    lines = ascii_art
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
 
-def bipo(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = [
+def bipo(screen, font, pos_x, pos_y):
+    ascii_art = [
         "      ██████████",
         "    ██▒▒▒▒▒▒▒▒▒▒██",
         "   ██▒▒ ▒▒ ▒▒ ▒▒ ██",
@@ -57,18 +57,18 @@ def bipo(pantalla, fuente, pos_x, pos_y):
         "     ▒▒  ██  ▒▒",
         "    ██  █  █  ██"
     ]
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    BLACK = (0, 0, 0)
+    lines = ascii_art
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
 
-def daemon(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = [
+def daemon(screen, font, pos_x, pos_y):
+    ascii_art = [
         " ┌───────────────┐",
         " █ █ █ █ █ █ █ █ █",
         " █   ░ ░ ░ ░   █",
@@ -82,18 +82,18 @@ def daemon(pantalla, fuente, pos_x, pos_y):
         "    █      █"
     ]
 
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    BLACK = (0, 0, 0)
+    lines = ascii_art
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
         
-def persona(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = [
+def person(screen, font, pos_x, pos_y):
+    ascii_art = [
         "      ██████",
         "    ██      ██",
         "   ██  ●  ●  ██",
@@ -111,18 +111,18 @@ def persona(pantalla, fuente, pos_x, pos_y):
         " ██          ██"
     ]
 
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    BLACK = (0, 0, 0)
+    lines = ascii_art
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
 
-def pingu(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = """
+def pingu(screen, font, pos_x, pos_y):
+    ascii_art = """
                 _________________________
                ( ¡BIENVENIDO A PIXELTOWN! )
                 -------------------------
@@ -136,18 +136,18 @@ def pingu(pantalla, fuente, pos_x, pos_y):
      /'\_   _/`\
      \___)=(___/
 """
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii.strip().split('\n')
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    BLACK = (0, 0, 0)
+    lines = ascii_art.strip().split('\n')
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
 
-def bipobienvenida(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = [
+def bipo_welcome(screen, font, pos_x, pos_y):
+    ascii_art = [
         "                    _________________________",
         "                   ( ¡BIENVENIDO A PIXELTOWN! )",
         "                    -------------------------",
@@ -168,12 +168,12 @@ def bipobienvenida(pantalla, fuente, pos_x, pos_y):
         "     ▒▒  ██  ▒▒",
         "    ██  █  █  ██"
     ]
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    BLACK = (0, 0, 0)
+    lines = ascii_art
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height

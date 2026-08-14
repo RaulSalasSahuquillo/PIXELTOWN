@@ -527,7 +527,7 @@ def drawNextPiece(piece):
     drawPiece(piece, pixelx=WINDOWWIDTH-120, pixely=100)
 
 
-def run_tetris(pantalla):
+def run_tetris(screen_surface):
     """Run the Tetris minigame inside the existing PIXELTOWN window.
     Returns the next scene name to transition to when the game ends."""
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, _embedded
@@ -535,7 +535,7 @@ def run_tetris(pantalla):
     _embedded = True
 
     # Save original display state so we can restore it later
-    original_size = pantalla.get_size()
+    original_size = screen_surface.get_size()
     original_caption = pygame.display.get_caption()
 
     # Resize display for the Tetris game

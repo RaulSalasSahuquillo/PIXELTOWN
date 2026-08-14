@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-from terminal import terminalbeggining
+from terminal import terminal_beginning
 
 if __name__ == '__main__':
-    terminalbeggining()
+    terminal_beginning()

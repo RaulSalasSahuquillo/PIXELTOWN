@@ -24,7 +24,7 @@ if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIR_IMAGENES = os.path.join(BASE_DIR, "assets", "imagenes")
+IMAGES_DIR = os.path.join(BASE_DIR, "assets", "images")
 
 _images = {}  # filled at runtime
 
@@ -87,9 +87,9 @@ planets = [{
 
 
 def makeNewPlanet(which):
-    for pieceOfRock in planets:
-        if pieceOfRock["name"] == which:
-            return copy.deepcopy(pieceOfRock)
+    for planet_item in planets:
+        if planet_item["name"] == which:
+            return copy.deepcopy(planet_item)
     return False
 
 
@@ -97,17 +97,17 @@ def _load_images():
     """Load planet and UI images from the correct assets directory."""
     global _images
     _images = {
-        "mercury"    : pygame.image.load(os.path.join(DIR_IMAGENES, "mercury.png")).convert_alpha(),
-        "venus"      : pygame.image.load(os.path.join(DIR_IMAGENES, "venus.png")).convert_alpha(),
-        "earth"      : pygame.image.load(os.path.join(DIR_IMAGENES, "earth.png")).convert_alpha(),
-        "mars"       : pygame.image.load(os.path.join(DIR_IMAGENES, "mars.png")).convert_alpha(),
-        "jupiter"    : pygame.image.load(os.path.join(DIR_IMAGENES, "jupiter.png")).convert_alpha(),
-        "saturn"     : pygame.image.load(os.path.join(DIR_IMAGENES, "saturn.png")).convert_alpha(),
-        "neptune"    : pygame.image.load(os.path.join(DIR_IMAGENES, "neptune.png")).convert_alpha(),
-        "uranus"     : pygame.image.load(os.path.join(DIR_IMAGENES, "uranus.png")).convert_alpha(),
-        "background" : pygame.image.load(os.path.join(DIR_IMAGENES, "background.jpg")).convert(),
-        "logo"       : pygame.image.load(os.path.join(DIR_IMAGENES, "logo.png")).convert_alpha(),
-        "tabs"       : pygame.image.load(os.path.join(DIR_IMAGENES, "tabs.png")).convert_alpha(),
+        "mercury"    : pygame.image.load(os.path.join(IMAGES_DIR, "mercury.png")).convert_alpha(),
+        "venus"      : pygame.image.load(os.path.join(IMAGES_DIR, "venus.png")).convert_alpha(),
+        "earth"      : pygame.image.load(os.path.join(IMAGES_DIR, "earth.png")).convert_alpha(),
+        "mars"       : pygame.image.load(os.path.join(IMAGES_DIR, "mars.png")).convert_alpha(),
+        "jupiter"    : pygame.image.load(os.path.join(IMAGES_DIR, "jupiter.png")).convert_alpha(),
+        "saturn"     : pygame.image.load(os.path.join(IMAGES_DIR, "saturn.png")).convert_alpha(),
+        "neptune"    : pygame.image.load(os.path.join(IMAGES_DIR, "neptune.png")).convert_alpha(),
+        "uranus"     : pygame.image.load(os.path.join(IMAGES_DIR, "uranus.png")).convert_alpha(),
+        "background" : pygame.image.load(os.path.join(IMAGES_DIR, "background.jpg")).convert(),
+        "logo"       : pygame.image.load(os.path.join(IMAGES_DIR, "logo.png")).convert_alpha(),
+        "tabs"       : pygame.image.load(os.path.join(IMAGES_DIR, "tabs.png")).convert_alpha(),
     }
 
 
@@ -143,13 +143,13 @@ def _drawUI(surface):
 
     # EXIT button (top-right corner)
     font = pygame.font.Font(None, 30)
-    boton_salir = pygame.Rect(WINDOW_WIDTH - 110, 10, 100, 36)
-    pos_raton = pygame.mouse.get_pos()
-    color = (220, 60, 60) if boton_salir.collidepoint(pos_raton) else (180, 40, 40)
-    pygame.draw.rect(surface, color, boton_salir, border_radius=6)
-    texto = font.render("EXIT", True, (255, 255, 255))
-    surface.blit(texto, texto.get_rect(center=boton_salir.center))
-    return boton_salir
+    exit_button = pygame.Rect(WINDOW_WIDTH - 110, 10, 100, 36)
+    mouse_pos = pygame.mouse.get_pos()
+    color = (220, 60, 60) if exit_button.collidepoint(mouse_pos) else (180, 40, 40)
+    pygame.draw.rect(surface, color, exit_button, border_radius=6)
+    text = font.render("EXIT", True, (255, 255, 255))
+    surface.blit(text, text.get_rect(center=exit_button.center))
+    return exit_button
 
 
 def _drawPlanets(surface, celestialBodies):
@@ -209,12 +209,12 @@ def _checkUIForClick(coordinates):
     return False
 
 
-def run_solarsystem(pantalla):
+def run_solarsystem(screen_surface):
     """Run the Solar System Simulator inside the existing PIXELTOWN window.
     Returns the next scene name to transition to when the game ends."""
 
     # Save original display state
-    original_size = pantalla.get_size()
+    original_size = screen_surface.get_size()
     original_caption = pygame.display.get_caption()
 
     # Resize display for the simulator
@@ -260,15 +260,15 @@ def run_solarsystem(pantalla):
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouseDown = True
                 # Check if the EXIT button was clicked
-                boton_salir = pygame.Rect(WINDOW_WIDTH - 110, 10, 100, 36)
-                if boton_salir.collidepoint(mousePosition):
+                exit_button = pygame.Rect(WINDOW_WIDTH - 110, 10, 100, 36)
+                if exit_button.collidepoint(mousePosition):
                     running = False
                     break
                 # Check if a planet tab was clicked
                 if mousePosition[1] >= 687:
-                    newPlanet = _checkUIForClick(mousePosition)
-                    if newPlanet is not False:
-                        currentBody = makeNewPlanet(newPlanet)
+                    new_planet = _checkUIForClick(mousePosition)
+                    if new_planet is not False:
+                        currentBody = makeNewPlanet(new_planet)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 mouseDown = False

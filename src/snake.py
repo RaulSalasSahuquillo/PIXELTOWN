@@ -58,12 +58,12 @@ def spawn_food():
     return (x, y)
 
 
-def run_snake(pantalla):
+def run_snake(screen_surface):
     """Run the snake minigame inside the existing PIXELTOWN window.
     Returns the next scene name to transition to when the game ends."""
 
     # Save original display size so we can restore it later
-    original_size = pantalla.get_size()
+    original_size = screen_surface.get_size()
     original_caption = pygame.display.get_caption()
 
     # Resize display for the snake game

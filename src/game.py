@@ -26,8 +26,8 @@ from snake import run_snake
 from tetris import run_tetris
 from solarsystem import run_solarsystem
 from pyvidplayer2 import Video
-from characters import bipo, daemon, persona, flecha, bipobienvenida
-from text import titulo, informaciontexto1, informaciontexto2
+from characters import bipo, daemon, person, arrow, bipo_welcome
+from text import title, info_text_1, info_text_2
 from localization import _
 
 # PATH CONFIGURATION (Don't mess with these!)
@@ -36,88 +36,89 @@ if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DIR_IMAGENES = os.path.join(BASE_DIR, "assets", "imagenes")
-DIR_PIXELTOWN_OST = os.path.join(BASE_DIR, "assets", "PIXELTOWN_OST")
-DIR_VISUAL = os.path.join(BASE_DIR, "assets", "visual")
+IMAGES_DIR = os.path.join(BASE_DIR, "assets", "images")
+PIXELTOWN_OST_DIR = os.path.join(BASE_DIR, "assets", "PIXELTOWN_OST")
+VISUAL_DIR = os.path.join(BASE_DIR, "assets", "visual")
 
 # width and height of screen
 w = 1200
 h = 600
 
 # Display scaling globals
-pantalla_real = None
-ancho_real = 1200
-alto_real = 600
+real_screen = None
+real_width = 1200
+real_height = 600
 
-dinero = 10000  # Initial money (Don't spend it all in one place!)
-poblacion = 10  # Initial population (Small, but it will grow)
-edificios = []  # List of dicts: {"tipo": str, "pos": (x, y)}
-felicidad = 50  # Initial happiness (We really need to cheer them up)
-experiencia = 0  # Initial experience
-dineroporhabitante = 1000 # Each inhabitant brings in 1000 money
-tiempo = 1 # Time in days
-deuda = 0 # Your debt
-nivel = 1 # Your level
+money = 10000  # Initial money (Don't spend it all in one place!)
+population = 10  # Initial population (Small, but it will grow)
+buildings = []  # List of dicts: {"tipo": str, "pos": (x, y)}
+happiness = 50  # Initial happiness (We really need to cheer them up)
+experience = 0  # Initial experience
+money_per_inhabitant = 1000 # Each inhabitant brings in 1000 money
+time_days = 1 # Time in days
+debt = 0 # Your debt
+level = 1 # Your level
 sound_on = 1 # Volume toggle (0 for off, 1 for on)
 mouseDown = False # if mouse is down in the previous frame, it is True
-alert = ["",0] # [message, timer]
+alert = ["", 0] # [message, timer]
 
 # SESSION AND SAVES STATE
 logged_in_username = None
-ultimo_guardado_time = 0
-mensaje_guardado = ""
-datos_jugador = {"nombre_usuario": "", "nombre_ciudad": ""}
+last_saved_time = 0
+save_message = ""
+player_data = {"nombre_usuario": "", "nombre_ciudad": ""}
 
-EDIFICIOS_CONFIG = {
+# Configuration of buildings and decorations
+BUILDINGS_CONFIG = {
     "casa": {
-        "imagen": os.path.join(DIR_IMAGENES, "Casa.png"),
-        "costo": 500,
-        "experiencia": 100,
-        "nombre_key": "simple_house"
+        "imagen": os.path.join(IMAGES_DIR, "house.png"),
+        "costo": 100,
+        "experiencia": 10,
+        "nombre_clave": "simple_house"
     },
     "supermercado": {
-        "imagen": os.path.join(DIR_IMAGENES, "supermercado.png"),
-        "costo": 1500,
-        "experiencia": 300,
-        "nombre_key": "supermarket"
+        "imagen": os.path.join(IMAGES_DIR, "supermarket.png"),
+        "costo": 500,
+        "experiencia": 30,
+        "nombre_clave": "supermarket"
     },
     "tarraco": {
-        "imagen": os.path.join(DIR_IMAGENES, "tarraco.png"),
-        "costo": 10000,
-        "experiencia": 900,
-        "nombre_key": "tarraco"
+        "imagen": os.path.join(IMAGES_DIR, "tarraco.png"),
+        "costo": 2500,
+        "experiencia": 100,
+        "nombre_clave": "tarraco"
     },
     "farola": {
-        "imagen": os.path.join(DIR_IMAGENES, "farola.png"),
-        "costo": 100,
-        "experiencia": 25,
-        "nombre_key": "streetlamp"
+        "imagen": os.path.join(IMAGES_DIR, "streetlamp.png"),
+        "costo": 20,
+        "experiencia": 2,
+        "nombre_clave": "streetlamp"
     },
     "my_town_my_rules": {
-        "imagen": os.path.join(DIR_IMAGENES, "AdornoMYTOWNMYRULES.png"),
-        "costo": 250,
-        "experiencia": 100,
-        "nombre_key": "my_town_my_rules"
+        "imagen": os.path.join(IMAGES_DIR, "ornament_mytownmyrules.png"),
+        "costo": 50,
+        "experiencia": 5,
+        "nombre_clave": "mytown_rules"
     },
     "arbusto": {
-        "imagen": os.path.join(DIR_IMAGENES, "arbusto.png"),
-        "costo": 50,
-        "experiencia": 10,
-        "nombre_key": "bush"
+        "imagen": os.path.join(IMAGES_DIR, "bush.png"),
+        "costo": 10,
+        "experiencia": 1,
+        "nombre_clave": "bush"
     }
 }
 
-def obtener_precio_venta(tipo_edificio):
-    return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("costo", 0) // 2
+def get_sell_price(building_type):
+    return BUILDINGS_CONFIG.get(building_type, {}).get("costo", 0) // 2
 
-def obtener_experiencia_venta(tipo_edificio):
-    return EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("experiencia", 0) // 2
+def get_sell_experience(building_type):
+    return BUILDINGS_CONFIG.get(building_type, {}).get("experiencia", 0) // 2
 
-def obtener_nombre_edificio(tipo_edificio):
-    key = EDIFICIOS_CONFIG.get(tipo_edificio, {}).get("nombre_key", "")
+def get_building_name(building_type):
+    key = BUILDINGS_CONFIG.get(building_type, {}).get("nombre_key", "")
     if key:
         return _(key)
-    return tipo_edificio.capitalize()
+    return building_type.capitalize()
 
 def get_save_dir():
     if getattr(sys, 'frozen', False):
@@ -133,21 +134,21 @@ def get_save_path(username):
     save_dir = get_save_dir()
     return os.path.join(save_dir, f"{username}_save.json")
 
-def guardar_progreso(username):
+def save_progress(username):
     if not username:
         return False
     path = get_save_path(username)
     state = {
-        "dinero": dinero,
-        "poblacion": poblacion,
-        "edificios": edificios,
-        "felicidad": felicidad,
-        "experiencia": experiencia,
-        "dineroporhabitante": dineroporhabitante,
-        "tiempo": tiempo,
-        "deuda": deuda,
-        "nivel": nivel,
-        "datos_jugador": datos_jugador
+        "dinero": money,
+        "poblacion": population,
+        "edificios": buildings,
+        "felicidad": happiness,
+        "experiencia": experience,
+        "dineroporhabitante": money_per_inhabitant,
+        "tiempo": time_days,
+        "deuda": debt,
+        "nivel": level,
+        "datos_jugador": player_data
     }
     try:
         with open(path, "w", encoding="utf-8") as f:
@@ -158,8 +159,8 @@ def guardar_progreso(username):
         print(f"Error al guardar progreso: {e}")
         return False
 
-def cargar_progreso(username):
-    global dinero, poblacion, edificios, felicidad, experiencia, dineroporhabitante, tiempo, deuda, nivel, datos_jugador
+def load_progress(username):
+    global money, population, buildings, happiness, experience, money_per_inhabitant, time_days, debt, level, player_data
     if not username:
         return False
     path = get_save_path(username)
@@ -169,28 +170,28 @@ def cargar_progreso(username):
         with open(path, "r", encoding="utf-8") as f:
             state = json.load(f)
         
-        dinero = state.get("dinero", 10000)
-        poblacion = state.get("poblacion", 10)
+        money = state.get("dinero", 10000)
+        population = state.get("poblacion", 10)
         
-        raw_edificios = state.get("edificios", [])
-        edificios = []
-        for ed in raw_edificios:
+        raw_buildings = state.get("edificios", [])
+        buildings = []
+        for ed in raw_buildings:
             pos = ed.get("pos", [0, 0])
-            edificios.append({
+            buildings.append({
                 "tipo": ed.get("tipo", "casa"),
                 "pos": (pos[0], pos[1])
             })
             
-        felicidad = state.get("felicidad", 50)
-        experiencia = state.get("experiencia", 0)
-        dineroporhabitante = state.get("dineroporhabitante", 1000)
-        tiempo = state.get("tiempo", 1)
-        deuda = state.get("deuda", 0)
-        nivel = state.get("nivel", 1)
+        happiness = state.get("felicidad", 50)
+        experience = state.get("experiencia", 0)
+        money_per_inhabitant = state.get("dineroporhabitante", 1000)
+        time_days = state.get("tiempo", 1)
+        debt = state.get("deuda", 0)
+        level = state.get("nivel", 1)
         
-        loaded_datos_jugador = state.get("datos_jugador", {})
-        datos_jugador["nombre_usuario"] = loaded_datos_jugador.get("nombre_usuario", username)
-        datos_jugador["nombre_ciudad"] = loaded_datos_jugador.get("nombre_ciudad", "PixelTown")
+        loaded_player_data = state.get("datos_jugador", {})
+        player_data["nombre_usuario"] = loaded_player_data.get("nombre_usuario", username)
+        player_data["nombre_ciudad"] = loaded_player_data.get("nombre_ciudad", "PixelTown")
         
         print(f"Progreso cargado con éxito para {username} desde {path}")
         return True
@@ -198,12 +199,12 @@ def cargar_progreso(username):
         print(f"Error al cargar progreso: {e}")
         return False
 
-def sound_button(pantalla):
+def sound_button(screen):
     global sound_on, mouseDown
 
     # load image and setup rect
-    sound_imgs = [pygame.image.load(os.path.join(DIR_IMAGENES, "soundoff.png")), 
-                    pygame.image.load(os.path.join(DIR_IMAGENES, "soundon.png"))]
+    sound_imgs = [pygame.image.load(os.path.join(IMAGES_DIR, "soundoff.png")), 
+                    pygame.image.load(os.path.join(IMAGES_DIR, "soundon.png"))]
     for img in range(len(sound_imgs)):
         sound_imgs[img] = pygame.transform.scale(sound_imgs[img], (50, 50))
     sound_rect = pygame.Rect(50, 500, 50, 50)
@@ -217,36 +218,36 @@ def sound_button(pantalla):
             pygame.mixer.music.set_volume(1)
 
     # draw the button
-    pantalla.blit(sound_imgs[sound_on], (sound_rect.x, sound_rect.y))
+    screen.blit(sound_imgs[sound_on], (sound_rect.x, sound_rect.y))
 
-def show_alert(pantalla):
+def show_alert(screen):
     global alert, w, h
 
     if alert[1] > 0:
         text = pygame.font.Font(None, 16).render(alert[0], True, (0,0,0))
         textpos = text.get_rect(centerx=w/2, centery=h*0.9)
-        pantalla.blit(text, textpos)
+        screen.blit(text, textpos)
 
         alert[1] -= 1
 
 # SCENE DEFINITION
-def escena_intro(pantalla, reloj):
+def intro_scene(screen, clock):
     try:
-        ruta_video = os.path.join(DIR_VISUAL, 'intro.mp4')
-        video = Video(ruta_video)
+        video_path = os.path.join(VISUAL_DIR, 'intro.mp4')
+        video = Video(video_path)
         
         # Same dimensions as the pygame screen
-        dimensiones_pantalla = pantalla.get_size()
-        video.resize(pantalla.get_size())
+        screen_dimensions = screen.get_size()
+        video.resize(screen.get_size())
 
         while video.active:
-            for evento in pygame.event.get():
-                if evento.type == pygame.QUIT:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
                     video.close()
                     return "salir"
-            video.draw(pantalla, (0, 0), dimensiones_pantalla)
+            video.draw(screen, (0, 0), screen_dimensions)
             pygame.display.flip()
-            reloj.tick(video.frame_rate) 
+            clock.tick(video.frame_rate) 
 
         video.close()
 
@@ -256,651 +257,651 @@ def escena_intro(pantalla, reloj):
         print(f"Ocurrió un error al reproducir el video con pyvidplayer2: {e}. Saltando intro.")
 
     try:
-        pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "anewbegining.mp3"))
+        pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "anewbegining.mp3"))
         pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
 
     return "menu"
 
-def escena_menu(pantalla, fuente_titulo, fuente_boton, eventos): # menu_scene
+def menu_scene(screen, title_font, button_font, events): # menu_scene
     global w, h
-    boton_jugar = pygame.Rect(900, 500, 200, 50) # play button
+    play_button = pygame.Rect(900, 500, 200, 50) # play button
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_jugar.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONUP:
+            if play_button.collidepoint(event.pos):
                 print("Cambiando a la escena del juego...")
                 return "jugando"
 
-    pantalla.fill((220, 220, 255))  # (screen) Light lilac background (Soothing, right? It took me hours to find the perfect colour. Thank me later!)    
+    screen.fill((220, 220, 255))  # (screen) Light lilac background (Soothing, right? It took me hours to find the perfect colour. Thank me later!)    
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'PIXELTOWN_portada.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'pixeltown_cover.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (w, h))
-        pantalla.blit(player_image_scaled, (0, 0))
+        screen.blit(player_image_scaled, (0, 0))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
     # Drawing the PLAY button
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (100, 180, 255) if boton_jugar.collidepoint(pos_raton) else (0, 128, 255)
-    pygame.draw.rect(pantalla, color_boton, boton_jugar)
-    texto_surf = fuente_boton.render(_("play"), True, (0, 0, 0))
-    texto_rect = texto_surf.get_rect(center=boton_jugar.center)
-    pantalla.blit(texto_surf, texto_rect)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (100, 180, 255) if play_button.collidepoint(mouse_pos) else (0, 128, 255)
+    pygame.draw.rect(screen, button_color, play_button)
+    text_surf = button_font.render(_("play"), True, (0, 0, 0))
+    text_rect = text_surf.get_rect(center=play_button.center)
+    screen.blit(text_surf, text_rect)
 
-    sound_button(pantalla)
+    sound_button(screen)
 
     return "menu"
 
 
-def escena_juego(pantalla, fuente_boton, eventos, fuente_titulo):
-    boton_volver = pygame.Rect(50, 500, 250, 50)
-    boton_continuar = pygame.Rect(900, 500, 250, 50)
+def game_scene(screen, button_font, events, title_font):
+    back_button = pygame.Rect(50, 500, 250, 50)
+    continue_button = pygame.Rect(900, 500, 250, 50)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_volver.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONUP:
+            if back_button.collidepoint(event.pos):
                 print("Volviendo al menú...")
                 return "menu"
-            elif boton_continuar.collidepoint(evento.pos):
+            elif continue_button.collidepoint(event.pos):
                 print("Continuando a la escena de pregunta...")
                 return "preguntando"
 
-    pantalla.fill((200, 255, 200))  # Light green background
+    screen.fill((200, 255, 200))  # Light green background
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'BIENVENIDO.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'welcome.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (400, 400))
-        pantalla.blit(player_image_scaled, (400, 100))
+        screen.blit(player_image_scaled, (400, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
-    pos_raton = pygame.mouse.get_pos()
-    color_volver = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
-    color_continuar = (100, 180, 255) if boton_continuar.collidepoint(pos_raton) else (0, 128, 255)
+    mouse_pos = pygame.mouse.get_pos()
+    color_volver = (255, 100, 100) if back_button.collidepoint(mouse_pos) else (200, 50, 50)
+    color_continuar = (100, 180, 255) if continue_button.collidepoint(mouse_pos) else (0, 128, 255)
 
-    pygame.draw.rect(pantalla, color_volver, boton_volver)
-    texto_surf_volver = fuente_boton.render(_("back_to_menu"), True, (255, 255, 255))
-    texto_rect_volver = texto_surf_volver.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_volver, texto_rect_volver)
+    pygame.draw.rect(screen, color_volver, back_button)
+    texto_surf_volver = button_font.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_volver = texto_surf_volver.get_rect(center=back_button.center)
+    screen.blit(texto_surf_volver, texto_rect_volver)
 
-    pygame.draw.rect(pantalla, color_continuar, boton_continuar)
-    texto_surf_continuar = fuente_boton.render(_("continue"), True, (255, 255, 255))
-    texto_rect_continuar = texto_surf_continuar.get_rect(center=boton_continuar.center)
-    pantalla.blit(texto_surf_continuar, texto_rect_continuar)
+    pygame.draw.rect(screen, color_continuar, continue_button)
+    texto_surf_continuar = button_font.render(_("continue"), True, (255, 255, 255))
+    texto_rect_continuar = texto_surf_continuar.get_rect(center=continue_button.center)
+    screen.blit(texto_surf_continuar, texto_rect_continuar)
 
     return "jugando"
 
 
-def pregunta(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado, datos_jugador):
-    input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
-    color_inactivo = pygame.Color('lightskyblue3')
-    color_activo = pygame.Color('dodgerblue2')
+def ask_name_scene(screen, title_font, normal_font, events, textbox_state, player_data):
+    input_box = pygame.Rect(screen.get_width() // 2 - 200, 300, 400, 40)
+    inactive_color = pygame.Color('lightskyblue3')
+    active_color = pygame.Color('dodgerblue2')
 
-    texto_usuario = caja_texto_estado['texto']
-    activo = caja_texto_estado['activo']
-    color = color_activo if activo else color_inactivo
+    user_text = textbox_state['texto']
+    active = textbox_state['activo']
+    color = active_color if active else inactive_color
 
-    boton_volver = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+    back_button = pygame.Rect(screen.get_width() // 2 - 125, 500, 250, 50)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
 
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            if boton_volver.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button.collidepoint(event.pos):
                 return "menu"
-            activo = input_box.collidepoint(evento.pos)
+            active = input_box.collidepoint(event.pos)
 
-        if activo and evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_RETURN:
-                print(f"Respuesta enviada: {texto_usuario}")
-                datos_jugador['nombre_usuario'] = texto_usuario
-                caja_texto_estado['texto'] = ""
-                texto_usuario = ""
-                activo = False
+        if active and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                print(f"Respuesta enviada: {user_text}")
+                player_data['nombre_usuario'] = user_text
+                textbox_state['texto'] = ""
+                user_text = ""
+                active = False
                 return "preguntando2"
-            elif evento.key == pygame.K_BACKSPACE:
-                texto_usuario = texto_usuario[:-1]
+            elif event.key == pygame.K_BACKSPACE:
+                user_text = user_text[:-1]
             else:
-                texto_usuario += evento.unicode
+                user_text += event.unicode
 
-    caja_texto_estado['texto'] = texto_usuario
-    caja_texto_estado['activo'] = activo
+    textbox_state['texto'] = user_text
+    textbox_state['activo'] = active
 
-    pantalla.fill((220, 220, 255))
-    texto_pregunta_surf = fuente_titulo.render(_("what_is_your_name"), True, (0, 0, 0))
-    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
-    pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+    screen.fill((220, 220, 255))
+    texto_pregunta_surf = title_font.render(_("what_is_your_name"), True, (0, 0, 0))
+    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(screen.get_width() // 2, 200))
+    screen.blit(texto_pregunta_surf, texto_pregunta_rect)
 
-    texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
-    input_box.w = max(400, texto_surf.get_width() + 20)
-    pygame.draw.rect(pantalla, color, input_box, 2)
-    pantalla.blit(texto_surf, (input_box.x + 10, input_box.y + 10))
+    text_surf = normal_font.render(user_text, True, (0, 0, 0))
+    input_box.w = max(400, text_surf.get_width() + 20)
+    pygame.draw.rect(screen, color, input_box, 2)
+    screen.blit(text_surf, (input_box.x + 10, input_box.y + 10))
 
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (255, 100, 100) if back_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, back_button)
+    texto_surf_boton = normal_font.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=back_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
 
     return "preguntando"
 
 
-def pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, caja_texto_estado, datos_jugador):
+def ask_city_name_scene(screen, title_font, normal_font, events, textbox_state, player_data):
     global logged_in_username
-    input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
-    color_inactivo = pygame.Color('lightskyblue3')
-    color_activo = pygame.Color('dodgerblue2')
+    input_box = pygame.Rect(screen.get_width() // 2 - 200, 300, 400, 40)
+    inactive_color = pygame.Color('lightskyblue3')
+    active_color = pygame.Color('dodgerblue2')
 
-    texto_usuario = caja_texto_estado['texto']
-    activo = caja_texto_estado['activo']
-    color = color_activo if activo else color_inactivo
+    user_text = textbox_state['texto']
+    active = textbox_state['activo']
+    color = active_color if active else inactive_color
 
-    boton_volver = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+    back_button = pygame.Rect(screen.get_width() // 2 - 125, 500, 250, 50)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
 
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            if boton_volver.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button.collidepoint(event.pos):
                 return "menu"
-            activo = input_box.collidepoint(evento.pos)
+            active = input_box.collidepoint(event.pos)
 
-        if activo and evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_RETURN:
-                print(f"Respuesta enviada: {texto_usuario}")
-                datos_jugador['nombre_ciudad'] = texto_usuario
-                texto_usuario = ""
-                activo = False
+        if active and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                print(f"Respuesta enviada: {user_text}")
+                player_data['nombre_ciudad'] = user_text
+                user_text = ""
+                active = False
                 if logged_in_username:
-                    guardar_progreso(logged_in_username)
+                    save_progress(logged_in_username)
                 return "cargamapa"
-            elif evento.key == pygame.K_BACKSPACE:
-                texto_usuario = texto_usuario[:-1]
+            elif event.key == pygame.K_BACKSPACE:
+                user_text = user_text[:-1]
             else:
-                texto_usuario += evento.unicode
+                user_text += event.unicode
 
-    caja_texto_estado['texto'] = texto_usuario
-    caja_texto_estado['activo'] = activo
+    textbox_state['texto'] = user_text
+    textbox_state['activo'] = active
 
-    pantalla.fill((220, 220, 255))
-    nombre_usuario = datos_jugador.get('nombre_usuario', 'Tú')
-    texto_pregunta_surf = fuente_titulo.render(
-        _("welcome_city_name").format(username=nombre_usuario), True, (0, 0, 0))
-    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
-    pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+    screen.fill((220, 220, 255))
+    user_name = player_data.get('nombre_usuario', 'Tú')
+    texto_pregunta_surf = title_font.render(
+        _("welcome_city_name").format(username=user_name), True, (0, 0, 0))
+    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(screen.get_width() // 2, 200))
+    screen.blit(texto_pregunta_surf, texto_pregunta_rect)
 
-    texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
-    input_box.w = max(400, texto_surf.get_width() + 20)
-    pygame.draw.rect(pantalla, color, input_box, 2)
-    pantalla.blit(texto_surf, (input_box.x + 10, input_box.y + 10))
+    text_surf = normal_font.render(user_text, True, (0, 0, 0))
+    input_box.w = max(400, text_surf.get_width() + 20)
+    pygame.draw.rect(screen, color, input_box, 2)
+    screen.blit(text_surf, (input_box.x + 10, input_box.y + 10))
 
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (255, 100, 100) if back_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, back_button)
+    texto_surf_boton = normal_font.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=back_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
 
     return "preguntando2"
 
 
-def cargamapa(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+def map_loader_scene(screen, title_font, button_font, events, normal_font):
     pygame.mixer.music.stop()
-    pantalla.fill((220, 220, 255))  # Light lilac background (Soothing, right?)
+    screen.fill((220, 220, 255))  # Light lilac background (Soothing, right?)
 
-    boton_vermapa = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+    view_map_button = pygame.Rect(screen.get_width() // 2 - 125, 500, 250, 50)
 
-    texto_titulo_surf = fuente_titulo.render(_("loading_map"), True, (0, 0, 0))
-    texto_titulo_rect = texto_titulo_surf.get_rect(center=(pantalla.get_width() // 2, 200))
-    pantalla.blit(texto_titulo_surf, texto_titulo_rect)
+    title_text_surf = title_font.render(_("loading_map"), True, (0, 0, 0))
+    title_text_rect = title_text_surf.get_rect(center=(screen.get_width() // 2, 200))
+    screen.blit(title_text_surf, title_text_rect)
 
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (255, 100, 100) if boton_vermapa.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_vermapa)
-    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_vermapa.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (255, 100, 100) if view_map_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, view_map_button)
+    texto_surf_boton = normal_font.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=view_map_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
 
     pygame.display.flip()
     return "mapainicial"
 
 
-def mostrar_texto(pantalla, fuente, texto, x, y, color=(0, 0, 0), line_spacing=5):
-    lines = texto.split("\n")
+def display_text(screen, font, text, x, y, color=(0, 0, 0), line_spacing=5):
+    lines = text.split("\n")
     current_y = y
     for line in lines:
         # Render the actual lines
-        text_surface = fuente.render(line, True, color)
+        text_surface = font.render(line, True, color)
         # Draw it on the screen
-        pantalla.blit(text_surface, (x, current_y))
+        screen.blit(text_surface, (x, current_y))
         current_y += text_surface.get_height() + line_spacing
 
 
-def mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
-    global nivel, experiencia, logged_in_username, ultimo_guardado_time, mensaje_guardado, alert
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    boton_acciones = pygame.Rect(900, 500, 250, 50)
-    boton_guardar = pygame.Rect(125, 500, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
+def initial_map_scene(screen, title_font, button_font, events, normal_font, player_data):
+    global level, experience, logged_in_username, last_saved_time, save_message, alert
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    actions_button = pygame.Rect(900, 500, 250, 50)
+    save_button = pygame.Rect(125, 500, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
     
-    if experiencia >= 100 and nivel < 5:
-        experiencia = 0
-        nivel += 1
-    elif experiencia >= 1000 and (nivel >= 5 and nivel < 10):
-        experiencia = 0
-        nivel += 1
-    color_boton = (255, 100, 100) if boton_acciones.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_acciones)
-    texto_surf_boton = fuente_normal.render(_("actions"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_acciones.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    if experience >= 100 and level < 5:
+        experience = 0
+        level += 1
+    elif experience >= 1000 and (level >= 5 and level < 10):
+        experience = 0
+        level += 1
+    button_color = (255, 100, 100) if actions_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, actions_button)
+    texto_surf_boton = normal_font.render(_("actions"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=actions_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
 
     # Save button drawing
     if logged_in_username:
-        color_boton_guardar = (100, 200, 100) if boton_guardar.collidepoint(pos_raton) else (50, 150, 50)
-        texto_guardar = _("save_progress")
+        save_button_color = (100, 200, 100) if save_button.collidepoint(mouse_pos) else (50, 150, 50)
+        save_text = _("save_progress")
     else:
-        color_boton_guardar = (180, 180, 180)
-        texto_guardar = _("guest_cannot_save")
+        save_button_color = (180, 180, 180)
+        save_text = _("guest_cannot_save")
         
-    pygame.draw.rect(pantalla, color_boton_guardar, boton_guardar)
-    texto_surf_guardar = fuente_normal.render(texto_guardar, True, (255, 255, 255))
-    texto_rect_guardar = texto_surf_guardar.get_rect(center=boton_guardar.center)
-    pantalla.blit(texto_surf_guardar, texto_rect_guardar)
+    pygame.draw.rect(screen, save_button_color, save_button)
+    texto_surf_guardar = normal_font.render(save_text, True, (255, 255, 255))
+    texto_rect_guardar = texto_surf_guardar.get_rect(center=save_button.center)
+    screen.blit(texto_surf_guardar, texto_rect_guardar)
 
     # Success/Warning message
-    if time.time() - ultimo_guardado_time < 3:
-        color_texto = (0, 128, 0) if logged_in_username else (200, 0, 0)
-        mostrar_texto(pantalla, fuente_normal, mensaje_guardado, 50, 460, color=color_texto)
+    if time.time() - last_saved_time < 3:
+        text_color = (0, 128, 0) if logged_in_username else (200, 0, 0)
+        display_text(screen, normal_font, save_message, 50, 460, color=text_color)
 
-    nombre_usuario = datos_jugador.get('nombre_usuario', 'Tú')
-    nombre_ciudad = datos_jugador.get('nombre_ciudad', 'PixelTown')
-    boton_verdatos = pygame.Rect(pantalla.get_width() - 170, 15, 150, 35)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (255, 100, 100) if boton_verdatos.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_verdatos)
-    texto_surf_boton = fuente_normal.render(_("view_stats"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_verdatos.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    if boton_verdatos.collidepoint(pos_raton):
-        mostrar_texto(pantalla, fuente_normal, _("leader").format(username=nombre_usuario), 10, 10)
-        mostrar_texto(pantalla, fuente_normal, _("city").format(cityname=nombre_ciudad), 10, 50)
-        mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 90)
-        mostrar_texto(pantalla, fuente_normal, _("population").format(population=poblacion), 10, 130)
-        mostrar_texto(pantalla, fuente_normal, _("happiness").format(happiness=felicidad), 10, 170)
-        mostrar_texto(pantalla, fuente_normal, _("buildings").format(count=len(edificios)), 10, 210)
-        mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 250)
-        mostrar_texto(pantalla, fuente_normal, _("debt").format(debt=deuda), 10, 290)
-        mostrar_texto(pantalla, fuente_normal, _("level").format(level=nivel), 10, 330)
+    user_name = player_data.get('nombre_usuario', 'Tú')
+    city_name = player_data.get('nombre_ciudad', 'PixelTown')
+    view_stats_button = pygame.Rect(screen.get_width() - 170, 15, 150, 35)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (255, 100, 100) if view_stats_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, view_stats_button)
+    texto_surf_boton = normal_font.render(_("view_stats"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=view_stats_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    if view_stats_button.collidepoint(mouse_pos):
+        display_text(screen, normal_font, _("leader").format(username=user_name), 10, 10)
+        display_text(screen, normal_font, _("city").format(cityname=city_name), 10, 50)
+        display_text(screen, normal_font, _("money").format(money=money), 10, 90)
+        display_text(screen, normal_font, _("population").format(population=population), 10, 130)
+        display_text(screen, normal_font, _("happiness").format(happiness=happiness), 10, 170)
+        display_text(screen, normal_font, _("buildings").format(count=len(buildings)), 10, 210)
+        display_text(screen, normal_font, _("experience").format(experience=experience), 10, 250)
+        display_text(screen, normal_font, _("debt").format(debt=debt), 10, 290)
+        display_text(screen, normal_font, _("level").format(level=level), 10, 330)
 
     try:
-        casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
-        supermercado_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha(), (64, 64))
-        tarraco_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'tarraco.png')).convert_alpha(), (64, 64))
-        farola_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'farola.png')).convert_alpha(), (64, 64))
-        mytown_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'AdornoMYTOWNMYRULES.png')).convert_alpha(), (64, 64))
-        arbusto_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha(), (64, 64))
+        house_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'house.png')).convert_alpha(), (64, 64))
+        supermarket_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'supermarket.png')).convert_alpha(), (64, 64))
+        tarraco_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'tarraco.png')).convert_alpha(), (64, 64))
+        streetlamp_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'streetlamp.png')).convert_alpha(), (64, 64))
+        mytown_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'ornament_mytownmyrules.png')).convert_alpha(), (64, 64))
+        bush_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'bush.png')).convert_alpha(), (64, 64))
     except pygame.error as e:
         print(f"Error al cargar imágenes de edificios: {e}")
         return "menu"  # Exit to menu if images are not found (I hope you didn't delete them!)
 
     # Image dictionary
-    imagenes_edificios = {
-        "casa": casa_img,
-        "supermercado": supermercado_img,
+    building_images = {
+        "casa": house_img,
+        "supermercado": supermarket_img,
         "tarraco": tarraco_img,
-        "farola": farola_img,
+        "farola": streetlamp_img,
         "my_town_my_rules": mytown_img,
-        "arbusto": arbusto_img
+        "arbusto": bush_img
     }
     # Draw existing buildings (The real estate)
-    for edificio in edificios:
-        tipo = edificio["tipo"]
-        pos = edificio["pos"]
-        if tipo in imagenes_edificios:
-            pantalla.blit(imagenes_edificios[tipo], pos)
+    for building in buildings:
+        tipo = building["tipo"]
+        pos = building["pos"]
+        if tipo in building_images:
+            screen.blit(building_images[tipo], pos)
         else:
-            pygame.draw.rect(pantalla, (255, 0, 0), (*pos, 64, 64), 2)
+            pygame.draw.rect(screen, (255, 0, 0), (*pos, 64, 64), 2)
 
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'rio.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'river.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (450, 200))
+        screen.blit(player_image_scaled, (450, 200))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    if felicidad < 10:
+    if happiness < 10:
         print(_("citizens_unhappy"))
         print(_("coup_started"))
         try:
             if not pygame.mixer.music.get_busy():
-                pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "efectodestruccion.mp3"))
+                pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "efectodestruccion.mp3"))
                 pygame.mixer.music.play()
         except pygame.error as e:
             print(f"No se pudo cargar el archivo de música: {e}")
         finally:
             print(_("game_over"))
             return "gameover"
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_acciones.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONUP:
+            if actions_button.collidepoint(event.pos):
                 print("Cambiando a la escena de acciones...")
                 return "acciones"
-            if boton_guardar.collidepoint(evento.pos):
+            if save_button.collidepoint(event.pos):
                 if logged_in_username:
-                    if guardar_progreso(logged_in_username):
-                        ultimo_guardado_time = time.time()
-                        mensaje_guardado = _("progress_saved")
+                    if save_progress(logged_in_username):
+                        last_saved_time = time.time()
+                        save_message = _("progress_saved")
                 else:
-                    ultimo_guardado_time = time.time()
-                    mensaje_guardado = _("guest_cannot_save")
+                    last_saved_time = time.time()
+                    save_message = _("guest_cannot_save")
     try:
         if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load(os.path.join(DIR_PIXELTOWN_OST, "Aldea_soundtrack.mp3"))
+            pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "Aldea_soundtrack.mp3"))
             pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
 
-    sound_button(pantalla)
+    sound_button(screen)
     
     return "mapainicial"
 
 
-def acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    mostrar_texto(pantalla, fuente_titulo, _("actions"), 10, 10)
+def actions_scene(screen, title_font, button_font, events, normal_font):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    display_text(screen, title_font, _("actions"), 10, 10)
 
     # BUY (Time to spend)
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tienda.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'shop.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (250, 250))
-        pantalla.blit(player_image_scaled, (60, 30))
+        screen.blit(player_image_scaled, (60, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_comprar = pygame.Rect(60, 260, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_comprar)
-    texto_surf_boton = fuente_normal.render(_("buy"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_comprar.collidepoint(evento.pos):
+    buy_button = pygame.Rect(60, 260, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if buy_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, buy_button)
+    texto_surf_boton = normal_font.render(_("buy"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=buy_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if buy_button.collidepoint(event.pos):
                 print("Cambiando a la escena de tienda...")
                 return "tienda"
 
     # SELL
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'ganar_dinero.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'earn_money.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (250, 250))
-        pantalla.blit(player_image_scaled, (460, 30))
+        screen.blit(player_image_scaled, (460, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_ganar_dinero = pygame.Rect(460, 260, 250, 50)
-    color_boton = (200, 200, 100) if boton_ganar_dinero.collidepoint(pos_raton) else (200, 200, 50) # R, G, B
-    pygame.draw.rect(pantalla, color_boton, boton_ganar_dinero)
-    texto_surf_boton = fuente_normal.render(_("invoice"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_ganar_dinero.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_ganar_dinero.collidepoint(evento.pos):
+    earn_money_button = pygame.Rect(460, 260, 250, 50)
+    button_color = (200, 200, 100) if earn_money_button.collidepoint(mouse_pos) else (200, 200, 50) # R, G, B
+    pygame.draw.rect(screen, button_color, earn_money_button)
+    texto_surf_boton = normal_font.render(_("invoice"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=earn_money_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if earn_money_button.collidepoint(event.pos):
                 print("Cambiando a la escena facturar...")
                 return "facturar"
             
     # MINIGAMES
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'minijuegos.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'minigames.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (250, 250))
-        pantalla.blit(player_image_scaled, (40, 300))
+        screen.blit(player_image_scaled, (40, 300))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_minijuegos = pygame.Rect(60, 580, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_minijuegos.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_minijuegos)
-    texto_surf_boton = fuente_normal.render(_("minigames"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_minijuegos.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_minijuegos.collidepoint(evento.pos):
+    minigames_button = pygame.Rect(60, 580, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if minigames_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, minigames_button)
+    texto_surf_boton = normal_font.render(_("minigames"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=minigames_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if minigames_button.collidepoint(event.pos):
                 print("Cambiando a la escena de minijuegos")
                 return "minijuegos"
 
     # INFORMATION
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'info.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'info.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (250, 250))
-        pantalla.blit(player_image_scaled, (860, 30))
+        screen.blit(player_image_scaled, (860, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_info = pygame.Rect(860, 260, 250, 50)
-    color_boton = (200, 200, 100) if boton_info.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_info)
-    texto_surf_boton = fuente_normal.render(_("information"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_info.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_info.collidepoint(evento.pos):
+    info_button = pygame.Rect(860, 260, 250, 50)
+    button_color = (200, 200, 100) if info_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, info_button)
+    texto_surf_boton = normal_font.render(_("information"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=info_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if info_button.collidepoint(event.pos):
                 print("Cambiando a la escena de información...")
                 return "info"
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
 
     pygame.display.flip()
     return "acciones"
 
-def snakegame(pantalla):
-    global _minigame_active, pantalla_real, ancho_real, alto_real
+def snakegame(screen):
+    global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_snake(pantalla)
+        result = run_snake(screen)
     finally:
         _minigame_active = False
         # Restore the PIXELTOWN virtual-surface display system
-        pantalla_real = pygame.display._original_set_mode((ancho_real, alto_real), pygame.RESIZABLE)
+        real_screen = pygame.display._original_set_mode((real_width, real_height), pygame.RESIZABLE)
         pygame.display.set_caption("PIXELTOWN")
     return result
 
-def tetrisgame(pantalla):
-    global _minigame_active, pantalla_real, ancho_real, alto_real
+def tetrisgame(screen):
+    global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_tetris(pantalla)
+        result = run_tetris(screen)
     finally:
         _minigame_active = False
-        pantalla_real = pygame.display._original_set_mode((ancho_real, alto_real), pygame.RESIZABLE)
+        real_screen = pygame.display._original_set_mode((real_width, real_height), pygame.RESIZABLE)
         pygame.display.set_caption("PIXELTOWN")
     return result
 
-def solarsystem(pantalla):
-    global _minigame_active, pantalla_real, ancho_real, alto_real
+def solarsystem(screen):
+    global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_solarsystem(pantalla)
+        result = run_solarsystem(screen)
     finally:
         _minigame_active = False
-        pantalla_real = pygame.display._original_set_mode((ancho_real, alto_real), pygame.RESIZABLE)
+        real_screen = pygame.display._original_set_mode((real_width, real_height), pygame.RESIZABLE)
         pygame.display.set_caption("PIXELTOWN")
     return result
 
-def tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+def shop_scene(screen, title_font, button_font, events, normal_font):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     # CONSTRUCTION (Bob the builder vibes)
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'construccion.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'construction.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (40, 100))
+        screen.blit(player_image_scaled, (40, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_construccion = pygame.Rect(60, 380, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_construccion.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_construccion)
-    texto_surf_boton = fuente_normal.render(_("construction"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_construccion.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_construccion.collidepoint(evento.pos):
+    construction_button = pygame.Rect(60, 380, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if construction_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, construction_button)
+    texto_surf_boton = normal_font.render(_("construction"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=construction_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if construction_button.collidepoint(event.pos):
                 print("Cambiando a la escena de construcción...")
                 return "construccion"
 
     # PRODUCTS
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'productos.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'products.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (440, 100))
+        screen.blit(player_image_scaled, (440, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_productos = pygame.Rect(460, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_productos.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_productos)
-    texto_surf_boton = fuente_normal.render(_("products"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_productos.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_productos.collidepoint(evento.pos):
+    products_button = pygame.Rect(460, 380, 250, 50)
+    button_color = (200, 200, 100) if products_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, products_button)
+    texto_surf_boton = normal_font.render(_("products"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=products_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if products_button.collidepoint(event.pos):
                 print("Cambiando a la escena de productos...")
                 return "productos"
 
     # DECORATIONS (Make it pretty)
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'adorno.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'decoration.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (840, 100))
+        screen.blit(player_image_scaled, (840, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_adorno = pygame.Rect(860, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_adorno.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_adorno)
-    texto_surf_boton = fuente_normal.render(_("decorations"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_adorno.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_adorno.collidepoint(evento.pos):
+    decoration_button = pygame.Rect(860, 380, 250, 50)
+    button_color = (200, 200, 100) if decoration_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, decoration_button)
+    texto_surf_boton = normal_font.render(_("decorations"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=decoration_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if decoration_button.collidepoint(event.pos):
                 print("Cambiando a la escena de adornos...")
                 return "adorno"
 
     return "tienda"
 
-def adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+def decoration_scene(screen, title_font, button_font, events, normal_font):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
 
     # MYTOWNMYRULES button
-    boton_mytownmyrules = pygame.Rect(410, 350, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_mytownmyrules.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_mytownmyrules)
-    texto_surf_boton = fuente_normal.render(_("my_town_my_rules"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_mytownmyrules.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP and boton_mytownmyrules.collidepoint(evento.pos):
+    mytownmyrules_button = pygame.Rect(410, 350, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if mytownmyrules_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, mytownmyrules_button)
+    texto_surf_boton = normal_font.render(_("my_town_my_rules"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=mytownmyrules_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP and mytownmyrules_button.collidepoint(event.pos):
             return "colocando_edificio", "my_town_my_rules"
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'AdornoMYTOWNMYRULES.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'ornament_mytownmyrules.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (400, 100))
+        screen.blit(player_image_scaled, (400, 100))
     except pygame.error as e:
-        print(f"No se pudo cargar la imagen 'AdornoMYTOWNMYRULES.png': {e}")
+        print(f"No se pudo cargar la imagen 'ornament_mytownmyrules.png': {e}")
 
 
-    boton_farola = pygame.Rect(10, 350, 250, 50)
-    color_boton = (200, 200, 100) if boton_farola.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_farola)
-    texto_surf_boton = fuente_normal.render(_("streetlamp"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_farola.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP and boton_farola.collidepoint(evento.pos):
+    streetlamp_button = pygame.Rect(10, 350, 250, 50)
+    button_color = (200, 200, 100) if streetlamp_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, streetlamp_button)
+    texto_surf_boton = normal_font.render(_("streetlamp"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=streetlamp_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP and streetlamp_button.collidepoint(event.pos):
             return "colocando_edificio", "farola"
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'farola.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'streetlamp.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (30, 100))
+        screen.blit(player_image_scaled, (30, 100))
     except pygame.error as e:
-        print(f"No se pudo cargar la imagen 'farola.png': {e}")
+        print(f"No se pudo cargar la imagen 'streetlamp.png': {e}")
 
     # Bush
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'bush.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (770, 100))
+        screen.blit(player_image_scaled, (770, 100))
     except pygame.error as e:
-        print(f"No se pudo cargar la imagen 'arbusto.png': {e}")
+        print(f"No se pudo cargar la imagen 'bush.png': {e}")
 
-    boton_arbusto = pygame.Rect(810, 350, 250, 50)
-    color_boton = (200, 200, 100) if boton_arbusto.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_arbusto)
-    texto_surf_boton = fuente_normal.render(_("bush"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_arbusto.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP and boton_arbusto.collidepoint(evento.pos):
+    bush_button = pygame.Rect(810, 350, 250, 50)
+    button_color = (200, 200, 100) if bush_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, bush_button)
+    texto_surf_boton = normal_font.render(_("bush"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=bush_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP and bush_button.collidepoint(event.pos):
             return "colocando_edificio", "arbusto"
     return "adorno"
 
-def info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    informaciontexto1(pantalla, fuente_titulo, 10, 10)
+def info_scene(screen, title_font, button_font, events, normal_font):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    info_text_1(screen, title_font, 10, 10)
 
-    boton_siguiente = pygame.Rect(900, 500, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_siguiente.collidepoint(pos_raton) else (97, 175, 14)
-    pygame.draw.rect(pantalla, color_boton, boton_siguiente)
-    texto_surf_boton = fuente_normal.render(_("next"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_siguiente.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_siguiente.collidepoint(evento.pos):
+    next_button = pygame.Rect(900, 500, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if next_button.collidepoint(mouse_pos) else (97, 175, 14)
+    pygame.draw.rect(screen, button_color, next_button)
+    texto_surf_boton = normal_font.render(_("next"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=next_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if next_button.collidepoint(event.pos):
                 print("Cambiando a la escena infodos...")
                 return "infodos"
 
-    boton_volver = pygame.Rect(10, 500, 250, 50)
-    color_boton = (200, 200, 100) if boton_volver.collidepoint(pos_raton) else (97, 175, 14)
-    pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render(_("back"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_volver.collidepoint(evento.pos):
+    back_button = pygame.Rect(10, 500, 250, 50)
+    button_color = (200, 200, 100) if back_button.collidepoint(mouse_pos) else (97, 175, 14)
+    pygame.draw.rect(screen, button_color, back_button)
+    texto_surf_boton = normal_font.render(_("back"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=back_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if back_button.collidepoint(event.pos):
                 print("Cambiando a mapa inicial")
                 return "mapainicial"
 
     return "info"
 
 
-def infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
+def info_two_scene(screen, title_font, button_font, events, normal_font):
     global mouseDown
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    informaciontexto2(pantalla, fuente_titulo, 10, 10)
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    info_text_2(screen, title_font, 10, 10)
 
     # exit button
     exit_button = pygame.Rect(1130, 20, 50, 50)
-    pygame.draw.rect(pantalla, (255, 100, 100), exit_button)
+    pygame.draw.rect(screen, (255, 100, 100), exit_button)
 
     text = pygame.font.Font(None, 30).render("X", True, (255,255,255))
 
@@ -911,692 +912,692 @@ def infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
             return "mapainicial"
         
     textpos = text.get_rect(centerx=exit_button.centerx, centery=exit_button.centery)
-    pantalla.blit(text, textpos)
+    screen.blit(text, textpos)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
     return "infodos"
 
 
-def productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    global dinero, felicidad, experiencia
+def products_scene(screen, title_font, button_font, events, normal_font):
+    global money, happiness, experience
     
     # HAND SOAP (Clean hands are happy hands)
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    boton_comprar = pygame.Rect(100, 390, 310, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_comprar)
-    texto_surf_boton = fuente_normal.render(_("hand_soap"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_comprar.collidepoint(evento.pos):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    buy_button = pygame.Rect(100, 390, 310, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if buy_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, buy_button)
+    texto_surf_boton = normal_font.render(_("hand_soap"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=buy_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if buy_button.collidepoint(event.pos):
                 print("Comprando producto...")
-                if dinero >= 250:
-                    dinero -= 250
-                    felicidad += 5
-                    experiencia += 10
+                if money >= 250:
+                    money -= 250
+                    happiness += 5
+                    experience += 10
                     print(_("purchase_success"))
                     return "mapainicial"
                 else:
                     print(_("insufficient_money"))
                     return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (500, 300))
-        pantalla.blit(player_image_scaled, (10, 100))
+        screen.blit(player_image_scaled, (10, 100))
     except pygame.error:
         print("Error cargando imagen")
         pass
 
     # FACE MASK IMAGE
-    boton_mascarilla = pygame.Rect(700, 390, 310, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_mascarilla.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_mascarilla)
-    texto_surf_boton = fuente_normal.render(_("face_mask"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_mascarilla.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_mascarilla.collidepoint(evento.pos):
+    mask_button = pygame.Rect(700, 390, 310, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if mask_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, mask_button)
+    texto_surf_boton = normal_font.render(_("face_mask"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=mask_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if mask_button.collidepoint(event.pos):
                 print("Comprando producto...")
-                if dinero >= 150:
-                    dinero -= 150
-                    felicidad += 5
-                    experiencia += 10
+                if money >= 150:
+                    money -= 150
+                    happiness += 5
+                    experience += 10
                     print(_("purchase_success"))
                     return "mapainicial"
                 else:
                     print(_("insufficient_money"))
                     return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc_mascarilla.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc_mask.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (700, 100))
+        screen.blit(player_image_scaled, (700, 100))
     except pygame.error:
         pass
     
-    boton_siguiente = pygame.Rect(900, 500, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_siguiente.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_siguiente)
-    texto_surf_boton = fuente_normal.render(_("next"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_siguiente.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_siguiente.collidepoint(evento.pos):
+    next_button = pygame.Rect(900, 500, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if next_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, next_button)
+    texto_surf_boton = normal_font.render(_("next"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=next_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if next_button.collidepoint(event.pos):
                 return "productos2"
     
     return "productos"
 
-def productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    global dinero, felicidad, experiencia
-    pantalla.fill((255, 255, 255))
+def products_two_scene(screen, title_font, button_font, events, normal_font):
+    global money, happiness, experience
+    screen.fill((255, 255, 255))
     
     # SHAMPOO IMAGE
-    boton_champu = pygame.Rect(700, 390, 310, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_champu.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_champu)
-    texto_surf_boton = fuente_normal.render(_("shampoo"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_champu.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_champu.collidepoint(evento.pos):
+    shampoo_button = pygame.Rect(700, 390, 310, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if shampoo_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, shampoo_button)
+    texto_surf_boton = normal_font.render(_("shampoo"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=shampoo_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if shampoo_button.collidepoint(event.pos):
                 print("Comprando producto...")
-                if dinero >= 200:
-                    dinero -= 200
-                    felicidad += 10
-                    experiencia += 10
+                if money >= 200:
+                    money -= 200
+                    happiness += 10
+                    experience += 10
                     print(_("purchase_success"))
                     return "mapainicial"
                 else:
                     print(_("insufficient_money"))
                     return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc_champú.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc_shampoo.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (700, 100))
+        screen.blit(player_image_scaled, (700, 100))
     except pygame.error:
         pass
 
     # WIPES IMAGE
-    boton_comprar = pygame.Rect(100, 390, 310, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_comprar.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_comprar)
-    texto_surf_boton = fuente_normal.render(_("wipes"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_comprar.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_comprar.collidepoint(evento.pos):
+    buy_button = pygame.Rect(100, 390, 310, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if buy_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, buy_button)
+    texto_surf_boton = normal_font.render(_("wipes"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=buy_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if buy_button.collidepoint(event.pos):
                 print("Comprando producto...")
-                if dinero >= 100:
-                    dinero -= 100
-                    felicidad += 5
-                    experiencia += 10
+                if money >= 100:
+                    money -= 100
+                    happiness += 5
+                    experience += 10
                     print(_("purchase_success"))
                     return "mapainicial"
                 else:
                     print(_("insufficient_money"))
                     return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'lovyc_toallitas.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc_wipes.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (500, 300))
-        pantalla.blit(player_image_scaled, (10, 100))
+        screen.blit(player_image_scaled, (10, 100))
     except pygame.error:
         pass
     
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
     return "productos2"
 
-def construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+def construction_scene(screen, title_font, button_font, events, normal_font):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
 
     # House button
-    boton_casasimple = pygame.Rect(10, 350, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_casasimple.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_casasimple)
-    texto_surf_boton = fuente_normal.render(_("simple_house"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_casasimple.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP and boton_casasimple.collidepoint(evento.pos):
+    simple_house_button = pygame.Rect(10, 350, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if simple_house_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, simple_house_button)
+    texto_surf_boton = normal_font.render(_("simple_house"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=simple_house_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP and simple_house_button.collidepoint(event.pos):
             return "colocando_edificio", "casa"
 
     # Image and button for supermarket
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'supermarket.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (400, 100))
+        screen.blit(player_image_scaled, (400, 100))
     except pygame.error as e:
-        print(f"No se pudo cargar la imagen 'supermercado.png': {e}")
+        print(f"No se pudo cargar la imagen 'supermarket.png': {e}")
 
-    boton_store = pygame.Rect(410, 350, 250, 50)
-    color_boton = (200, 200, 100) if boton_store.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_store)
-    texto_surf_boton = fuente_normal.render(_("supermarket"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_store.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP and boton_store.collidepoint(evento.pos):
+    supermarket_button = pygame.Rect(410, 350, 250, 50)
+    button_color = (200, 200, 100) if supermarket_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, supermarket_button)
+    texto_surf_boton = normal_font.render(_("supermarket"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=supermarket_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP and supermarket_button.collidepoint(event.pos):
             return "colocando_edificio", "supermercado"
 
     # House image (decorative)
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'house.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (30, 100))
+        screen.blit(player_image_scaled, (30, 100))
     except pygame.error as e:
-        print(f"No se pudo cargar la imagen 'Casa.png': {e}")
+        print(f"No se pudo cargar la imagen 'house.png': {e}")
 
     # Tarraco Import Export 
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tarraco.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'tarraco.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (770, 100))
+        screen.blit(player_image_scaled, (770, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen 'tarraco.png': {e}")
 
-    boton_tarraco = pygame.Rect(810, 350, 250, 50)
-    color_boton = (200, 200, 100) if boton_tarraco.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_tarraco)
-    texto_surf_boton = fuente_normal.render(_("tarraco"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_tarraco.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP and boton_tarraco.collidepoint(evento.pos):
+    tarraco_button = pygame.Rect(810, 350, 250, 50)
+    button_color = (200, 200, 100) if tarraco_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, tarraco_button)
+    texto_surf_boton = normal_font.render(_("tarraco"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=tarraco_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP and tarraco_button.collidepoint(event.pos):
             return "colocando_edificio", "tarraco"
 
     return "construccion"
 
 
-def escena_colocacion(pantalla, eventos, fuente_normal, tipo_edificio):
-    global edificios, dinero, experiencia, alert
+def placement_scene(screen, events, normal_font, building_type):
+    global buildings, money, experience, alert
 
-    if tipo_edificio not in EDIFICIOS_CONFIG:
-        print(f"Error: Tipo de edificio '{tipo_edificio}' desconocido.")
+    if building_type not in BUILDINGS_CONFIG:
+        print(f"Error: Tipo de edificio '{building_type}' desconocido.")
         return "construccion"
 
-    config = EDIFICIOS_CONFIG[tipo_edificio]
-    ruta_imagen = config["imagen"]
-    costo = config["costo"]
-    recompensa_exp = config["experiencia"]
+    config = BUILDINGS_CONFIG[building_type]
+    image_path = config["imagen"]
+    cost = config["costo"]
+    exp_reward = config["experiencia"]
 
     # background/map
-    pantalla.fill((255, 255, 255))
+    screen.fill((255, 255, 255))
     try:
-        rio_img = pygame.image.load(os.path.join(DIR_IMAGENES, 'rio.png')).convert_alpha()
-        pantalla.blit(pygame.transform.scale(rio_img, (300, 300)), (450, 200))
+        rio_img = pygame.image.load(os.path.join(IMAGES_DIR, 'river.png')).convert_alpha()
+        screen.blit(pygame.transform.scale(rio_img, (300, 300)), (450, 200))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
     # River zone — buildings cannot be placed here
     RIO_RECT = pygame.Rect(488, 223, 250, 265)
 
-    mostrar_texto(pantalla, fuente_normal, _("money").format(money=dinero), 10, 10)
-    mostrar_texto(pantalla, fuente_normal, _("buildings_short").format(count=len(edificios)), 10, 40)
-    mostrar_texto(pantalla, fuente_normal, _("experience").format(experience=experiencia), 10, 70)
-    mostrar_texto(pantalla, fuente_normal, _("debt").format(debt=deuda), 10, 100)
-    mostrar_texto(pantalla, fuente_normal, _("level").format(level=nivel), 10, 130)
+    display_text(screen, normal_font, _("money").format(money=money), 10, 10)
+    display_text(screen, normal_font, _("buildings_short").format(count=len(buildings)), 10, 40)
+    display_text(screen, normal_font, _("experience").format(experience=experience), 10, 70)
+    display_text(screen, normal_font, _("debt").format(debt=debt), 10, 100)
+    display_text(screen, normal_font, _("level").format(level=level), 10, 130)
 
 
     # load sprites
     try:
-        casa_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'Casa.png')).convert_alpha(), (64, 64))
-        supermercado_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'supermercado.png')).convert_alpha(), (64, 64))
-        tarraco_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'tarraco.png')).convert_alpha(), (64, 64))
-        farola_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'farola.png')).convert_alpha(), (64, 64))
-        mytown_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'AdornoMYTOWNMYRULES.png')).convert_alpha(), (64, 64))
-        arbusto_img = pygame.transform.scale(pygame.image.load(os.path.join(DIR_IMAGENES, 'arbusto.png')).convert_alpha(), (64, 64))
+        house_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'house.png')).convert_alpha(), (64, 64))
+        supermarket_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'supermarket.png')).convert_alpha(), (64, 64))
+        tarraco_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'tarraco.png')).convert_alpha(), (64, 64))
+        streetlamp_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'streetlamp.png')).convert_alpha(), (64, 64))
+        mytown_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'ornament_mytownmyrules.png')).convert_alpha(), (64, 64))
+        bush_img = pygame.transform.scale(pygame.image.load(os.path.join(IMAGES_DIR, 'bush.png')).convert_alpha(), (64, 64))
     except pygame.error as e:
         print(f"Error cargando imágenes de edificios: {e}")
         return "construccion"
 
-    imagenes_edificios = {
-        "casa": casa_img, 
-        "supermercado": supermercado_img, 
+    building_images = {
+        "casa": house_img, 
+        "supermercado": supermarket_img, 
         "tarraco": tarraco_img,
-        "farola": farola_img,
+        "farola": streetlamp_img,
         "my_town_my_rules": mytown_img,
-        "arbusto": arbusto_img
+        "arbusto": bush_img
         }
 
-    for ed in edificios:
-        if ed["tipo"] in imagenes_edificios:
-            pantalla.blit(imagenes_edificios[ed["tipo"]], ed["pos"])
+    for ed in buildings:
+        if ed["tipo"] in building_images:
+            screen.blit(building_images[ed["tipo"]], ed["pos"])
 
     # ghost preview 
-    pos_raton = pygame.mouse.get_pos()
+    mouse_pos = pygame.mouse.get_pos()
     try:
-        ghost = pygame.transform.scale(pygame.image.load(ruta_imagen).convert_alpha(), (64, 64))
+        ghost = pygame.transform.scale(pygame.image.load(image_path).convert_alpha(), (64, 64))
         ghost.set_alpha(150)
-        pantalla.blit(ghost, (pos_raton[0] - 32, pos_raton[1] - 32))
+        screen.blit(ghost, (mouse_pos[0] - 32, mouse_pos[1] - 32))
     except pygame.error:
         pass
 
-    mostrar_texto(pantalla, fuente_normal,
-                  _("placement_hint").format(cost=costo),
-                  10, pantalla.get_height() - 30)
+    display_text(screen, normal_font,
+                  _("placement_hint").format(cost=cost),
+                  10, screen.get_height() - 30)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            if evento.button == 1:
-                if dinero >= costo:
-                    final_pos = (pos_raton[0] - 32, pos_raton[1] - 32)
-                    edificio_rect = pygame.Rect(final_pos[0], final_pos[1], 64, 64)
-                    if edificio_rect.colliderect(RIO_RECT):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                if money >= cost:
+                    final_pos = (mouse_pos[0] - 32, mouse_pos[1] - 32)
+                    building_rect = pygame.Rect(final_pos[0], final_pos[1], 64, 64)
+                    if building_rect.colliderect(RIO_RECT):
                         print(_("cannot_build_on_river"))
                         alert = [_("cannot_build_on_river"), 60]
                     else:
-                        edificios.append({"tipo": tipo_edificio, "pos": final_pos})
-                        dinero -= costo
-                        experiencia += recompensa_exp
-                        print(_("building_built").format(type=tipo_edificio.capitalize(), pos=final_pos, exp=recompensa_exp))
+                        buildings.append({"tipo": building_type, "pos": final_pos})
+                        money -= cost
+                        experience += exp_reward
+                        print(_("building_built").format(type=building_type.capitalize(), pos=final_pos, exp=exp_reward))
                         return "mapainicial"
                 else:
                     print(_("not_enough_money"))
                     return "construccion"
-            if evento.button == 3:
+            if event.button == 3:
                 print(_("placement_cancelled"))
                 return "construccion"
     return "colocando_edificio"
 
-def facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador):
-    global dinero, experiencia, felicidad, poblacion
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+def billing_scene(screen, title_font, button_font, events, normal_font, player_data):
+    global money, experience, happiness, population
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     # COLLECT TAXES
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'impuestos.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'taxes.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (40, 100))
+        screen.blit(player_image_scaled, (40, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_impuestos = pygame.Rect(60, 380, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_impuestos.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_impuestos)
-    texto_surf_boton = fuente_normal.render(_("collect_taxes"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_impuestos.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_impuestos.collidepoint(evento.pos):
+    taxes_button = pygame.Rect(60, 380, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if taxes_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, taxes_button)
+    texto_surf_boton = normal_font.render(_("collect_taxes"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=taxes_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if taxes_button.collidepoint(event.pos):
                 print("Cambiando a la escena de cobrar impuestos...")
                 return "impuestos"
 
     # SELL
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'venderedificio.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'sell_building.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (440, 100))
+        screen.blit(player_image_scaled, (440, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_vendeedificio = pygame.Rect(460, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_vendeedificio.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_vendeedificio)
-    texto_surf_boton = fuente_normal.render(_("sell_building"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_vendeedificio.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_vendeedificio.collidepoint(evento.pos):
+    sell_building_button = pygame.Rect(460, 380, 250, 50)
+    button_color = (200, 200, 100) if sell_building_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, sell_building_button)
+    texto_surf_boton = normal_font.render(_("sell_building"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=sell_building_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if sell_building_button.collidepoint(event.pos):
                 print("Cambiando a la escena de vender edificio...")
                 return "vender_edificio"
 
     # ASK FOR A LOAN (Please don't go bankrupt)
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'prestamo.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'loan.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (840, 100))
+        screen.blit(player_image_scaled, (840, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_prestamo = pygame.Rect(860, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_prestamo.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_prestamo)
-    texto_surf_boton = fuente_normal.render(_("ask_loan"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_prestamo.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_prestamo.collidepoint(evento.pos):
+    loan_button = pygame.Rect(860, 380, 250, 50)
+    button_color = (200, 200, 100) if loan_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, loan_button)
+    texto_surf_boton = normal_font.render(_("ask_loan"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=loan_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if loan_button.collidepoint(event.pos):
                 print("Cambiando a la escena de pedir préstamo...")
                 return "prestamo"
 
     return "facturar"
 
-def vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    global dinero, experiencia, edificios, deuda
-    pantalla.fill((255, 255, 255))
-    mostrar_texto(pantalla, fuente_titulo, _("sell_building"), 10, 10)
-    mostrar_texto(pantalla, fuente_normal, _("click_building_to_sell"), 10, 44)
+def sell_building_scene(screen, title_font, button_font, events, normal_font):
+    global money, experience, buildings, debt
+    screen.fill((255, 255, 255))
+    display_text(screen, title_font, _("sell_building"), 10, 10)
+    display_text(screen, normal_font, _("click_building_to_sell"), 10, 44)
 
-    pos_raton = pygame.mouse.get_pos()
-    edificio_rects = []
+    mouse_pos = pygame.mouse.get_pos()
+    building_rects = []
     y_list = 90
-    mostrar_texto(pantalla, fuente_normal, _("available_buildings"), 10, y_list)
+    display_text(screen, normal_font, _("available_buildings"), 10, y_list)
     y_list += 30
 
     # Load building images for the sell screen
-    imagenes_edificios = {}
-    for tipo, config in EDIFICIOS_CONFIG.items():
+    building_images = {}
+    for tipo, config in BUILDINGS_CONFIG.items():
         try:
-            imagenes_edificios[tipo] = pygame.transform.scale(
+            building_images[tipo] = pygame.transform.scale(
                 pygame.image.load(config["imagen"]).convert_alpha(),
                 (64, 64)
             )
         except pygame.error:
-            imagenes_edificios[tipo] = None
+            building_images[tipo] = None
 
-    for idx, ed in enumerate(edificios):
+    for idx, ed in enumerate(buildings):
         tipo = ed["tipo"]
         pos = ed["pos"]
         rect = pygame.Rect(pos[0], pos[1], 64, 64)
-        edificio_rects.append((rect, ed))
+        building_rects.append((rect, ed))
 
-        if tipo in imagenes_edificios and imagenes_edificios[tipo] is not None:
-            pantalla.blit(imagenes_edificios[tipo], pos)
+        if tipo in building_images and building_images[tipo] is not None:
+            screen.blit(building_images[tipo], pos)
         else:
-            pygame.draw.rect(pantalla, (200, 200, 200), rect)
-            pygame.draw.rect(pantalla, (0, 0, 0), rect, 2)
+            pygame.draw.rect(screen, (200, 200, 200), rect)
+            pygame.draw.rect(screen, (0, 0, 0), rect, 2)
 
-        precio_venta = obtener_precio_venta(tipo)
-        nombre = obtener_nombre_edificio(tipo)
+        precio_venta = get_sell_price(tipo)
+        nombre = get_building_name(tipo)
         texto_info = _("sells_for").format(name=nombre, price=precio_venta)
-        texto_surf = fuente_normal.render(texto_info, True, (0, 0, 0))
-        pantalla.blit(texto_surf, (pos[0], pos[1] + 70))
+        texto_surf = normal_font.render(texto_info, True, (0, 0, 0))
+        screen.blit(texto_surf, (pos[0], pos[1] + 70))
 
-        if rect.collidepoint(pos_raton):
-            pygame.draw.rect(pantalla, (255, 0, 0), rect, 3)
-            mostrar_texto(pantalla, fuente_normal, _(f"click_to_sell"), 10, 70)
+        if rect.collidepoint(mouse_pos):
+            pygame.draw.rect(screen, (255, 0, 0), rect, 3)
+            display_text(screen, normal_font, _(f"click_to_sell"), 10, 70)
 
         lista_texto = f"{idx + 1}. {nombre}: {precio_venta}"
-        texto_surf = fuente_normal.render(lista_texto, True, (0, 0, 0))
-        pantalla.blit(texto_surf, (10, y_list + idx * 28))
+        texto_surf = normal_font.render(lista_texto, True, (0, 0, 0))
+        screen.blit(texto_surf, (10, y_list + idx * 28))
 
-    if not edificios:
-        mostrar_texto(pantalla, fuente_normal, _("no_buildings_to_sell"), 10, 120)
+    if not buildings:
+        display_text(screen, normal_font, _("no_buildings_to_sell"), 10, 120)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
-        if evento.type == pygame.MOUSEBUTTONDOWN and evento.button == 1:
-            pos_click = evento.pos
-            for rect, ed in edificio_rects:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            pos_click = event.pos
+            for rect, ed in building_rects:
                 if rect.collidepoint(pos_click):
-                    tipo_edificio = ed["tipo"]
-                    if tipo_edificio in EDIFICIOS_CONFIG:
-                        precio_venta = obtener_precio_venta(tipo_edificio)
-                        if deuda > 0:
-                            if precio_venta >= deuda:
-                                dinero += (precio_venta - deuda)
-                                print(_("loan_repaid").format(amount=deuda))
-                                deuda = 0
+                    building_type = ed["tipo"]
+                    if building_type in BUILDINGS_CONFIG:
+                        precio_venta = get_sell_price(building_type)
+                        if debt > 0:
+                            if precio_venta >= debt:
+                                money += (precio_venta - debt)
+                                print(_("loan_repaid").format(amount=debt))
+                                debt = 0
                             else:
-                                deuda -= precio_venta
-                                print(_("loan_partially_repaid").format(amount=precio_venta, remaining=deuda))
+                                debt -= precio_venta
+                                print(_("loan_partially_repaid").format(amount=precio_venta, remaining=debt))
                         else:
-                            dinero += precio_venta
-                        experiencia += obtener_experiencia_venta(tipo_edificio)
-                        edificios.remove(ed)
-                        print(_("building_sold").format(type=obtener_nombre_edificio(tipo_edificio), price=precio_venta))
+                            money += precio_venta
+                        experience += get_sell_experience(building_type)
+                        buildings.remove(ed)
+                        print(_("building_sold").format(type=get_building_name(building_type), price=precio_venta))
                         return "mapainicial"
                     else:
-                        print(f"Error: Tipo de edificio '{tipo_edificio}' desconocido.")
+                        print(f"Error: Tipo de edificio '{building_type}' desconocido.")
     return "vender_edificio"
 
-def minijuegos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal):
-    pantalla.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    mostrar_texto(pantalla, fuente_titulo, _("minigames"), 10, 10)
+def minigames_scene(screen, title_font, button_font, events, normal_font):
+    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
+    display_text(screen, title_font, _("minigames"), 10, 10)
 
     # SNAKE GAME
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'snakelogo.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'snakelogo.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (40, 100))
+        screen.blit(player_image_scaled, (40, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_snake = pygame.Rect(60, 380, 250, 50)
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (200, 200, 100) if boton_snake.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_snake)
-    texto_surf_boton = fuente_normal.render(_("snakegame"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_snake.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_snake.collidepoint(evento.pos):
+    snake_button = pygame.Rect(60, 380, 250, 50)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (200, 200, 100) if snake_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, snake_button)
+    texto_surf_boton = normal_font.render(_("snakegame"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=snake_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if snake_button.collidepoint(event.pos):
                 print("Cargando el juego de la serpiente...")
                 return "snakegame"
-        if evento.type == pygame.QUIT:
+        if event.type == pygame.QUIT:
             return "salir"
 
     # TETRIS GAME
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'tetrislogo.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'tetrislogo.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (440, 100))
+        screen.blit(player_image_scaled, (440, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_tetris = pygame.Rect(460, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_tetris.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_tetris)
-    texto_surf_boton = fuente_normal.render(_("tetrisgame"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_tetris.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_tetris.collidepoint(evento.pos):
+    tetris_button = pygame.Rect(460, 380, 250, 50)
+    button_color = (200, 200, 100) if tetris_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, tetris_button)
+    texto_surf_boton = normal_font.render(_("tetrisgame"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=tetris_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if tetris_button.collidepoint(event.pos):
                 print("Cargando tetris...")
                 return "tetrisgame"
-        if evento.type == pygame.QUIT:
+        if event.type == pygame.QUIT:
             return "salir"
         
     # SOLAR SYSTEM SIMULATOR
     try:
-        player_image = pygame.image.load(os.path.join(DIR_IMAGENES, 'solarsystemlogo.png')).convert_alpha()
+        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'solarsystemlogo.png')).convert_alpha()
         player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        pantalla.blit(player_image_scaled, (840, 100))
+        screen.blit(player_image_scaled, (840, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
-    boton_solarsystem = pygame.Rect(860, 380, 250, 50)
-    color_boton = (200, 200, 100) if boton_solarsystem.collidepoint(pos_raton) else (200, 200, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_solarsystem)
-    texto_surf_boton = fuente_normal.render(_("solarsystem"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_solarsystem.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_solarsystem.collidepoint(evento.pos):
+    solarsystem_button = pygame.Rect(860, 380, 250, 50)
+    button_color = (200, 200, 100) if solarsystem_button.collidepoint(mouse_pos) else (200, 200, 50)
+    pygame.draw.rect(screen, button_color, solarsystem_button)
+    texto_surf_boton = normal_font.render(_("solarsystem"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=solarsystem_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if solarsystem_button.collidepoint(event.pos):
                 print("Cargando simulador del sistema solar...")
                 return "solarsystem"
         
-    boton_volver = pygame.Rect(10, 500, 250, 50)
-    color_boton = (200, 200, 100) if boton_volver.collidepoint(pos_raton) else (97, 175, 14)
-    pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render(_("back"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
-    for evento in eventos:
-        if evento.type == pygame.MOUSEBUTTONUP:
-            if boton_volver.collidepoint(evento.pos):
+    back_button = pygame.Rect(10, 500, 250, 50)
+    button_color = (200, 200, 100) if back_button.collidepoint(mouse_pos) else (97, 175, 14)
+    pygame.draw.rect(screen, button_color, back_button)
+    texto_surf_boton = normal_font.render(_("back"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=back_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONUP:
+            if back_button.collidepoint(event.pos):
                 print("Cambiando a mapa inicial")
                 return "mapainicial"
 
     return "minijuegos"
 
-def prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_prestamo):
-    global dinero, felicidad, experiencia, deuda
+def loan_scene(screen, title_font, normal_font, events, player_data, textbox_state, loan_data):
+    global money, happiness, experience, debt
     
-    input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
-    color_inactivo = pygame.Color('lightskyblue3')
-    color_activo = pygame.Color('dodgerblue2')
+    input_box = pygame.Rect(screen.get_width() // 2 - 200, 300, 400, 40)
+    inactive_color = pygame.Color('lightskyblue3')
+    active_color = pygame.Color('dodgerblue2')
 
-    texto_usuario = caja_texto_estado['texto']
-    activo = caja_texto_estado['activo']
-    color = color_activo if activo else color_inactivo
+    user_text = textbox_state['texto']
+    active = textbox_state['activo']
+    color = active_color if active else inactive_color
 
-    boton_volver = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+    back_button = pygame.Rect(screen.get_width() // 2 - 125, 500, 250, 50)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            if boton_volver.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button.collidepoint(event.pos):
                 return "menu"
-            activo = input_box.collidepoint(evento.pos)
-        if activo and evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_RETURN:
-                if texto_usuario.isdigit(): 
-                    cantidad_int = int(texto_usuario)
+            active = input_box.collidepoint(event.pos)
+        if active and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                if user_text.isdigit(): 
+                    amount_int = int(user_text)
                     
-                    print(f"Respuesta enviada: {cantidad_int}")
-                    if cantidad_int > dinero*1.3:
-                        limitedeuda = _("debt_limit")
-                        print(limitedeuda)
+                    print(f"Respuesta enviada: {amount_int}")
+                    if amount_int > money * 1.3:
+                        debt_limit_msg = _("debt_limit")
+                        print(debt_limit_msg)
                         return "mapainicial"
-                    datos_prestamo['cantidad'] = cantidad_int
-                    datos_prestamo['deuda'] = datos_prestamo.get('deuda', 0) + cantidad_int
+                    loan_data['cantidad'] = amount_int
+                    loan_data['deuda'] = loan_data.get('deuda', 0) + amount_int
                     
-                    dinero += cantidad_int
-                    experiencia += 15
-                    deuda += cantidad_int
-                    texto_usuario = ""
-                    activo = False
+                    money += amount_int
+                    experience += 15
+                    debt += amount_int
+                    user_text = ""
+                    active = False
                     return "mapainicial"
                 else:
                     print("Por favor, introduce un número válido.")
                     
-            elif evento.key == pygame.K_BACKSPACE:
-                texto_usuario = texto_usuario[:-1]
+            elif event.key == pygame.K_BACKSPACE:
+                user_text = user_text[:-1]
             else:
                 # Avoid characters
-                if evento.unicode.isdigit(): 
-                    texto_usuario += evento.unicode
+                if event.unicode.isdigit(): 
+                    user_text += event.unicode
 
-    caja_texto_estado['texto'] = texto_usuario
-    caja_texto_estado['activo'] = activo
+    textbox_state['texto'] = user_text
+    textbox_state['activo'] = active
 
-    pantalla.fill((220, 220, 255))
+    screen.fill((220, 220, 255))
     
-    # render 'texto_usuario'
-    lineas_pregunta = _("borrow_question").split('\n') # Pygame doesn't know about \n by itself
+    # render 'user_text'
+    question_lines = _("borrow_question").split('\n') # Pygame doesn't know about \n by itself
     current_y = 180
-    for linea in lineas_pregunta:
-        texto_pregunta_surf = fuente_titulo.render(linea, True, (0, 0, 0))
-        texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, current_y))
-        pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+    for line in question_lines:
+        texto_pregunta_surf = title_font.render(line, True, (0, 0, 0))
+        texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(screen.get_width() // 2, current_y))
+        screen.blit(texto_pregunta_surf, texto_pregunta_rect)
         current_y += texto_pregunta_surf.get_height() + 5
 
-    texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
-    input_box.w = max(400, texto_surf.get_width() + 20)
-    pygame.draw.rect(pantalla, color, input_box, 2)
-    pantalla.blit(texto_surf, (input_box.x + 10, input_box.y + 10))
+    text_surf = normal_font.render(user_text, True, (0, 0, 0))
+    input_box.w = max(400, text_surf.get_width() + 20)
+    pygame.draw.rect(screen, color, input_box, 2)
+    screen.blit(text_surf, (input_box.x + 10, input_box.y + 10))
 
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (255, 100, 100) if back_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, back_button)
+    texto_surf_boton = normal_font.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=back_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
     return "prestamo"
 
-def impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, caja_texto_estado, datos_impuestos):
-    global dinero, felicidad, experiencia, deuda
-    input_box = pygame.Rect(pantalla.get_width() // 2 - 200, 300, 400, 40)
-    color_inactivo = pygame.Color('lightskyblue3')
-    color_activo = pygame.Color('dodgerblue2')
+def taxes_scene(screen, title_font, normal_font, events, player_data, textbox_state, tax_data):
+    global money, happiness, experience, debt
+    input_box = pygame.Rect(screen.get_width() // 2 - 200, 300, 400, 40)
+    inactive_color = pygame.Color('lightskyblue3')
+    active_color = pygame.Color('dodgerblue2')
 
-    texto_usuario = caja_texto_estado['texto']
-    activo = caja_texto_estado['activo']
-    color = color_activo if activo else color_inactivo
+    user_text = textbox_state['texto']
+    active = textbox_state['activo']
+    color = active_color if active else inactive_color
 
-    boton_volver = pygame.Rect(pantalla.get_width() // 2 - 125, 500, 250, 50)
+    back_button = pygame.Rect(screen.get_width() // 2 - 125, 500, 250, 50)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             return "salir"
 
-        if evento.type == pygame.MOUSEBUTTONDOWN:
-            if boton_volver.collidepoint(evento.pos):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if back_button.collidepoint(event.pos):
                 return "menu"
-            activo = input_box.collidepoint(evento.pos)
+            active = input_box.collidepoint(event.pos)
 
-        if activo and evento.type == pygame.KEYDOWN:
-            if evento.key == pygame.K_RETURN:
-                print(f"Respuesta enviada: {texto_usuario}")
-                datos_impuestos['porcentaje'] = texto_usuario
-                texto_usuario = ""
-                impuestoapagar = poblacion * dineroporhabitante * (int(datos_impuestos['porcentaje']) / 100)
-                print(_("tax_collected").format(amount=impuestoapagar))
-                int_impuestoapagar = int(impuestoapagar)
-                if (deuda > 0):
-                    for i in range(int(impuestoapagar)):
-                        deuda-=1
-                        int_impuestoapagar-=1
-                dinero += int_impuestoapagar
-                felicidad -= 10
-                experiencia += 15
-                activo = False
+        if active and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_RETURN:
+                print(f"Respuesta enviada: {user_text}")
+                tax_data['porcentaje'] = user_text
+                user_text = ""
+                tax_to_pay = population * money_per_inhabitant * (int(tax_data['porcentaje']) / 100)
+                print(_("tax_collected").format(amount=tax_to_pay))
+                int_tax_to_pay = int(tax_to_pay)
+                if (debt > 0):
+                    for i in range(int(tax_to_pay)):
+                        debt -= 1
+                        int_tax_to_pay -= 1
+                money += int_tax_to_pay
+                happiness -= 10
+                experience += 15
+                active = False
                 return "mapainicial"
-            elif evento.key == pygame.K_BACKSPACE:
-                texto_usuario = texto_usuario[:-1]
+            elif event.key == pygame.K_BACKSPACE:
+                user_text = user_text[:-1]
             else:
-                texto_usuario += evento.unicode
+                user_text += event.unicode
 
-    caja_texto_estado['texto'] = texto_usuario
-    caja_texto_estado['activo'] = activo
+    textbox_state['texto'] = user_text
+    textbox_state['activo'] = active
 
-    pantalla.fill((220, 220, 255))
-    porcentaje = datos_impuestos.get('porcentaje', '0')
-    texto_pregunta_surf = fuente_titulo.render(_("tax_question"), True, (0, 0, 0))
-    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(pantalla.get_width() // 2, 200))
-    pantalla.blit(texto_pregunta_surf, texto_pregunta_rect)
+    screen.fill((220, 220, 255))
+    porcentaje = tax_data.get('porcentaje', '0')
+    texto_pregunta_surf = title_font.render(_("tax_question"), True, (0, 0, 0))
+    texto_pregunta_rect = texto_pregunta_surf.get_rect(center=(screen.get_width() // 2, 200))
+    screen.blit(texto_pregunta_surf, texto_pregunta_rect)
 
-    texto_surf = fuente_normal.render(texto_usuario, True, (0, 0, 0))
-    input_box.w = max(400, texto_surf.get_width() + 20)
-    pygame.draw.rect(pantalla, color, input_box, 2)
-    pantalla.blit(texto_surf, (input_box.x + 10, input_box.y + 10))
+    text_surf = normal_font.render(user_text, True, (0, 0, 0))
+    input_box.w = max(400, text_surf.get_width() + 20)
+    pygame.draw.rect(screen, color, input_box, 2)
+    screen.blit(text_surf, (input_box.x + 10, input_box.y + 10))
 
-    pos_raton = pygame.mouse.get_pos()
-    color_boton = (255, 100, 100) if boton_volver.collidepoint(pos_raton) else (200, 50, 50)
-    pygame.draw.rect(pantalla, color_boton, boton_volver)
-    texto_surf_boton = fuente_normal.render(_("back_to_menu"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=boton_volver.center)
-    pantalla.blit(texto_surf_boton, texto_rect_boton)
+    mouse_pos = pygame.mouse.get_pos()
+    button_color = (255, 100, 100) if back_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, button_color, back_button)
+    texto_surf_boton = normal_font.render(_("back_to_menu"), True, (255, 255, 255))
+    texto_rect_boton = texto_surf_boton.get_rect(center=back_button.center)
+    screen.blit(texto_surf_boton, texto_rect_boton)
     return "impuestos"
 
-def gameover(pantalla, eventos):
+def gameover_scene(screen, events):
     global mouseDown, w, h
 
-    pantalla.fill((180,0,0))
+    screen.fill((180,0,0))
 
     text = pygame.font.Font(None, 128).render("GAME OVER", True, (255,255,255))
     textpos = text.get_rect(centerx=w*0.5, centery=h*0.4)
-    pantalla.blit(text, textpos)
+    screen.blit(text, textpos)
 
     text = pygame.font.Font(None, 32).render(_("citizens_unhappy"), True, (255,255,255))
     textpos = text.get_rect(centerx=w*0.5, centery=h*0.5)
-    pantalla.blit(text, textpos)
+    screen.blit(text, textpos)
 
     text = pygame.font.Font(None, 32).render(_("coup_started"), True, (255,255,255))
     textpos = text.get_rect(centerx=w*0.5, centery=h*0.6)
-    pantalla.blit(text, textpos)
+    screen.blit(text, textpos)
 
     quit_button = pygame.Rect(w*0.4, h*0.7, w*0.2, h*0.2)
-    pygame.draw.rect(pantalla, (255, 100, 100), quit_button)
+    pygame.draw.rect(screen, (255, 100, 100), quit_button)
 
     text = pygame.font.Font(None, 30).render("Quit", True, (255,255,255))
 
@@ -1607,43 +1608,41 @@ def gameover(pantalla, eventos):
             return "salir"
 
     textpos = text.get_rect(centerx=quit_button.centerx, centery=quit_button.centery)
-    pantalla.blit(text, textpos)
+    screen.blit(text, textpos)
 
-    for evento in eventos:
-        if evento.type == pygame.QUIT:
+    for event in events:
+        if event.type == pygame.QUIT:
             print("hi")
             return "salir"
 
     pygame.display.flip()
 
-    return "gameover"
-
-# MAIN FUNCTION
+   # MAIN FUNCTION
 def main(username=None):
-    global logged_in_username, datos_jugador, mouseDown, w, h
+    global logged_in_username, player_data, mouseDown, w, h
     logged_in_username = username
 
-    progreso_cargado = False
+    progress_loaded = False
     if username:
-        progreso_cargado = cargar_progreso(username)
+        progress_loaded = load_progress(username)
 
-    if not progreso_cargado:
-        datos_jugador.clear()
-        datos_jugador.update({"nombre_usuario": "", "nombre_ciudad": ""})
+    if not progress_loaded:
+        player_data.clear()
+        player_data.update({"nombre_usuario": "", "nombre_ciudad": ""})
 
     pygame.init()
 
     # PIXELTOWN logo, only visible for Windows users (I'm an x11/Wayland Ubuntu user, so I blindly trust in this process)
     if sys.platform.startswith('win32'):
         try:
-            ruta_icono = os.path.join(DIR_IMAGENES, 'pixeltown_logo.png')
-            icono = pygame.image.load(ruta_icono)
-            icono_escalado = pygame.transform.scale(icono, (32, 32))
-            pygame.display.set_icon(icono_escalado)
+            icon_path = os.path.join(IMAGES_DIR, 'pixeltown_logo.png')
+            icon = pygame.image.load(icon_path)
+            scaled_icon = pygame.transform.scale(icon, (32, 32))
+            pygame.display.set_icon(scaled_icon)
         except pygame.error:
             print("No se pudo encontrar el logo, se usará el de por defecto.")
 
-    global pantalla_real, ancho_real, alto_real
+    global real_screen, real_width, real_height
     virtual_surface = pygame.Surface((w, h))
 
     _original_set_mode = pygame.display.set_mode
@@ -1655,90 +1654,90 @@ def main(username=None):
     global _minigame_active
     _minigame_active = False
     initial_setup = True
-    tamano_pendiente = None
-    ultimo_cambio_tiempo = 0
+    pending_size = None
+    last_resize_time = 0
 
     def custom_set_mode(size, flags=0, *args, **kwargs):
-        global pantalla_real, ancho_real, alto_real
+        global real_screen, real_width, real_height
         nonlocal initial_setup
         if _minigame_active:
             return _original_set_mode(size, flags, *args, **kwargs)
         if size == (w, h) and initial_setup:
             initial_setup = False
-            pantalla_real = _original_set_mode((w, h), flags | pygame.RESIZABLE, *args, **kwargs)
-            ancho_real, alto_real = w, h
+            real_screen = _original_set_mode((w, h), flags | pygame.RESIZABLE, *args, **kwargs)
+            real_width, real_height = w, h
             return virtual_surface
         elif size == (w, h) and not initial_setup:
-            pantalla_real = _original_set_mode((ancho_real, alto_real), flags | pygame.RESIZABLE, *args, **kwargs)
-            return pantalla_real
+            real_screen = _original_set_mode((real_width, real_height), flags | pygame.RESIZABLE, *args, **kwargs)
+            return real_screen
         else:
             return _original_set_mode(size, flags, *args, **kwargs)
 
     def custom_flip():
-        global pantalla_real, ancho_real, alto_real
-        nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        global real_screen, real_width, real_height
+        nonlocal pending_size, last_resize_time
         if _minigame_active:
             _original_flip()
             return
-        if tamano_pendiente is not None and (time.time() - ultimo_cambio_tiempo) > 0.15:
-            pantalla_real = _original_set_mode(tamano_pendiente, pygame.RESIZABLE)
-            ancho_real, alto_real = tamano_pendiente
-            tamano_pendiente = None
-        if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
-            pygame.transform.scale(virtual_surface, pantalla_real.get_size(), pantalla_real)
+        if pending_size is not None and (time.time() - last_resize_time) > 0.15:
+            real_screen = _original_set_mode(pending_size, pygame.RESIZABLE)
+            real_width, real_height = pending_size
+            pending_size = None
+        if pygame.display.get_surface() == real_screen and real_screen is not None:
+            pygame.transform.scale(virtual_surface, real_screen.get_size(), real_screen)
         _original_flip()
 
     def custom_update(*args, **kwargs):
-        global pantalla_real, ancho_real, alto_real
-        nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        global real_screen, real_width, real_height
+        nonlocal pending_size, last_resize_time
         if _minigame_active:
             _original_update(*args, **kwargs)
             return
-        if tamano_pendiente is not None and (time.time() - ultimo_cambio_tiempo) > 0.15:
-            pantalla_real = _original_set_mode(tamano_pendiente, pygame.RESIZABLE)
-            ancho_real, alto_real = tamano_pendiente
-            tamano_pendiente = None
-        if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
-            pygame.transform.scale(virtual_surface, pantalla_real.get_size(), pantalla_real)
+        if pending_size is not None and (time.time() - last_resize_time) > 0.15:
+            real_screen = _original_set_mode(pending_size, pygame.RESIZABLE)
+            real_width, real_height = pending_size
+            pending_size = None
+        if pygame.display.get_surface() == real_screen and real_screen is not None:
+            pygame.transform.scale(virtual_surface, real_screen.get_size(), real_screen)
         _original_update(*args, **kwargs)
 
     def custom_get_pos():
-        global pantalla_real
+        global real_screen
         x, y = _original_get_pos()
         if _minigame_active:
             return (x, y)
-        if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
-            w, h = pantalla_real.get_size()
-            return (int(x * 1200 / w), int(y * 600 / h))
+        if pygame.display.get_surface() == real_screen and real_screen is not None:
+            w_disp, h_disp = real_screen.get_size()
+            return (int(x * 1200 / w_disp), int(y * 600 / h_disp))
         return (x, y)
 
     def custom_event_get(*args, **kwargs):
-        global pantalla_real, ancho_real, alto_real, w, h
-        nonlocal tamano_pendiente, ultimo_cambio_tiempo
+        global real_screen, real_width, real_height, w, h
+        nonlocal pending_size, last_resize_time
         events = _original_event_get(*args, **kwargs)
         if _minigame_active:
             return events
         modified_events = []
         for event in events:
             if event.type == pygame.VIDEORESIZE:
-                if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
-                    tamano_pendiente = event.size
-                    ultimo_cambio_tiempo = time.time()
+                if pygame.display.get_surface() == real_screen and real_screen is not None:
+                    pending_size = event.size
+                    last_resize_time = time.time()
             
-            if pygame.display.get_surface() == pantalla_real and pantalla_real is not None:
-                w, h = pantalla_real.get_size()
+            if pygame.display.get_surface() == real_screen and real_screen is not None:
+                w_disp, h_disp = real_screen.get_size()
                 
                 if event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP):
-                    pos_x = int(event.pos[0] * 1200 / w)
-                    pos_y = int(event.pos[1] * 600 / h)
+                    pos_x = int(event.pos[0] * 1200 / w_disp)
+                    pos_y = int(event.pos[1] * 600 / h_disp)
                     event_dict = dict(event.__dict__)
                     event_dict['pos'] = (pos_x, pos_y)
                     modified_events.append(pygame.event.Event(event.type, event_dict))
                 elif event.type == pygame.MOUSEMOTION:
-                    pos_x = int(event.pos[0] * 1200 / w)
-                    pos_y = int(event.pos[1] * 600 / h)
-                    rel_x = int(event.rel[0] * 1200 / w)
-                    rel_y = int(event.rel[1] * 600 / h)
+                    pos_x = int(event.pos[0] * 1200 / w_disp)
+                    pos_y = int(event.pos[1] * 600 / h_disp)
+                    rel_x = int(event.rel[0] * 1200 / w_disp)
+                    rel_y = int(event.rel[1] * 600 / h_disp)
                     event_dict = dict(event.__dict__)
                     event_dict['pos'] = (pos_x, pos_y)
                     event_dict['rel'] = (rel_x, rel_y)
@@ -1757,112 +1756,113 @@ def main(username=None):
     # Expose the original set_mode so minigame wrappers can restore the display
     pygame.display._original_set_mode = _original_set_mode
 
-    pantalla = pygame.display.set_mode((w, h))
+    screen_surface = pygame.display.set_mode((w, h))
     pygame.display.set_caption("PIXELTOWN")
-    reloj = pygame.time.Clock()
+    clock = pygame.time.Clock()
 
     # Fonts
-    fuente_boton = pygame.font.Font(None, 35)
-    fuente_titulo = pygame.font.SysFont('monospace', 25, bold=True)
-    fuente_normal = pygame.font.Font(None, 32)
+    button_font = pygame.font.Font(None, 35)
+    title_font = pygame.font.SysFont('monospace', 25, bold=True)
+    normal_font = pygame.font.Font(None, 32)
 
     # State variables (Keeping track of everything)
-    estado_del_juego = "intro"
+    game_state = "intro"
 
     # Text box state and player data
-    estado_caja_texto = {"texto": username if (username and not progreso_cargado) else "", "activo": False}
-    datos_impuestos = {"porcentaje": ""}
+    textbox_state = {"texto": username if (username and not progress_loaded) else "", "activo": False}
+    tax_data = {"porcentaje": ""}
+    loan_data = {"cantidad": 0, "deuda": 0}
 
     # Selected building type to place
-    edificio_a_colocar = None
+    building_to_place = None
 
     # MAIN GAME LOOP im literally learning spanish rn while doing this :)
-    while estado_del_juego != "salir": # quit
-        eventos = pygame.event.get()
+    while game_state != "salir": # quit
+        events = pygame.event.get()
 
-        if estado_del_juego == "intro":
-            estado_del_juego = escena_intro(pantalla, reloj)
-        elif estado_del_juego == "menu":
-            estado_del_juego = escena_menu(pantalla, fuente_titulo, fuente_boton, eventos)
-        elif estado_del_juego == "jugando": # playing
-            if progreso_cargado:
-                estado_del_juego = "mapainicial"
+        if game_state == "intro":
+            game_state = intro_scene(screen_surface, clock)
+        elif game_state == "menu":
+            game_state = menu_scene(screen_surface, title_font, button_font, events)
+        elif game_state == "jugando": # playing
+            if progress_loaded:
+                game_state = "mapainicial"
             else:
-                estado_del_juego = escena_juego(pantalla, fuente_boton, eventos, fuente_titulo) # game scene
-        elif estado_del_juego == "preguntando": # ask
-            estado_del_juego = pregunta(pantalla, fuente_titulo, fuente_normal, eventos, estado_caja_texto, datos_jugador)
-        elif estado_del_juego == "preguntando2": # ask 2
-            estado_del_juego = pregunta2(pantalla, fuente_titulo, fuente_normal, eventos, estado_caja_texto, datos_jugador)
-        elif estado_del_juego == "cargamapa": # map loader
-            estado_del_juego = cargamapa(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "mapainicial": # initial map
-            estado_del_juego = mapainicial(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador)
-        elif estado_del_juego == "acciones": # actions
-            estado_del_juego = acciones(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "tienda": # store
-            estado_del_juego = tienda(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "info":
-            estado_del_juego = info(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "infodos": # info2
-            estado_del_juego = infodos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "minijuegos": # minigame
-            estado_del_juego = minijuegos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "snakegame":
-            estado_del_juego = snakegame(pantalla)
-        elif estado_del_juego == "tetrisgame":
-            estado_del_juego = tetrisgame(pantalla)
-        elif estado_del_juego == "solarsystem":
-            estado_del_juego = solarsystem(pantalla)
-        elif estado_del_juego == "productos": # products
-            estado_del_juego = productos(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "prestamo":
-            estado_del_juego = prestamo(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
-        elif estado_del_juego == "facturar":
-            estado_del_juego = facturar(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal, datos_jugador)
-        elif estado_del_juego == "impuestos":
-            estado_del_juego = impuestos(pantalla, fuente_titulo, fuente_normal, eventos, datos_jugador, estado_caja_texto, datos_impuestos)
-        elif estado_del_juego == "productos2":
-            estado_del_juego = productos2(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "vender_edificio":
-            estado_del_juego = vender_edificio(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-        elif estado_del_juego == "adorno":
-            resultado = adorno(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-            if isinstance(resultado, tuple):
-                estado_del_juego, edificio_a_colocar = resultado
+                game_state = game_scene(screen_surface, button_font, events, title_font) # game scene
+        elif game_state == "preguntando": # ask
+            game_state = ask_name_scene(screen_surface, title_font, normal_font, events, textbox_state, player_data)
+        elif game_state == "preguntando2": # ask 2
+            game_state = ask_city_name_scene(screen_surface, title_font, normal_font, events, textbox_state, player_data)
+        elif game_state == "cargamapa": # map loader
+            game_state = map_loader_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "mapainicial": # initial map
+            game_state = initial_map_scene(screen_surface, title_font, button_font, events, normal_font, player_data)
+        elif game_state == "acciones": # actions
+            game_state = actions_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "tienda": # store
+            game_state = shop_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "info":
+            game_state = info_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "infodos": # info2
+            game_state = info_two_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "minijuegos": # minigame
+            game_state = minigames_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "snakegame":
+            game_state = snakegame(screen_surface)
+        elif game_state == "tetrisgame":
+            game_state = tetrisgame(screen_surface)
+        elif game_state == "solarsystem":
+            game_state = solarsystem(screen_surface)
+        elif game_state == "productos": # products
+            game_state = products_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "prestamo":
+            game_state = loan_scene(screen_surface, title_font, normal_font, events, player_data, textbox_state, loan_data)
+        elif game_state == "facturar":
+            game_state = billing_scene(screen_surface, title_font, button_font, events, normal_font, player_data)
+        elif game_state == "impuestos":
+            game_state = taxes_scene(screen_surface, title_font, normal_font, events, player_data, textbox_state, tax_data)
+        elif game_state == "productos2":
+            game_state = products_two_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "vender_edificio":
+            game_state = sell_building_scene(screen_surface, title_font, button_font, events, normal_font)
+        elif game_state == "adorno":
+            result = decoration_scene(screen_surface, title_font, button_font, events, normal_font)
+            if isinstance(result, tuple):
+                game_state, building_to_place = result
             else:
-                estado_del_juego = resultado
-        elif estado_del_juego == "construccion":
-            resultado = construccion(pantalla, fuente_titulo, fuente_boton, eventos, fuente_normal)
-            if isinstance(resultado, tuple):
-                estado_del_juego, edificio_a_colocar = resultado  # e.g. ("colocando_edificio", "casa")
+                game_state = result
+        elif game_state == "construccion":
+            result = construction_scene(screen_surface, title_font, button_font, events, normal_font)
+            if isinstance(result, tuple):
+                game_state, building_to_place = result  # e.g. ("colocando_edificio", "casa")
             else:
-                estado_del_juego = resultado
-        elif estado_del_juego == "colocando_edificio":
-            if not edificio_a_colocar:
-                estado_del_juego = "construccion"
+                game_state = result
+        elif game_state == "colocando_edificio":
+            if not building_to_place:
+                game_state = "construccion"
             else:
-                estado_del_juego = escena_colocacion(pantalla, eventos, fuente_normal, edificio_a_colocar)
-                if estado_del_juego != "colocando_edificio":
-                    edificio_a_colocar = None
-        elif estado_del_juego == "gameover":
-            estado_del_juego = gameover(pantalla, eventos)
+                game_state = placement_scene(screen_surface, events, normal_font, building_to_place)
+                if game_state != "colocando_edificio":
+                    building_to_place = None
+        elif game_state == "gameover":
+            game_state = gameover_scene(screen_surface, events)
 
-        show_alert(pantalla)
+        show_alert(screen_surface)
 
         mouseDown = False
         if pygame.mouse.get_pressed()[0]:
             mouseDown = True
 
         pygame.display.flip()
-        reloj.tick(60)
- 
+        clock.tick(60)
+
     if logged_in_username:
-        guardar_progreso(logged_in_username)
+        save_progress(logged_in_username)
     pygame.quit()
     sys.exit()
 
 
 # SCRIPT ENTRY POINT
 if __name__ == '__main__':
-    from terminal import terminalbeggining
-    terminalbeggining()
+    from terminal import terminal_beginning
+    terminal_beginning()

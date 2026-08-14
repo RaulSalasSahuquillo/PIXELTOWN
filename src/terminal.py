@@ -180,7 +180,7 @@ class TerminalApp:
 
         # Try to set the window icon
         try:
-            icon_path = _asset_path("imagenes", "pixeltown_logo.png")
+            icon_path = _asset_path("images", "pixeltown_logo.png")
             icon = tk.PhotoImage(file=icon_path)
             self.root.iconphoto(True, icon)
         except Exception:
@@ -245,17 +245,17 @@ class TerminalApp:
         btn_frame = tk.Frame(self.container, bg=BG_DARK)
         btn_frame.pack()
 
-        btn_es = _make_button(
+        es_button = _make_button(
             btn_frame, "🇪🇸  Español", lambda: self._select_language("es"),
             bg="#e67e22", hover="#f0932b", width=18, font_size=13, pady=10,
         )
-        btn_es.pack(side="left", padx=12)
+        es_button.pack(side="left", padx=12)
 
-        btn_en = _make_button(
+        en_button = _make_button(
             btn_frame, "🇬🇧  English", lambda: self._select_language("en"),
             bg="#3498db", hover="#5dade2", width=18, font_size=13, pady=10,
         )
-        btn_en.pack(side="left", padx=12)
+        en_button.pack(side="left", padx=12)
 
         # Footer
         footer = tk.Label(
@@ -291,37 +291,37 @@ class TerminalApp:
         card.pack()
 
         # Buttons
-        btn_login = _make_button(
+        login_button = _make_button(
             card,
             _("terminal_option_login").lstrip("1. ").lstrip("1.").strip(),
             self._show_login_screen,
             bg=BTN_PRIMARY, hover=BTN_PRIMARY_H, width=26, font_size=13, pady=10,
         )
-        btn_login.pack(pady=6)
+        login_button.pack(pady=6)
 
-        btn_register = _make_button(
+        register_button = _make_button(
             card,
             _("terminal_option_register").lstrip("2. ").lstrip("2.").strip(),
             self._show_register_screen,
             bg=BTN_SUCCESS, hover=BTN_SUCCESS_H, width=26, font_size=13, pady=10,
         )
-        btn_register.pack(pady=6)
+        register_button.pack(pady=6)
 
-        btn_guest = _make_button(
+        guest_button = _make_button(
             card,
             _("terminal_option_guest").lstrip("3. ").lstrip("3.").strip(),
             self._play_as_guest,
             bg=BTN_GUEST, hover=BTN_GUEST_H, width=26, font_size=13, pady=10,
         )
-        btn_guest.pack(pady=6)
+        guest_button.pack(pady=6)
 
-        btn_exit = _make_button(
+        exit_button = _make_button(
             card,
             _("terminal_option_exit").lstrip("4. ").lstrip("4.").strip(),
             self._exit,
             bg=BTN_DANGER, hover=BTN_DANGER_H, width=26, font_size=13, pady=10,
         )
-        btn_exit.pack(pady=(6, 0))
+        exit_button.pack(pady=(6, 0))
 
         # Footer
         footer = tk.Label(
@@ -354,23 +354,23 @@ class TerminalApp:
         lbl_user = tk.Label(card, text=_("terminal_enter_username").rstrip(": ").strip(),
                             font=("Segoe UI", 11), fg=FG_TEXT, bg=BG_CARD, anchor="w")
         lbl_user.pack(fill="x", pady=(0, 3))
-        ent_user, var_user = _make_entry(card)
-        ent_user.pack(fill="x", ipady=6, pady=(0, 12))
+        user_entry, user_var = _make_entry(card)
+        user_entry.pack(fill="x", ipady=6, pady=(0, 12))
 
         # Password
         lbl_pass = tk.Label(card, text=_("terminal_enter_password").rstrip(": ").strip(),
                             font=("Segoe UI", 11), fg=FG_TEXT, bg=BG_CARD, anchor="w")
         lbl_pass.pack(fill="x", pady=(0, 3))
-        ent_pass, var_pass = _make_entry(card, show="●")
-        ent_pass.pack(fill="x", ipady=6, pady=(0, 18))
+        pass_entry, pass_var = _make_entry(card, show="●")
+        pass_entry.pack(fill="x", ipady=6, pady=(0, 18))
 
         # Status label
         status = tk.Label(card, text="", font=("Segoe UI", 10), fg=BTN_DANGER, bg=BG_CARD)
         status.pack(pady=(0, 8))
 
         def do_login(_event=None):
-            username = var_user.get().strip()
-            password = var_pass.get().strip()
+            username = user_var.get().strip()
+            password = pass_var.get().strip()
             if not username:
                 status.config(text=_("terminal_username_empty"), fg=BTN_DANGER)
                 return
@@ -384,21 +384,21 @@ class TerminalApp:
             else:
                 status.config(text=_("terminal_login_fail"), fg=BTN_DANGER)
 
-        btn_login = _make_button(card, _("terminal_option_login").lstrip("1. ").lstrip("1.").strip(),
+        login_button = _make_button(card, _("terminal_option_login").lstrip("1. ").lstrip("1.").strip(),
                                  do_login, bg=BTN_PRIMARY, hover=BTN_PRIMARY_H, width=24)
-        btn_login.pack(pady=4)
+        login_button.pack(pady=4)
 
         # Bind Enter key
-        ent_pass.bind("<Return>", do_login)
-        ent_user.bind("<Return>", lambda _e: ent_pass.focus_set())
+        pass_entry.bind("<Return>", do_login)
+        user_entry.bind("<Return>", lambda _e: pass_entry.focus_set())
 
         # Back button
-        btn_back = _make_button(card, _("back"),
+        back_button = _make_button(card, _("back"),
                                 self._show_auth_screen,
                                 bg="#555", hover="#777", width=24, font_size=10)
-        btn_back.pack(pady=(4, 0))
+        back_button.pack(pady=(4, 0))
 
-        ent_user.focus_set()
+        user_entry.focus_set()
 
     # Register
     def _show_register_screen(self):
@@ -421,23 +421,23 @@ class TerminalApp:
         lbl_user = tk.Label(card, text=_("terminal_enter_username").rstrip(": ").strip(),
                             font=("Segoe UI", 11), fg=FG_TEXT, bg=BG_CARD, anchor="w")
         lbl_user.pack(fill="x", pady=(0, 3))
-        ent_user, var_user = _make_entry(card)
-        ent_user.pack(fill="x", ipady=6, pady=(0, 12))
+        user_entry, user_var = _make_entry(card)
+        user_entry.pack(fill="x", ipady=6, pady=(0, 12))
 
         # Password
         lbl_pass = tk.Label(card, text=_("terminal_enter_password").rstrip(": ").strip(),
                             font=("Segoe UI", 11), fg=FG_TEXT, bg=BG_CARD, anchor="w")
         lbl_pass.pack(fill="x", pady=(0, 3))
-        ent_pass, var_pass = _make_entry(card, show="●")
-        ent_pass.pack(fill="x", ipady=6, pady=(0, 18))
+        pass_entry, pass_var = _make_entry(card, show="●")
+        pass_entry.pack(fill="x", ipady=6, pady=(0, 18))
 
         # Status label
         status = tk.Label(card, text="", font=("Segoe UI", 10), fg=BTN_DANGER, bg=BG_CARD)
         status.pack(pady=(0, 8))
 
         def do_register(_event=None):
-            username = var_user.get().strip()
-            password = var_pass.get().strip()
+            username = user_var.get().strip()
+            password = pass_var.get().strip()
             if not username:
                 status.config(text=_("terminal_username_empty"), fg=BTN_DANGER)
                 return
@@ -455,20 +455,20 @@ class TerminalApp:
             else:
                 status.config(text=_("error_saving_account"), fg=BTN_DANGER)
 
-        btn_register = _make_button(card, _("terminal_option_register").lstrip("2. ").lstrip("2.").strip(),
+        register_button = _make_button(card, _("terminal_option_register").lstrip("2. ").lstrip("2.").strip(),
                                     do_register, bg=BTN_SUCCESS, hover=BTN_SUCCESS_H, width=24)
-        btn_register.pack(pady=4)
+        register_button.pack(pady=4)
 
-        ent_pass.bind("<Return>", do_register)
-        ent_user.bind("<Return>", lambda _e: ent_pass.focus_set())
+        pass_entry.bind("<Return>", do_register)
+        user_entry.bind("<Return>", lambda _e: pass_entry.focus_set())
 
         # Back button
-        btn_back = _make_button(card, _("back"),
+        back_button = _make_button(card, _("back"),
                                 self._show_auth_screen,
                                 bg="#555", hover="#777", width=24, font_size=10)
-        btn_back.pack(pady=(4, 0))
+        back_button.pack(pady=(4, 0))
 
-        ent_user.focus_set()
+        user_entry.focus_set()
 
     # Actions
     def _play_as_guest(self):
@@ -497,6 +497,8 @@ class TerminalApp:
         self.root.mainloop()
 
 #  Public entry point — kept backward-compatible
-def terminalbeggining():
+def terminal_beginning():
     app = TerminalApp()
     app.run()
+
+terminalbeggining = terminal_beginning

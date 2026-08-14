@@ -2,6 +2,17 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [2.2.7] - 2026-08-14
+
+### Changed / Refactored
+- **English Codebase Translation**:
+  - Translated all variable names, function names, and parameters across `src/game.py`, `src/text.py`, `src/characters.py`, `src/snake.py`, `src/solarsystem.py`, `src/tetris.py`, `src/terminal.py`, and `src/main.py` from Spanish to English.
+  - Maintained JSON save file compatibility (`"nombre_usuario"`, `"nombre_ciudad"`, `"dinero"`, etc.) for existing game saves.
+- **English Assets & Image Filenames Translation**:
+  - Renamed asset directory from `assets/imagenes/` to `assets/images/`.
+  - Renamed all Spanish image filenames to English (`house.png`, `supermarket.png`, `streetlamp.png`, `ornament_mytownmyrules.png`, `bush.png`, `pixeltown_cover.png`, `welcome.png`, `river.png`, `shop.png`, `earn_money.png`, `minigames.png`, `construction.png`, `products.png`, `decoration.png`, `lovyc_mask.png`, `lovyc_shampoo.png`, `lovyc_wipes.png`, `taxes.png`, `sell_building.png`, `loan.png`, etc.).
+  - Updated all image loading references (`pygame.image.load`) across the codebase to match the new English asset path and image filenames.
+
 ## [2.2.6] - 2026-08-12
 
 ### Added

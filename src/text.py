@@ -18,8 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
 
-def titulo(pantalla, fuente, pos_x, pos_y):
-    arte_ascii = """
+def title(screen, font, pos_x, pos_y):
+    ascii_art = """
 ██████╗ ██╗██╗  ██╗███████╗██╗  ████████╗ ██████╗ ██╗    ██╗███╗   ██╗
 ██╔══██╗██║╚██╗██╔╝██╔════╝██║  ╚══██╔══╝██╔═══██╗██║    ██║████╗  ██║
 ██████╔╝██║ ╚███╔╝ █████╗  ██║     ██║   ██║   ██║██║ █╗ ██║██╔██╗ ██║
@@ -28,43 +28,43 @@ def titulo(pantalla, fuente, pos_x, pos_y):
 ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝    ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝
 """
 
-    NEGRO = (0, 0, 0)
-    lineas = arte_ascii.strip().split('\n')
+    BLACK = (0, 0, 0)
+    lines = ascii_art.strip().split('\n')
     
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
 
-def informaciontexto1(pantalla, fuente, pos_x, pos_y):
+def info_text_1(screen, font, pos_x, pos_y):
     from localization import _
-    texto = _("info_text_1")
+    text = _("info_text_1")
     
-    NEGRO = (0, 0, 0)
-    lineas = texto.strip().split('\n')
+    BLACK = (0, 0, 0)
+    lines = text.strip().split('\n')
     
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
 
-def informaciontexto2(pantalla, fuente, pos_x, pos_y):
+def info_text_2(screen, font, pos_x, pos_y):
     from localization import _
-    texto = _("info_text_2")
+    text = _("info_text_2")
     
-    NEGRO = (0, 0, 0)
-    lineas = texto.strip().split('\n')
+    BLACK = (0, 0, 0)
+    lines = text.strip().split('\n')
     
-    pos_y_actual = pos_y
-    line_height = fuente.get_height()
+    current_pos_y = pos_y
+    line_height = font.get_height()
 
-    for linea in lineas:
-        superficie_texto = fuente.render(linea, True, NEGRO)
-        pantalla.blit(superficie_texto, (pos_x, pos_y_actual))
-        pos_y_actual += line_height
+    for line in lines:
+        text_surface = font.render(line, True, BLACK)
+        screen.blit(text_surface, (pos_x, current_pos_y))
+        current_pos_y += line_height
