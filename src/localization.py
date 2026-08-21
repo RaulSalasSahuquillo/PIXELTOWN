@@ -22,10 +22,12 @@ import os
 import sys
 
 texts = {}
+current_lang = 'es'
 
 def load_language(lang_code):
     # Carga el archivo JSON del idioma seleccionado (es o en)
-    global texts
+    global texts, current_lang
+    current_lang = lang_code
     # When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
     if getattr(sys, 'frozen', False):
         base_path = os.path.join(sys._MEIPASS, 'locals')
@@ -41,6 +43,12 @@ def load_language(lang_code):
         if lang_code != 'es':
             load_language('es')
 
+def get_language():
+    # Devuelve el código del idioma actual ('es', 'en', etc.)
+    return current_lang
+
 def _(key):
     # Devuelve el texto traducido según la clave. Si no existe, muestra la clave
+    if not texts:
+        load_language(current_lang)
     return texts.get(key, f"[{key} missing]")

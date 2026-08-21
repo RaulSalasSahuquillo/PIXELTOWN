@@ -70,9 +70,14 @@ def run_snake(screen_surface):
     screen = pygame.display.set_mode((800, 600))
     pygame.display.set_caption(_("snakegame"))
     clock = pygame.time.Clock()
+    font = pygame.font.Font(None, 28)
+    popup_font = pygame.font.Font(None, 34)
 
     snake = Snake()
     food = (200, 200)
+    score = 0
+    popup_timer = 0
+    popup_pos = (400, 300)
 
     running = True
     while running:
@@ -103,8 +108,24 @@ def run_snake(screen_surface):
 
         # Comprobar colisión con la comida
         if snake.body[0] == food:
+            popup_pos = food
             food = spawn_food()
             snake.body.append((0, 0))
+            score += 1
+            popup_timer = 15
+            import game
+            game.add_reward(5, 5)
+
+        # Draw HUD on top of screen
+        hud_text = font.render(f"Score: {score}   |   PIXELTOWN: +{score * 5}$   +{score * 5} XP", True, (255, 215, 0))
+        screen.blit(hud_text, (15, 12))
+
+        # Floating popup message when eating food
+        if popup_timer > 0:
+            popup_surf = popup_font.render("+5 Money  +5 XP!", True, (50, 255, 50))
+            popup_rect = popup_surf.get_rect(center=(popup_pos[0] + 10, max(40, popup_pos[1] - 15)))
+            screen.blit(popup_surf, popup_rect)
+            popup_timer -= 1
 
         # Comprobar colisión con el borde de la pantalla
         if not (0 <= snake.body[0][0] < 800 and 0 <= snake.body[0][1] < 600):

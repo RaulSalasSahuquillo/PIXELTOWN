@@ -17,6 +17,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 from terminal import terminal_beginning
+import text
 
 if __name__ == '__main__':
+    text.terminal_title()
+    print("""
+            PIXELTOWN  Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+            This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+            This is free software, and you are welcome to redistribute it
+            under certain conditions; type `show c' for details.
+        """)
     terminal_beginning()

@@ -2,7 +2,63 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
-## [2.2.7] - 2026-08-14
+## [Beta v3.0] - 2026-08-21
+
+### Added
+- **Missions & Objectives System**:
+  - Implemented interactive `missions_scene` accessible via the Actions menu (`actions_scene`), introducing structured gameplay progression.
+  - Added mascot companion Toy (Pink Monster) with animated sliding entrance, typewriter text dialogue effect, and dynamic talking states (`toy.png`, `toyspeaking.png`).
+  - Added 5 initial missions with milestone checks and rewards:
+    1. *First Steps*: Build your first Simple House (+100 Money, +50 EXP).
+    2. *Municipal Savings*: Reach 1,500 Money (+200 Money, +50 EXP).
+    3. *Feed the City*: Build a Supermarket (+300 Money, +100 EXP).
+    4. *Higher Level Mayor*: Reach City Level 2 (+500 Money, +150 EXP).
+    5. *Growing Metropolis*: Build 3 total buildings (+400 Money, +100 EXP).
+  - Added reward claiming mechanic and state persistence (`current_mission`, `completed_missions` saved in user profile JSON).
+- **Spaceship Battle Minigame**:
+  - Added `src/spaceship.py`, a retro 2D space duel minigame integrated seamlessly into the minigames menu (`minigames_scene`).
+  - Implemented 1P (vs AI) mode with dodging, tracking, and shooting AI behaviors, and 2P (PvP) local multiplayer mode (`WASD + K` vs `Arrows + RCtrl`).
+  - Added particle systems (thruster trails, projectile spark collisions, bullet clash explosions), health bars, and sound effects (`Gun+Silencer.mp3`, `Grenade+1.mp3`).
+  - Connected victory rewards: winning against the AI grants +25 Money and +25 XP to the city.
+- **20-Photogram Retro Pixel-Art Animated Title Screen**:
+  - Added `src/pixeltown_titlescreen.py` featuring a 20-frame procedural pixel-art animation of Toy building Pixeltown with parallax clouds, rotating windmill, crane, and CRT scanline overlay.
+  - Added 20 high-resolution photogram frames in `assets/images/` (`pixeltown-photogram-frame-01-4x.png` to `pixeltown-photogram-frame-20-4x.png`).
+  - Set as the active animated background for the main menu screen (`menu_scene`).
+- **Expanded Building Catalog (6 New Buildings)**:
+  - Added Mail Office / Post Office (`mailoffice` - $400, +25 XP).
+  - Added Restaurant (`restaurant` - $600, +40 XP).
+  - Added Gym (`gym` - $700, +45 XP).
+  - Added School (`school` - $1,000, +60 XP).
+  - Added Police Station (`policestation` - $1,200, +75 XP).
+  - Added Town Hall / Ayuntamiento (`townhall` - $2,000, +120 XP).
+  - Redesigned `construction_scene` into a modern 3x3 responsive card layout with image previews, cost/EXP badges, and interactive build buttons.
+- **Expanded Decoration Catalog (6 New Ornaments)**:
+  - Added Fountain (`fountain` - $150, +15 XP).
+  - Added Tree (`tree` - $30, +3 XP).
+  - Added Statue (`statue` - $200, +20 XP).
+  - Added Water Feature (`water_feature` - $120, +12 XP).
+  - Added Trash Can (`trashcan` - $15, +1 XP).
+  - Added Sewer (`sewer` - $25, +2 XP).
+  - Redesigned `decoration_scene` into a 3x3 grid with per-decoration build limits (max 5 per type) and live count tracking.
+- **Minigame Economy & City Progression Integration**:
+  - Created `add_reward(money, exp)` system bridging arcade minigames with the main city economy.
+  - **Snake Game (`src/snake.py`)**: Grants +5 Money and +5 XP per food consumed, with floating popup feedback (`+5 Money +5 XP!`) and real-time HUD reward stats.
+  - **Tetris Game (`src/tetris.py`)**: Grants +10 Money and +10 XP per line cleared with in-game reward display (`+X$ +XXP`).
+- **Tarraco Commercial Requirement**:
+  - Added commercial prerequisite check to `products_scene` and `products_two_scene`: players must construct Tarraco Import Export before purchasing Lov'yc hygiene products, complete with on-screen warnings and alerts.
+- **Branding, Startup & Policy Documentation**:
+  - Added stylized ASCII title banner (`terminal_title()`) in `src/text.py` and GNU GPL v3 notice on startup in `src/main.py`.
+  - Added `CODE_OF_CONDUCT.md` (Contributor Covenant v2.0) and `SECURITY.md` (vulnerability disclosure policy).
+  - Updated high-resolution sound toggle button assets (`soundon.png`, `soundoff.png`).
+
+### Changed
+- **Localization Engine**:
+  - Enhanced `src/localization.py` with `get_language()`, `current_lang` tracker, and automatic language fallback loading.
+  - Added comprehensive Spanish (`es.json`) and English (`en.json`) translation strings for all new buildings, decorations, missions, dialogues, minigames, warnings, and updated info screens.
+- **Dependencies**:
+  - Updated `requirements.txt` to include runtime and packaging libraries (`pyinstaller`, `moviepy`, `opencv-python`, `pillow`, `sounddevice`, `pyvidplayer2`, etc.).
+
+## [Beta v2.2.7] - 2026-08-14
 
 ### Changed / Refactored
 - **English Codebase Translation**:
@@ -13,7 +69,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
   - Renamed all Spanish image filenames to English (`house.png`, `supermarket.png`, `streetlamp.png`, `ornament_mytownmyrules.png`, `bush.png`, `pixeltown_cover.png`, `welcome.png`, `river.png`, `shop.png`, `earn_money.png`, `minigames.png`, `construction.png`, `products.png`, `decoration.png`, `lovyc_mask.png`, `lovyc_shampoo.png`, `lovyc_wipes.png`, `taxes.png`, `sell_building.png`, `loan.png`, etc.).
   - Updated all image loading references (`pygame.image.load`) across the codebase to match the new English asset path and image filenames.
 
-## [2.2.6] - 2026-08-12
+## [Beta v2.2.6] - 2026-08-12
 
 ### Added
 - **Exit Button on Info2**:
@@ -41,7 +97,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **Button Text Color**
   - Changed all text color within buttons on the initial screen from an unreadable white to a contrasting black
 
-## [2.2.5] - 2026-08-09
+## [Beta v2.2.5] - 2026-08-09
 
 ### Added
 - **River Building Restriction**:
@@ -60,7 +116,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **English Typo**:
   - Fixed `"recieved"` → `"received"` in the `borrow_collected` translation key.
 
-## [2.2.0] - 2026-07-09
+## [Beta v2.2.0] - 2026-07-09
 
 ### Added
 - **Tkinter GUI Login Launcher**:
@@ -79,7 +135,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **Project Structure**:
   - Updated all documentation files (`README.md`, `CONTRIBUTING.md`, and Web IDE pages) to correctly reference the complete Python source files inside `src/`.
 
-## [2.1.0] - 2026-07-05
+## [Beta v2.1.0] - 2026-07-05
 
 ### Added
 - **Building Selling System**:
@@ -93,7 +149,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **Localization**:
   - Added translation keys (`sell_building`, `click_building_to_sell`, `loan_repaid`, `loan_partially_repaid`, `building_sold`, `click_to_sell`) in Spanish (`es.json`) and English (`en.json`).
 
-## [2.0.0] - 2026-06-24
+## [Beta v2.0.0] - 2026-06-24
 
 ### Added
 - **User Account System**:
@@ -114,7 +170,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **Duplicate JSON Closing Braces**:
   - Fixed syntax errors in `en.json` caused by extra trailing brackets.
 
-## [1.7.0] - 2026-06-12
+## [Beta v1.7.0] - 2026-06-12
 
 ### Added
 - **Tetris Minigame**:
@@ -143,7 +199,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 ### Removed
 - **`simulator.py`**: Deleted; all code merged into `solarsystem.py`.
 
-## [1.6.7] - 2026-06-08
+## [Beta v1.6.7] - 2026-06-08
 
 ### Added
 - **Stats Button**
@@ -157,7 +213,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **Stats Button Layout**
   - Repositioned the "View stats" button to the top-right corner of the screen and reduced its size to look cleaner.
 
-## [1.6.6] - 2026-05-26
+## [Beta v1.6.6] - 2026-05-26
 
 ### Added
 - **Levels**
@@ -169,7 +225,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 ### Changed
   - Logic on earning experience. 
 
-## [1.6.5] - 2026-05-26
+## [Beta v1.6.5] - 2026-05-26
 
 ### Added
 - **Logo**
@@ -183,7 +239,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
 - **Debt Logic**
   - Fixed some bugs in loans.
 
-## [1.6.0] - 2026-05-28
+## [Beta v1.6.0] - 2026-05-28
 
 ### Added
 - **Debt logic**
@@ -196,7 +252,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
   - The quantity of debt wasn't shown on the stats.
   - The problem about pygame not reading \n properly is now fixed.
 
-## [1.5.0] - 2026-05-28
+## [Beta v1.5.0] - 2026-05-28
 
 ### Added
 - **Dynamic Localization Engine**:
@@ -212,7 +268,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
   - Relocated all active python source files to a clean `src/` directory.
   - Restored `src/main.py` and `src/terminal.py` launcher connections to use the original module functions (`game.main`).
 
-## [1.0.0] - 2026-05-27
+## [Beta v1.0.0] - 2026-05-27
 
 ### Added
 - **Multi-language Support**: 

@@ -38,6 +38,16 @@ def title(screen, font, pos_x, pos_y):
         text_surface = font.render(line, True, BLACK)
         screen.blit(text_surface, (pos_x, current_pos_y))
         current_pos_y += line_height
+        
+def terminal_title():
+    print("""\n
+                                                ██████╗ ██╗██╗  ██╗███████╗██╗  ████████╗ ██████╗ ██╗    ██╗███╗   ██╗
+                                                ██╔══██╗██║╚██╗██╔╝██╔════╝██║  ╚══██╔══╝██╔═══██╗██║    ██║████╗  ██║
+                                                ██████╔╝██║ ╚███╔╝ █████╗  ██║     ██║   ██║   ██║██║ █╗ ██║██╔██╗ ██║
+                                                ██╔═══╝ ██║ ██╔██╗ ██╔══╝  ██║     ██║   ██║   ██║██║███╗██║██║╚██╗██║
+                                                ██║     ██║██╔╝ ██╗███████╗███████╗██║   ╚██████╔╝╚███╔███╔╝██║ ╚████║
+                                                ╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝╚══════╝╚═╝    ╚═════╝  ╚══╝╚══╝ ╚═╝  ╚═══╝
+""")
 
 def info_text_1(screen, font, pos_x, pos_y):
     from localization import _

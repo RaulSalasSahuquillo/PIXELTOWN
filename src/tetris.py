@@ -300,7 +300,11 @@ def runGame():
             if not isValidPosition(board, fallingPiece, adjY=1):
                 # falling piece has landed, set it on the board
                 addToBoard(board, fallingPiece)
-                score += removeCompleteLines(board)
+                num_lines = removeCompleteLines(board)
+                if num_lines > 0:
+                    score += num_lines
+                    import game
+                    game.add_reward(num_lines * 10, num_lines * 10)
                 level, fallFreq = calculateLevelAndFallFreq(score)
                 fallingPiece = None
             else:
@@ -492,7 +496,7 @@ def drawBoard(board):
 
 def drawStatus(score, level):
     # draw the score text
-    scoreSurf = BASICFONT.render('Score: %s' % score, True, TEXTCOLOR)
+    scoreSurf = BASICFONT.render('Lines: %s' % score, True, TEXTCOLOR)
     scoreRect = scoreSurf.get_rect()
     scoreRect.topleft = (WINDOWWIDTH - 150, 20)
     DISPLAYSURF.blit(scoreSurf, scoreRect)
@@ -500,8 +504,19 @@ def drawStatus(score, level):
     # draw the level text
     levelSurf = BASICFONT.render('Level: %s' % level, True, TEXTCOLOR)
     levelRect = levelSurf.get_rect()
-    levelRect.topleft = (WINDOWWIDTH - 150, 50)
+    levelRect.topleft = (WINDOWWIDTH - 150, 45)
     DISPLAYSURF.blit(levelSurf, levelRect)
+
+    # draw the PIXELTOWN reward text below the Next piece preview
+    rewardTitleSurf = BASICFONT.render('Reward:', True, TEXTCOLOR)
+    rewardTitleRect = rewardTitleSurf.get_rect()
+    rewardTitleRect.topleft = (WINDOWWIDTH - 150, 220)
+    DISPLAYSURF.blit(rewardTitleSurf, rewardTitleRect)
+
+    rewardValueSurf = BASICFONT.render('+%s$ +%sXP' % (score * 10, score * 10), True, (255, 215, 0))
+    rewardValueRect = rewardValueSurf.get_rect()
+    rewardValueRect.topleft = (WINDOWWIDTH - 150, 245)
+    DISPLAYSURF.blit(rewardValueSurf, rewardValueRect)
 
 
 def drawPiece(piece, pixelx=None, pixely=None):
@@ -521,10 +536,10 @@ def drawNextPiece(piece):
     # draw the "next" text
     nextSurf = BASICFONT.render('Next:', True, TEXTCOLOR)
     nextRect = nextSurf.get_rect()
-    nextRect.topleft = (WINDOWWIDTH - 120, 80)
+    nextRect.topleft = (WINDOWWIDTH - 150, 80)
     DISPLAYSURF.blit(nextSurf, nextRect)
     # draw the "next" piece
-    drawPiece(piece, pixelx=WINDOWWIDTH-120, pixely=100)
+    drawPiece(piece, pixelx=WINDOWWIDTH-150, pixely=105)
 
 
 def run_tetris(screen_surface):
