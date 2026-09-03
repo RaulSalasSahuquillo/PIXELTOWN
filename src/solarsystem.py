@@ -1,7 +1,7 @@
 """
 PIXELTOWN - Solar System Simulator minigame.
 Merged from solarsystem.py (planet data) and simulator.py (simulation logic).
-Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+Copyright (C) 2026  Raúl Salas Sahuquillo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import pygame, sys, math, copy, os
+import pygame, sys, math, copy, os, asyncio
 
 # When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
 if getattr(sys, 'frozen', False):
@@ -209,7 +209,7 @@ def _checkUIForClick(coordinates):
     return False
 
 
-def run_solarsystem(screen_surface):
+async def run_solarsystem(screen_surface):
     """Run the Solar System Simulator inside the existing PIXELTOWN window.
     Returns the next scene name to transition to when the game ends."""
 
@@ -300,6 +300,7 @@ def run_solarsystem(screen_surface):
 
         pygame.display.update()
         clock.tick(60)
+        await asyncio.sleep(0)
 
     # Restore the original PIXELTOWN display
     pygame.display.set_mode(original_size)

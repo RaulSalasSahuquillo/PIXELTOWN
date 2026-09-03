@@ -19,6 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from localization import _
 import pygame
 import random
+import asyncio
 
 # Tamaño de la serpiente y la comida
 SIZE = 20
@@ -58,7 +59,7 @@ def spawn_food():
     return (x, y)
 
 
-def run_snake(screen_surface):
+async def run_snake(screen_surface):
     """Run the snake minigame inside the existing PIXELTOWN window.
     Returns the next scene name to transition to when the game ends."""
 
@@ -137,6 +138,7 @@ def run_snake(screen_surface):
 
         pygame.display.update()
         clock.tick(10)
+        await asyncio.sleep(0)
 
     # Restore the original PIXELTOWN display
     pygame.display.set_mode(original_size)

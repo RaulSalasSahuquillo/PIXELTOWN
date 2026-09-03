@@ -20,3 +20,4 @@ pyvidplayer2==0.9.32
 setuptools==82.0.1
 sounddevice==0.5.5
 tqdm==4.67.3
+pygbag>=0.9.3

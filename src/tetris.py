@@ -1,6 +1,6 @@
 """
 PIXELTOWN - Tetris logic for PIXELTOWN.
-Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+Copyright (C) 2026  Raúl Salas Sahuquillo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,8 +16,18 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
-import random, time, pygame, sys
-from pygame.locals import *
+import random, time, pygame, sys, asyncio
+try:
+    from pygame.locals import *
+except (ImportError, ModuleNotFoundError):
+    for _attr in dir(pygame):
+        if _attr.startswith(('K_', 'KMOD_')) or _attr in (
+            'QUIT', 'KEYDOWN', 'KEYUP', 'MOUSEMOTION', 'MOUSEBUTTONDOWN',
+            'MOUSEBUTTONUP', 'VIDEORESIZE', 'VIDEOEXPOSE', 'ACTIVEEVENT',
+            'USEREVENT', 'NUMEVENTS'
+        ):
+            globals()[_attr] = getattr(pygame, _attr)
+
 
 # Embedded mode support for running inside PIXELTOWN
 _embedded = False
@@ -176,7 +186,7 @@ PIECES = {'S': S_SHAPE_TEMPLATE,
           'T': T_SHAPE_TEMPLATE}
 
 
-def main():
+async def async_main():
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT
     pygame.init()
     FPSCLOCK = pygame.time.Clock()
@@ -185,19 +195,16 @@ def main():
     BIGFONT = pygame.font.Font('freesansbold.ttf', 100)
     pygame.display.set_caption('PIXELTOWN - TETRIS')
 
-    showTextScreen('TETRIS')
+    await showTextScreen('TETRIS')
     while True: # game loop
-        #if random.randint(0, 1) == 0:
-        #    pygame.mixer.music.load('tetrisb.mid')
-        #else:
-        #    pygame.mixer.music.load('tetrisc.mid')
-        #pygame.mixer.music.play(-1, 0.0)
-        runGame()
-        #pygame.mixer.music.stop()
-        showTextScreen('Game Over')
+        await runGame()
+        await showTextScreen('Game Over')
+
+def main():
+    return asyncio.run(async_main())
 
 
-def runGame():
+async def runGame():
     # setup variables for the start of the game
     board = getBlankBoard()
     lastMoveDownTime = time.time()
@@ -322,6 +329,7 @@ def runGame():
 
         pygame.display.update()
         FPSCLOCK.tick(FPS)
+        await asyncio.sleep(0)
 
 
 def makeTextObjs(text, font, color):
@@ -348,7 +356,7 @@ def checkForKeyPress():
     return None
 
 
-def showTextScreen(text):
+async def showTextScreen(text):
     # This function displays large text in the
     # center of the screen until a key is pressed.
     # Draw the text drop shadow
@@ -369,6 +377,7 @@ def showTextScreen(text):
     while checkForKeyPress() == None:
         pygame.display.update()
         FPSCLOCK.tick()
+        await asyncio.sleep(0)
 
 
 def checkForQuit():
@@ -542,7 +551,7 @@ def drawNextPiece(piece):
     drawPiece(piece, pixelx=WINDOWWIDTH-150, pixely=105)
 
 
-def run_tetris(screen_surface):
+async def run_tetris(screen_surface):
     """Run the Tetris minigame inside the existing PIXELTOWN window.
     Returns the next scene name to transition to when the game ends."""
     global FPSCLOCK, DISPLAYSURF, BASICFONT, BIGFONT, _embedded
@@ -562,10 +571,10 @@ def run_tetris(screen_surface):
 
     return_scene = "minijuegos"
     try:
-        showTextScreen('TETRIS')
+        await showTextScreen('TETRIS')
         while True:
-            runGame()
-            showTextScreen('Game Over')
+            await runGame()
+            await showTextScreen('Game Over')
             # Return to minigames after Game Over
             raise _TetrisExit("minijuegos")
     except _TetrisExit as e:

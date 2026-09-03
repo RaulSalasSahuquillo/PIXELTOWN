@@ -2,6 +2,43 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [Beta v3.1] - 2026-09-02
+
+### Added
+- **Pygbag WebAssembly & Localhost Browser Export**:
+  - Implemented full WebAssembly browser export using Pygbag (`pygbag.ini`, `web_template.tmpl`).
+  - Added dynamic port detection with automatic fallback to port 8001 when port 8000 is occupied by other processes (e.g. FastAPI / Uvicorn).
+  - Declared PEP 723 dependency metadata (`# /// script`) in `main.py` ensuring automated runtime packaging of `pygame-ce`.
+  - Added bilingual web startup flow with dynamic query string detection (`?lang=en`, `?lang=es`), `localStorage` persistence, and browser locale fallback (`navigator.language`).
+  - Integrated floating in-browser language switcher widget (`🌐 🇪🇸 ES | 🇬🇧 EN`) on the web canvas page for instant language switching without leaving the browser.
+- **Language-First Tkinter Dual-Mode Launcher**:
+  - Implemented interactive launcher GUI (`start_launcher.py` / `src/terminal.py`).
+  - **Step 1**: Prompts user first for preferred language (`🇪🇸 Español` vs `🇬🇧 English`).
+  - **Step 2**: Prompts for execution platform in the chosen language (`🖥️ Classic Pygame Window` vs `🌐 Web Localhost Format (pygbag)`).
+  - Integrated background subprocess management to launch, monitor live terminal logs, auto-open the browser, and stop the local Pygbag server cleanly.
+
+### Fixed
+- **Cross-Platform Surface Scaling in WebAssembly**:
+  - Resolved `ValueError: Source and destination surfaces need to be compatible formats` when scaling virtual display surfaces to the Emscripten SDL2 canvas in `custom_flip()` and `custom_update()` (`src/game.py`) via safe adaptive blit fallback.
+- **Dynamic CDN Port Proxying in Pygbag**:
+  - Patched Pygbag internal CDN host lookup to dynamically map to the active server proxy port (8001) instead of hardcoded port 8000, eliminating CORS download failures on wheel dependencies.
+- **Web Video Driver Context Initialization**:
+  - Resolved `pygame.error: The video driver did not add any displays` by synchronizing `start_toplevel()` with user media activation (`MM.UME`) and clear start button prompting.
+- **Module Imports Compatibility in Minigames**:
+  - Added safe attribute extraction fallback for `from pygame.locals import *` in `src/tetris.py` to prevent WASM modular import failure.
+  - Fixed early display reference in `src/spaceship.py` (`BORDER`, `YELLOW_HIT`, `RED_HIT`) by deferring rect creation until display initialization.
+
+## [Beta v3.0.1] - 2026-08-24
+
+
+### Changed
+- **Branding & Credits Update**:
+  - Removed all references to `ENEI PROJECT` across the entire codebase, documentation (`README.md`, `LICENSE`), web portal (`docs/index.html`), GUI footers, and Python source file headers.
+  - Added dedicated **Greetings** (Lead Developer: Raúl Salas Sahuquillo) and **Contributors** (Leanna Lee) sections to the in-game Information screen (`src/locals/en.json`, `src/locals/es.json`).
+  - Removed Discord community links and interactive button from the Info screen.
+- **Intro Scene Replacement**:
+  - Replaced the startup video intro with a clean minimalist black-background splash screen displaying `"A game made by Raúl Salas"` with smooth fade-in/fade-out transitions and skip functionality before entering the title menu.
+
 ## [Beta v3.0] - 2026-08-21
 
 ### Added

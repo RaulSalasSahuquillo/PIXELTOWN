@@ -3,10 +3,20 @@
 
 PIXELTOWN_env/
 
-# PyInstaller
+# PyInstaller & Packaging
 dist/
 build/
 *.spec
 
-# Game Saves
+# Pygbag & WebAssembly Build Caches
+web-cache/
+.pygbag/
+*.apk
+*.tar.gz
+*.whl
+
+# Game Saves & Logs
 saves/
+*.log
+.coverage
+.pytest_cache/

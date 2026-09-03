@@ -1,6 +1,6 @@
 """
 PIXELTOWN - 20-Photogram Retro Pixel-Art Animation Title Screen
-Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+Copyright (C) 2026  Raúl Salas Sahuquillo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -1,7 +1,7 @@
 """
 PIXELTOWN - Spaceship Battle Minigame.
 A classic retro spaceship combat minigame integrated into PIXELTOWN.
-Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+Copyright (C) 2026  Raúl Salas Sahuquillo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,12 +20,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import os
 import sys
 import random
+import asyncio
 import pygame
 from localization import _
 
 # Path Configuration
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
+elif os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -43,11 +46,19 @@ MAX_BULLETS = 4
 MAX_HEALTH = 10
 
 BORDER_WIDTH = 8
-BORDER = pygame.Rect(WIDTH // 2 - BORDER_WIDTH // 2, 0, BORDER_WIDTH, HEIGHT)
+try:
+    BORDER = pygame.Rect(WIDTH // 2 - BORDER_WIDTH // 2, 0, BORDER_WIDTH, HEIGHT)
+except Exception:
+    BORDER = None
 
 # Custom Pygame Events
-YELLOW_HIT = pygame.USEREVENT + 1
-RED_HIT = pygame.USEREVENT + 2
+try:
+    YELLOW_HIT = pygame.USEREVENT + 1
+    RED_HIT = pygame.USEREVENT + 2
+except Exception:
+    YELLOW_HIT = 25
+    RED_HIT = 26
+
 
 # Colors
 WHITE = (255, 255, 255)
@@ -359,7 +370,7 @@ def draw_winner(surface, winner_text, reward_text, font, big_font, exit_rect, mo
 
 
 # Main Minigame Runner
-def run_spaceship(screen_surface):
+async def run_spaceship(screen_surface):
     """Run the Spaceship minigame inside the existing PIXELTOWN window.
     Returns the next scene name ('minijuegos' or 'salir')."""
 
@@ -371,6 +382,10 @@ def run_spaceship(screen_surface):
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     game_title = _("spaceshipgame") if _("spaceshipgame") != "[spaceshipgame missing]" else "Spaceship Battle"
     pygame.display.set_caption(f"PIXELTOWN - {game_title}")
+
+    global BORDER
+    if BORDER is None:
+        BORDER = pygame.Rect(WIDTH // 2 - BORDER_WIDTH // 2, 0, BORDER_WIDTH, HEIGHT)
 
     clock = pygame.time.Clock()
     font = pygame.font.Font(None, 24)
@@ -523,6 +538,7 @@ def run_spaceship(screen_surface):
             draw_winner(screen, winner_text, reward_text, font, big_font, exit_rect, mouse_pos)
 
         pygame.display.update()
+        await asyncio.sleep(0)
 
     # Restore the original PIXELTOWN display state
     pygame.display.set_mode(original_size)
@@ -533,5 +549,5 @@ def run_spaceship(screen_surface):
 if __name__ == '__main__':
     pygame.init()
     mock_screen = pygame.display.set_mode((1200, 600))
-    run_spaceship(mock_screen)
+    asyncio.run(run_spaceship(mock_screen))
     pygame.quit()

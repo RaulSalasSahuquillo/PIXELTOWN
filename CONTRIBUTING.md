@@ -31,6 +31,11 @@ Contributions that violate these laws (e.g., adding heavy dependencies, increasi
 - Avoid importing entire libraries if unnecessary (prefer `from pygame.locals import *` over importing everything if you only use constants, or vice versa depending on context to maintain cleanliness).
 - **Justification**: Excessive dependencies slow down game startup, increase RAM consumption, and clutter the namespace.
 
+### Target Platforms and Web (Pygbag / Go Template) Scope
+- **Pygame-Only Contributions are 100% Welcome**: You **do not** need to test, adapt, or continue game development within the Go template / Pygbag / WebAssembly environment.
+- **Desktop Pygame Window is the Primary Target**: Any contribution, new mechanic, asset, or bug fix can be developed and verified exclusively using the standard desktop Pygame window (`python3 start_launcher.py` or `python3 main.py` -> Classic Pygame Window).
+- The WebAssembly / Pygbag pipeline is maintained as a deployment and distribution layer. Contributors do not need to worry about web template internals, Emscripten quirks, or async browser loops unless they specifically wish to work on the web launcher.
+
 ### General Coding Standards
 - **Language**: Python 3.10+. Opened for extra languages you think that can fit.
 - **Error Handling**: Use simple and explicit checks (`try/except`). Avoid silencing errors (`pass` in except blocks). Fatal asset loading errors must be clearly reported to the console using `sys.stderr` before closing the game.
@@ -38,6 +43,7 @@ Contributions that violate these laws (e.g., adding heavy dependencies, increasi
 - **Testing**: Rigorous manual testing is recommended. Avoid heavy testing frameworks unless you are testing pure math or economics (separated from Pygame).
 - **Documentation**: Use inline comments only for non-obvious logic. No external documentation unless the mechanic is genuinely complex.
 - **Licensing**: All contributions become part of PIXELTOWN under its original terms.
+
 
 ---
 
@@ -66,7 +72,8 @@ These are the existing tools and files. Read their source code before writing ne
 2. **Understand the Base Code**: Review existing modules (e.g., `src/text.py` for pure utilities, `src/game.py` to see how events and states are managed) for examples of compatible code.
 3. **Make Your Changes**:
    - Ensure your code respects the size and import limits.
-   - Run `python src/main.py` and ensure the game maintains a stable 60 FPS.
+   - Run `python3 start_launcher.py` (or `python3 main.py`) selecting the Pygame Window, and ensure the game maintains a stable 60 FPS.
+
    - Verify there are no critical warnings in the terminal (Linting).
 4. **Update README.md**: If you added a new file or dependency, include it in the corresponding section.
 5. **Submit a Pull Request**:

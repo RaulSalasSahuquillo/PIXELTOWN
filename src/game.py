@@ -1,6 +1,6 @@
 """
 PIXELTOWN - This is the main file, where all the actions of the game happen. Its purpose is to get shorter and divide it into multiple programs.
-Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+Copyright (C) 2026  Raúl Salas Sahuquillo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,11 +22,12 @@ import pygame
 import time
 import sys
 import json
+import asyncio
+import inspect
 from snake import run_snake
 from tetris import run_tetris
 from solarsystem import run_solarsystem
 from spaceship import run_spaceship
-from pyvidplayer2 import Video
 from characters import bipo, daemon, person, arrow, bipo_welcome
 from text import title, info_text_1, info_text_2
 from localization import _, get_language
@@ -36,6 +37,8 @@ from pixeltown_titlescreen import render_title_background
 # When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
 if getattr(sys, 'frozen', False):
     BASE_DIR = sys._MEIPASS
+elif os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")):
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 else:
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMAGES_DIR = os.path.join(BASE_DIR, "assets", "images")
@@ -210,11 +213,16 @@ def get_building_name(building_type):
 def get_save_dir():
     if getattr(sys, 'frozen', False):
         base = os.path.dirname(sys.executable)
+    elif os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets")):
+        base = os.path.dirname(os.path.abspath(__file__))
     else:
         base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     save_path = os.path.join(base, "saves")
     if not os.path.exists(save_path):
-        os.makedirs(save_path)
+        try:
+            os.makedirs(save_path)
+        except Exception:
+            pass
     return save_path
 
 def get_save_path(username):
@@ -433,30 +441,49 @@ def show_alert(screen):
         alert[1] -= 1
 
 # SCENE DEFINITION
-def intro_scene(screen, clock):
-    try:
-        video_path = os.path.join(VISUAL_DIR, 'intro.mp4')
-        video = Video(video_path)
-        
-        # Same dimensions as the pygame screen
-        screen_dimensions = screen.get_size()
-        video.resize(screen.get_size())
+async def intro_scene(screen, clock):
+    intro_font = pygame.font.Font(None, 52)
+    text_surf = intro_font.render("A game made by Raúl Salas", True, (255, 255, 255))
+    text_rect = text_surf.get_rect(center=(screen.get_width() // 2, screen.get_height() // 2))
 
-        while video.active:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    video.close()
-                    return "salir"
-            video.draw(screen, (0, 0), screen_dimensions)
-            pygame.display.flip()
-            clock.tick(video.frame_rate) 
+    total_frames = 150
+    fade_frames = 30
 
-        video.close()
+    running = True
+    frame = 0
+    while frame < total_frames and running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return "salir"
+            elif event.type in (pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN):
+                running = False
+                break
 
-    except FileNotFoundError:
-        print("Error: No se encontró el archivo de video 'intro.mp4'. Saltando intro.")
-    except Exception as e:
-        print(f"Ocurrió un error al reproducir el video con pyvidplayer2: {e}. Saltando intro.")
+        if not running:
+            break
+
+        screen.fill((0, 0, 0))
+
+        # Alpha overlay calculation for smooth fade-in and fade-out
+        if frame < fade_frames:
+            alpha = int(255 * (1 - frame / fade_frames))
+        elif frame > total_frames - fade_frames:
+            alpha = int(255 * (frame - (total_frames - fade_frames)) / fade_frames)
+        else:
+            alpha = 0
+
+        screen.blit(text_surf, text_rect)
+
+        if alpha > 0:
+            fade_surface = pygame.Surface(screen.get_size())
+            fade_surface.fill((0, 0, 0))
+            fade_surface.set_alpha(alpha)
+            screen.blit(fade_surface, (0, 0))
+
+        pygame.display.flip()
+        clock.tick(60)
+        await asyncio.sleep(0)
+        frame += 1
 
     try:
         pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "anewbegining.mp3"))
@@ -1125,11 +1152,14 @@ def missions_scene(screen, title_font, button_font, events, normal_font):
 
     return "misiones"
 
-def snakegame(screen):
+async def snakegame(screen):
     global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_snake(screen)
+        if inspect.iscoroutinefunction(run_snake):
+            result = await run_snake(screen)
+        else:
+            result = run_snake(screen)
     finally:
         _minigame_active = False
         # Restore the PIXELTOWN virtual-surface display system
@@ -1137,33 +1167,42 @@ def snakegame(screen):
         pygame.display.set_caption("PIXELTOWN")
     return result
 
-def tetrisgame(screen):
+async def tetrisgame(screen):
     global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_tetris(screen)
+        if inspect.iscoroutinefunction(run_tetris):
+            result = await run_tetris(screen)
+        else:
+            result = run_tetris(screen)
     finally:
         _minigame_active = False
         real_screen = pygame.display._original_set_mode((real_width, real_height), pygame.RESIZABLE)
         pygame.display.set_caption("PIXELTOWN")
     return result
 
-def solarsystem(screen):
+async def solarsystem(screen):
     global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_solarsystem(screen)
+        if inspect.iscoroutinefunction(run_solarsystem):
+            result = await run_solarsystem(screen)
+        else:
+            result = run_solarsystem(screen)
     finally:
         _minigame_active = False
         real_screen = pygame.display._original_set_mode((real_width, real_height), pygame.RESIZABLE)
         pygame.display.set_caption("PIXELTOWN")
     return result
 
-def spaceshipgame(screen):
+async def spaceshipgame(screen):
     global _minigame_active, real_screen, real_width, real_height
     _minigame_active = True
     try:
-        result = run_spaceship(screen)
+        if inspect.iscoroutinefunction(run_spaceship):
+            result = await run_spaceship(screen)
+        else:
+            result = run_spaceship(screen)
     finally:
         _minigame_active = False
         real_screen = pygame.display._original_set_mode((real_width, real_height), pygame.RESIZABLE)
@@ -1432,14 +1471,6 @@ def info_two_scene(screen, title_font, button_font, events, normal_font):
     texto_rect_volver = texto_surf_volver.get_rect(center=back_button.center)
     screen.blit(texto_surf_volver, texto_rect_volver)
 
-    # Discord button (opens https://discord.gg/fdPHVKyWC3)
-    discord_button = pygame.Rect(450, 520, 300, 45)
-    discord_color = (114, 137, 218) if discord_button.collidepoint(mouse_pos) else (88, 101, 242)
-    pygame.draw.rect(screen, discord_color, discord_button, border_radius=6)
-    discord_text_surf = normal_font.render(_("discord_button"), True, (255, 255, 255))
-    discord_text_rect = discord_text_surf.get_rect(center=discord_button.center)
-    screen.blit(discord_text_surf, discord_text_rect)
-
     # Back to city button
     city_button = pygame.Rect(930, 520, 250, 45)
     city_color = (200, 200, 100) if city_button.collidepoint(mouse_pos) else (97, 175, 14)
@@ -1465,9 +1496,6 @@ def info_two_scene(screen, title_font, button_font, events, normal_font):
                 return "mapainicial"
             elif back_button.collidepoint(event.pos):
                 return "info"
-            elif discord_button.collidepoint(event.pos):
-                import webbrowser
-                webbrowser.open("https://discord.gg/fdPHVKyWC3")
 
     return "infodos"
 
@@ -2346,8 +2374,8 @@ def gameover_scene(screen, events):
 
     pygame.display.flip()
 
-   # MAIN FUNCTION
-def main(username=None):
+   # MAIN FUNCTION (ASYNC FOR WEB / DESKTOP COMPATIBILITY)
+async def async_main(username=None):
     global logged_in_username, player_data, mouseDown, w, h
     logged_in_username = username
 
@@ -2413,7 +2441,11 @@ def main(username=None):
             real_width, real_height = pending_size
             pending_size = None
         if pygame.display.get_surface() == real_screen and real_screen is not None:
-            pygame.transform.scale(virtual_surface, real_screen.get_size(), real_screen)
+            try:
+                pygame.transform.scale(virtual_surface, real_screen.get_size(), real_screen)
+            except (ValueError, pygame.error):
+                scaled = pygame.transform.scale(virtual_surface, real_screen.get_size())
+                real_screen.blit(scaled, (0, 0))
         _original_flip()
 
     def custom_update(*args, **kwargs):
@@ -2427,8 +2459,13 @@ def main(username=None):
             real_width, real_height = pending_size
             pending_size = None
         if pygame.display.get_surface() == real_screen and real_screen is not None:
-            pygame.transform.scale(virtual_surface, real_screen.get_size(), real_screen)
+            try:
+                pygame.transform.scale(virtual_surface, real_screen.get_size(), real_screen)
+            except (ValueError, pygame.error):
+                scaled = pygame.transform.scale(virtual_surface, real_screen.get_size())
+                real_screen.blit(scaled, (0, 0))
         _original_update(*args, **kwargs)
+
 
     def custom_get_pos():
         global real_screen
@@ -2505,12 +2542,12 @@ def main(username=None):
     # Selected building type to place
     building_to_place = None
 
-    # MAIN GAME LOOP im literally learning spanish rn while doing this :)
+    # MAIN GAME LOOP
     while game_state != "salir": # quit
         events = pygame.event.get()
 
         if game_state == "intro":
-            game_state = intro_scene(screen_surface, clock)
+            game_state = await intro_scene(screen_surface, clock)
         elif game_state == "menu":
             game_state = menu_scene(screen_surface, title_font, button_font, events)
         elif game_state == "jugando": # playing
@@ -2539,13 +2576,13 @@ def main(username=None):
         elif game_state == "minijuegos": # minigame
             game_state = minigames_scene(screen_surface, title_font, button_font, events, normal_font)
         elif game_state == "snakegame":
-            game_state = snakegame(screen_surface)
+            game_state = await snakegame(screen_surface)
         elif game_state == "tetrisgame":
-            game_state = tetrisgame(screen_surface)
+            game_state = await tetrisgame(screen_surface)
         elif game_state == "solarsystem":
-            game_state = solarsystem(screen_surface)
+            game_state = await solarsystem(screen_surface)
         elif game_state in ("spaceshipgame", "spaceship"):
-            game_state = spaceshipgame(screen_surface)
+            game_state = await spaceshipgame(screen_surface)
         elif game_state == "productos": # products
             game_state = products_scene(screen_surface, title_font, button_font, events, normal_font)
         elif game_state == "prestamo":
@@ -2588,14 +2625,23 @@ def main(username=None):
 
         pygame.display.flip()
         clock.tick(60)
+        # Yield to event loop for WebAssembly / Pygbag browser responsiveness
+        await asyncio.sleep(0)
 
     if logged_in_username:
         save_progress(logged_in_username)
     pygame.quit()
-    sys.exit()
+    if not (sys.platform in ("emscripten", "wasi")):
+        sys.exit()
 
+def main(username=None):
+    """Synchronous entry point that runs async_main via asyncio.run for backward compatibility."""
+    return asyncio.run(async_main(username=username))
 
 # SCRIPT ENTRY POINT
 if __name__ == '__main__':
-    from terminal import terminal_beginning
-    terminal_beginning()
+    if sys.platform in ("emscripten", "wasi"):
+        asyncio.run(async_main(username="WebPlayer"))
+    else:
+        from terminal import terminal_beginning
+        terminal_beginning()

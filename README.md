@@ -11,6 +11,7 @@ At its core, PIXELTOWN is a resource management and town-building game. You star
 
 ## Features
 
+- **Dual Execution Mode (Pygame Desktop vs Web Localhost)**: The Tkinter terminal asks upon startup whether to launch in classic native Pygame desktop mode or compile & serve locally in the web browser via WebAssembly using **Pygbag**.
 - **User Accounts & Login**: Register new user accounts and log in securely via a graphical user interface (GUI) built with Tkinter. Passwords are safe and encrypted locally using SHA-256 hashing.
 - **Save & Load Progress**: Save your game state (net-worth, population, happiness, level, debt, experience, and custom buildings) dynamically. Easily reload your progress upon logging in.
 - **Window Resizing & Scale Support**: Support for resizing the Pygame window dynamically with automatic scaling of the 1200x600 virtual screen resolution.
@@ -18,7 +19,7 @@ At its core, PIXELTOWN is a resource management and town-building game. You star
 - **Resource Management**: Track your Money, Population, Happiness, Experience, Debt, and Town Level.
 - **Building System**: Place different structures like houses, stores, streetlamps, and decorations dynamically on your map.
 - **Store & Economy**: Buy items to boost stats or decorations to personalize your city.
-- **Video Intro**: Plays a dynamic introduction video at startup using `pyvidplayer2`.
+- **Intro Screen**: Displays a retro minimalist introduction screen at launch.
 - **Guest Mode**: Play instantly without creating an account (saving progress is disabled).
 
 ## Prerequisites
@@ -61,11 +62,15 @@ The project is structured cleanly to keep the logic and assets organized:
 2. Navigate to the project directory.
 3. Run the main launcher:
    ```bash
-   python src/main.py
+   python main.py
+   # or: python src/main.py
    ```
-4. Choose your language, then **register a new account** or **log in** with your username and password (or select **Play as Guest**).
-5. If it's your first time, follow the onboarding prompts to enter your name and choose your city's name. Otherwise, it will load your previous progress automatically!
-6. Click the **Save Progress** button inside the game map or exit normally to save your progress. Have fun and try not to get overthrown!
+4. **Choose Execution Mode**: The Tkinter terminal will prompt you first:
+   - **Ventana de Pygame**: Classic native desktop window with language selection, user authentication/guest mode, and Pygame gameplay.
+   - **Formato Web Localhost (pygbag)**: Starts the Pygbag local WebAssembly server at `http://localhost:8000` with real-time log monitoring and opens the browser.
+5. If playing in Desktop mode, choose your language, then **register a new account** or **log in** with your username and password (or select **Play as Guest**).
+6. If it's your first time, follow the onboarding prompts to enter your name and choose your city's name. Otherwise, it will load your previous progress automatically!
+7. Click the **Save Progress** button inside the game map or exit normally to save your progress. Have fun and try not to get overthrown!
 
 ## Contributing
 
@@ -77,4 +82,4 @@ This project is licensed under the **GNU General Public License v3 (GPL-3.0)**. 
 
 ---
 
-*Copyright (C) 2026 Raúl Salas Sahuquillo, ENEI PROJECT*
+*Copyright (C) 2026 Raúl Salas Sahuquillo*

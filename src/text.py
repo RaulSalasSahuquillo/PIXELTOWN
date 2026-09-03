@@ -1,6 +1,6 @@
 """
 PIXELTOWN - This is made for long characters and texts for Pygame and the terminal
-Copyright (C) 2026  Raúl Salas Sahuquillo, ENEI PROJECT
+Copyright (C) 2026  Raúl Salas Sahuquillo
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
