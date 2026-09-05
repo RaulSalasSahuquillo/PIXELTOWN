@@ -2,6 +2,12 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [Beta v3.1.1] - 2026-09-06
+
+### Changed
+- Converted all audio files from `.mp3` to `.ogg` for pygbag support
+- Updated the code to look for `.ogg` files instead
+
 ## [Beta v3.1] - 2026-09-02
 
 ### Added

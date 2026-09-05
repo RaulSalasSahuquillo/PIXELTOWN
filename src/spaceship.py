@@ -128,19 +128,19 @@ def load_game_assets():
     try:
         if not pygame.mixer.get_init():
             pygame.mixer.init()
-        assets["fire_sound"] = pygame.mixer.Sound(os.path.join(ASSETS_DIR, "Gun+Silencer.mp3"))
+        assets["fire_sound"] = pygame.mixer.Sound(os.path.join(ASSETS_DIR, "Gun+Silencer.ogg"))
         assets["fire_sound"].set_volume(0.4)
     except Exception as e:
-        print(f"[Spaceship] Warning: Could not load Gun+Silencer.mp3: {e}")
+        print(f"[Spaceship] Warning: Could not load Gun+Silencer.ogg: {e}")
         assets["fire_sound"] = None
 
     try:
         if not pygame.mixer.get_init():
             pygame.mixer.init()
-        assets["hit_sound"] = pygame.mixer.Sound(os.path.join(ASSETS_DIR, "Grenade+1.mp3"))
+        assets["hit_sound"] = pygame.mixer.Sound(os.path.join(ASSETS_DIR, "Grenade+1.ogg"))
         assets["hit_sound"].set_volume(0.5)
     except Exception as e:
-        print(f"[Spaceship] Warning: Could not load Grenade+1.mp3: {e}")
+        print(f"[Spaceship] Warning: Could not load Grenade+1.ogg: {e}")
         assets["hit_sound"] = None
 
     return assets
