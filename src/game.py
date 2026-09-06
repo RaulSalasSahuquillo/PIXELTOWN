@@ -486,7 +486,7 @@ async def intro_scene(screen, clock):
         frame += 1
 
     try:
-        pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "anewbegining.mp3"))
+        pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "anewbegining.ogg"))
         pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")
@@ -797,7 +797,7 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
         print(_("coup_started"))
         try:
             if not pygame.mixer.music.get_busy():
-                pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "efectodestruccion.mp3"))
+                pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "efectodestruccion.ogg"))
                 pygame.mixer.music.play()
         except pygame.error as e:
             print(f"No se pudo cargar el archivo de música: {e}")
@@ -821,7 +821,7 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
                     save_message = _("guest_cannot_save")
     try:
         if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "Aldea_soundtrack.mp3"))
+            pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "Aldea_soundtrack.ogg"))
             pygame.mixer.music.play(-1)
     except pygame.error as e:
         print(f"No se pudo cargar el archivo de música: {e}")

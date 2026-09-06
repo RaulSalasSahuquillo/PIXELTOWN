@@ -2,6 +2,7 @@
 **/__pycache__/
 
 PIXELTOWN_env/
+.DS_Store
 
 # PyInstaller & Packaging
 dist/
