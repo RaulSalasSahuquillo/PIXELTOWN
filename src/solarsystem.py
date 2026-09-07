@@ -130,7 +130,10 @@ UICoordinates = [
 gravity = 10.0
 
 
+_ui_font = None
+
 def _drawUI(surface):
+    global _ui_font
     surface.blit(_images["tabs"], (131, 687))
     surface.blit(_images["mercury"], (158, 714))
     surface.blit(_images["venus"],   (247, 706))
@@ -142,12 +145,13 @@ def _drawUI(surface):
     surface.blit(_images["uranus"],  (822, 697))
 
     # EXIT button (top-right corner)
-    font = pygame.font.Font(None, 30)
+    if _ui_font is None:
+        _ui_font = pygame.font.Font(None, 30)
     exit_button = pygame.Rect(WINDOW_WIDTH - 110, 10, 100, 36)
     mouse_pos = pygame.mouse.get_pos()
     color = (220, 60, 60) if exit_button.collidepoint(mouse_pos) else (180, 40, 40)
     pygame.draw.rect(surface, color, exit_button, border_radius=6)
-    text = font.render("EXIT", True, (255, 255, 255))
+    text = _ui_font.render("EXIT", True, (255, 255, 255))
     surface.blit(text, text.get_rect(center=exit_button.center))
     return exit_button
 

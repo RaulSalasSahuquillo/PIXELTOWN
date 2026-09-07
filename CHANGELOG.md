@@ -2,6 +2,17 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [Beta v3.1.2] - 2026-09-07
+
+### Fixed
+- **Pygame Rendering Performance & Asset Caching**:
+  - Migrated uncached per-frame `pygame.image.load()` and `pygame.transform.scale()` calls across multiple menus (`game_scene`, `actions_scene`, `shop_scene`, `products_scene`, `products_two_scene`, `billing_scene`, `minigames_scene`) to use the unified `get_cached_image()` cache, eliminating hundreds of synchronous disk reads and surface allocations per second.
+  - Eliminated the per-frame 14-building image loading and scaling loop in `sell_building_scene` by introducing a centralized `get_building_images()` cache.
+  - Reused cached building icon surfaces in `initial_map_scene` and `placement_scene`, preventing redundant dictionary construction on every frame.
+  - Implemented `get_cached_font()` to cache TrueType font instances by name and size, resolving per-frame font re-instantiations in `show_alert`, `info_two_scene`, and `gameover_scene`.
+  - Cached the UI font in `src/solarsystem.py` (`_ui_font`) to avoid creating `pygame.font.Font` each frame in the Solar System simulator.
+  - Removed duplicate `pygame.display.flip()` call in `gameover_scene` to prevent display tearing and double buffer swapping.
+
 ## [Beta v3.1.1] - 2026-09-06
 
 ### Changed

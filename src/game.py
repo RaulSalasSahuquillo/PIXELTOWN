@@ -387,17 +387,39 @@ def add_reward(money_amount, exp_amount):
     print(msg)
 
 _IMAGE_CACHE = {}
+_FONT_CACHE = {}
+_BUILDINGS_64_CACHE = None
+
+def get_cached_font(name=None, size=30):
+    """Retrieve a font from cache, creating it only once for smooth performance."""
+    key = (name, size)
+    if key not in _FONT_CACHE:
+        _FONT_CACHE[key] = pygame.font.Font(name, size)
+    return _FONT_CACHE[key]
 
 def get_cached_image(filename, size=None):
     """Retrieve an image from cache, loading and scaling it only once for smooth 60 FPS performance."""
-    key = (filename, size)
+    full_path = filename if os.path.isabs(filename) else os.path.join(IMAGES_DIR, filename)
+    norm_path = os.path.abspath(full_path)
+    key = (norm_path, size)
     if key not in _IMAGE_CACHE:
-        full_path = filename if os.path.isabs(filename) else os.path.join(IMAGES_DIR, filename)
-        img = pygame.image.load(full_path).convert_alpha()
+        img = pygame.image.load(norm_path).convert_alpha()
         if size:
             img = pygame.transform.scale(img, size)
         _IMAGE_CACHE[key] = img
     return _IMAGE_CACHE[key]
+
+def get_building_images():
+    """Retrieve cached 64x64 icon surfaces for all buildings in BUILDINGS_CONFIG."""
+    global _BUILDINGS_64_CACHE
+    if _BUILDINGS_64_CACHE is None:
+        _BUILDINGS_64_CACHE = {}
+        for b_type, b_cfg in BUILDINGS_CONFIG.items():
+            try:
+                _BUILDINGS_64_CACHE[b_type] = get_cached_image(b_cfg["imagen"], (64, 64))
+            except (pygame.error, FileNotFoundError):
+                _BUILDINGS_64_CACHE[b_type] = None
+    return _BUILDINGS_64_CACHE
 
 def sound_button(screen):
     global sound_on, mouseDown
@@ -422,7 +444,7 @@ def show_alert(screen):
     global alert, w, h
 
     if alert and alert[1] > 0:
-        font = pygame.font.Font(None, 28)
+        font = get_cached_font(None, 28)
         text_surf = font.render(alert[0], True, (255, 255, 255))
         padding_x, padding_y = 18, 8
         box_w = text_surf.get_width() + padding_x * 2
@@ -538,9 +560,8 @@ def game_scene(screen, button_font, events, title_font):
     screen.fill((200, 255, 200))  # Light green background
     try:
         welcome_img_name = 'welcome-en.png' if get_language() == 'en' else 'welcome.png'
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, welcome_img_name)).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (400, 400))
-        screen.blit(player_image_scaled, (400, 100))
+        player_image = get_cached_image(welcome_img_name, (400, 400))
+        screen.blit(player_image, (400, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
 
@@ -770,19 +791,14 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
         display_text(screen, normal_font, _("debt").format(debt=debt), 10, 290)
         display_text(screen, normal_font, _("level").format(level=level), 10, 330)
 
-    # Image dictionary dynamically built from BUILDINGS_CONFIG
-    building_images = {}
-    for b_type, b_cfg in BUILDINGS_CONFIG.items():
-        try:
-            building_images[b_type] = get_cached_image(os.path.basename(b_cfg["imagen"]), (64, 64))
-        except pygame.error:
-            pass
+    # Cached building images
+    building_images = get_building_images()
 
     # Draw existing buildings (The real estate)
     for building in buildings:
         tipo = building["tipo"]
         pos = building["pos"]
-        if tipo in building_images:
+        if building_images.get(tipo) is not None:
             screen.blit(building_images[tipo], pos)
         else:
             pygame.draw.rect(screen, (255, 0, 0), (*pos, 64, 64), 2)
@@ -842,9 +858,8 @@ def actions_scene(screen, title_font, button_font, events, normal_font):
 
     # BUY (Shop)
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'shop.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (190, 190))
-        screen.blit(player_image_scaled, (90, 30))
+        player_image = get_cached_image('shop.png', (190, 190))
+        screen.blit(player_image, (90, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     buy_button = pygame.Rect(60, 230, 250, 45)
@@ -856,9 +871,8 @@ def actions_scene(screen, title_font, button_font, events, normal_font):
 
     # INVOICE (Sell / Earn money)
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'earn_money.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (190, 190))
-        screen.blit(player_image_scaled, (505, 30))
+        player_image = get_cached_image('earn_money.png', (190, 190))
+        screen.blit(player_image, (505, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     earn_money_button = pygame.Rect(475, 230, 250, 45)
@@ -870,9 +884,8 @@ def actions_scene(screen, title_font, button_font, events, normal_font):
 
     # INFORMATION
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'info.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (190, 190))
-        screen.blit(player_image_scaled, (895, 30))
+        player_image = get_cached_image('info.png', (190, 190))
+        screen.blit(player_image, (895, 30))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     info_button = pygame.Rect(865, 230, 250, 45)
@@ -884,9 +897,8 @@ def actions_scene(screen, title_font, button_font, events, normal_font):
 
     # MINIGAMES
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'minigames.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (190, 190))
-        screen.blit(player_image_scaled, (90, 290))
+        player_image = get_cached_image('minigames.png', (190, 190))
+        screen.blit(player_image, (90, 290))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     minigames_button = pygame.Rect(60, 490, 250, 45)
@@ -1219,9 +1231,8 @@ def shop_scene(screen, title_font, button_font, events, normal_font):
 
     # CONSTRUCTION (Bob the builder vibes)
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'construction.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (40, 100))
+        player_image = get_cached_image('construction.png', (300, 300))
+        screen.blit(player_image, (40, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     construction_button = pygame.Rect(60, 380, 250, 50)
@@ -1233,9 +1244,8 @@ def shop_scene(screen, title_font, button_font, events, normal_font):
 
     # PRODUCTS
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'products.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (440, 100))
+        player_image = get_cached_image('products.png', (300, 300))
+        screen.blit(player_image, (440, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     products_button = pygame.Rect(460, 380, 250, 50)
@@ -1247,9 +1257,8 @@ def shop_scene(screen, title_font, button_font, events, normal_font):
 
     # DECORATIONS (Make it pretty)
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'decoration.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (840, 100))
+        player_image = get_cached_image('decoration.png', (300, 300))
+        screen.blit(player_image, (840, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     decoration_button = pygame.Rect(860, 380, 250, 50)
@@ -1483,7 +1492,7 @@ def info_two_scene(screen, title_font, button_font, events, normal_font):
     exit_button = pygame.Rect(1130, 20, 50, 50)
     exit_hover = exit_button.collidepoint(mouse_pos)
     pygame.draw.rect(screen, (255, 80, 80) if exit_hover else (255, 100, 100), exit_button, border_radius=6)
-    x_font = pygame.font.Font(None, 38 if exit_hover else 30)
+    x_font = get_cached_font(None, 38 if exit_hover else 30)
     x_surf = x_font.render("X", True, (255, 255, 255))
     x_rect = x_surf.get_rect(center=exit_button.center)
     screen.blit(x_surf, x_rect)
@@ -1550,9 +1559,8 @@ def products_scene(screen, title_font, button_font, events, normal_font):
                         print(_("insufficient_money"))
                         return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (500, 300))
-        screen.blit(player_image_scaled, (10, 100))
+        player_image = get_cached_image('lovyc.png', (500, 300))
+        screen.blit(player_image, (10, 100))
     except pygame.error:
         print("Error cargando imagen")
         pass
@@ -1586,9 +1594,8 @@ def products_scene(screen, title_font, button_font, events, normal_font):
                         print(_("insufficient_money"))
                         return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc_mask.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (700, 100))
+        player_image = get_cached_image('lovyc_mask.png', (300, 300))
+        screen.blit(player_image, (700, 100))
     except pygame.error:
         pass
     
@@ -1668,9 +1675,8 @@ def products_two_scene(screen, title_font, button_font, events, normal_font):
                         print(_("insufficient_money"))
                         return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc_shampoo.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (700, 100))
+        player_image = get_cached_image('lovyc_shampoo.png', (300, 300))
+        screen.blit(player_image, (700, 100))
     except pygame.error:
         pass
 
@@ -1703,9 +1709,8 @@ def products_two_scene(screen, title_font, button_font, events, normal_font):
                         print(_("insufficient_money"))
                         return "mapainicial"
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'lovyc_wipes.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (500, 300))
-        screen.blit(player_image_scaled, (10, 100))
+        player_image = get_cached_image('lovyc_wipes.png', (500, 300))
+        screen.blit(player_image, (10, 100))
     except pygame.error:
         pass
 
@@ -1887,16 +1892,11 @@ def placement_scene(screen, events, normal_font, building_type):
     display_text(screen, normal_font, _("debt").format(debt=debt), 10, 100)
     display_text(screen, normal_font, _("level").format(level=level), 10, 130)
 
-    # Dynamic image dictionary from BUILDINGS_CONFIG
-    building_images = {}
-    for b_type, b_cfg in BUILDINGS_CONFIG.items():
-        try:
-            building_images[b_type] = get_cached_image(os.path.basename(b_cfg["imagen"]), (64, 64))
-        except pygame.error:
-            pass
+    # Cached building images
+    building_images = get_building_images()
 
     for ed in buildings:
-        if ed["tipo"] in building_images:
+        if building_images.get(ed["tipo"]) is not None:
             screen.blit(building_images[ed["tipo"]], ed["pos"])
 
     # Ghost building preview with fluid tracking & placement validity indicator
@@ -1957,9 +1957,8 @@ def billing_scene(screen, title_font, button_font, events, normal_font, player_d
     screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
     # COLLECT TAXES
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'taxes.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (40, 100))
+        player_image = get_cached_image('taxes.png', (300, 300))
+        screen.blit(player_image, (40, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     taxes_button = pygame.Rect(60, 380, 250, 50)
@@ -1977,9 +1976,8 @@ def billing_scene(screen, title_font, button_font, events, normal_font, player_d
 
     # SELL
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'sell_building.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (440, 100))
+        player_image = get_cached_image('sell_building.png', (300, 300))
+        screen.blit(player_image, (440, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     sell_building_button = pygame.Rect(460, 380, 250, 50)
@@ -1996,9 +1994,8 @@ def billing_scene(screen, title_font, button_font, events, normal_font, player_d
 
     # ASK FOR A LOAN (Please don't go bankrupt)
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'loan.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (300, 300))
-        screen.blit(player_image_scaled, (840, 100))
+        player_image = get_cached_image('loan.png', (300, 300))
+        screen.blit(player_image, (840, 100))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     loan_button = pygame.Rect(860, 380, 250, 50)
@@ -2028,15 +2025,7 @@ def sell_building_scene(screen, title_font, button_font, events, normal_font):
     y_list += 30
 
     # Load building images for the sell screen
-    building_images = {}
-    for tipo, config in BUILDINGS_CONFIG.items():
-        try:
-            building_images[tipo] = pygame.transform.scale(
-                pygame.image.load(config["imagen"]).convert_alpha(),
-                (64, 64)
-            )
-        except pygame.error:
-            building_images[tipo] = None
+    building_images = get_building_images()
 
     for idx, ed in enumerate(buildings):
         tipo = ed["tipo"]
@@ -2044,7 +2033,7 @@ def sell_building_scene(screen, title_font, button_font, events, normal_font):
         rect = pygame.Rect(pos[0], pos[1], 64, 64)
         building_rects.append((rect, ed))
 
-        if tipo in building_images and building_images[tipo] is not None:
+        if building_images.get(tipo) is not None:
             screen.blit(building_images[tipo], pos)
         else:
             pygame.draw.rect(screen, (200, 200, 200), rect)
@@ -2103,9 +2092,8 @@ def minigames_scene(screen, title_font, button_font, events, normal_font):
 
     # SNAKE GAME
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'snakelogo.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (240, 240))
-        screen.blit(player_image_scaled, (40, 90))
+        player_image = get_cached_image('snakelogo.png', (240, 240))
+        screen.blit(player_image, (40, 90))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     snake_button = pygame.Rect(40, 350, 240, 45)
@@ -2124,9 +2112,8 @@ def minigames_scene(screen, title_font, button_font, events, normal_font):
 
     # TETRIS GAME
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'tetrislogo.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (240, 240))
-        screen.blit(player_image_scaled, (330, 90))
+        player_image = get_cached_image('tetrislogo.png', (240, 240))
+        screen.blit(player_image, (330, 90))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     tetris_button = pygame.Rect(330, 350, 240, 45)
@@ -2145,9 +2132,8 @@ def minigames_scene(screen, title_font, button_font, events, normal_font):
 
     # SOLAR SYSTEM SIMULATOR
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'solarsystemlogo.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (240, 240))
-        screen.blit(player_image_scaled, (620, 90))
+        player_image = get_cached_image('solarsystemlogo.png', (240, 240))
+        screen.blit(player_image, (620, 90))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     solarsystem_button = pygame.Rect(620, 350, 240, 45)
@@ -2164,9 +2150,8 @@ def minigames_scene(screen, title_font, button_font, events, normal_font):
 
     # SPACESHIP GAME
     try:
-        player_image = pygame.image.load(os.path.join(IMAGES_DIR, 'spaceshiplogo.png')).convert_alpha()
-        player_image_scaled = pygame.transform.scale(player_image, (240, 240))
-        screen.blit(player_image_scaled, (910, 90))
+        player_image = get_cached_image('spaceshiplogo.png', (240, 240))
+        screen.blit(player_image, (910, 90))
     except pygame.error as e:
         print(f"No se pudo cargar la imagen: {e}")
     spaceship_button = pygame.Rect(910, 350, 240, 45)
@@ -2339,28 +2324,27 @@ def taxes_scene(screen, title_font, normal_font, events, player_data, textbox_st
 def gameover_scene(screen, events):
     global mouseDown, w, h
 
-    screen.fill((180,0,0))
+    screen.fill((180, 0, 0))
 
-    text = pygame.font.Font(None, 128).render("GAME OVER", True, (255,255,255))
-    textpos = text.get_rect(centerx=w*0.5, centery=h*0.4)
+    text = get_cached_font(None, 128).render("GAME OVER", True, (255, 255, 255))
+    textpos = text.get_rect(centerx=w * 0.5, centery=h * 0.4)
     screen.blit(text, textpos)
 
-    text = pygame.font.Font(None, 32).render(_("citizens_unhappy"), True, (255,255,255))
-    textpos = text.get_rect(centerx=w*0.5, centery=h*0.5)
+    text = get_cached_font(None, 32).render(_("citizens_unhappy"), True, (255, 255, 255))
+    textpos = text.get_rect(centerx=w * 0.5, centery=h * 0.5)
     screen.blit(text, textpos)
 
-    text = pygame.font.Font(None, 32).render(_("coup_started"), True, (255,255,255))
-    textpos = text.get_rect(centerx=w*0.5, centery=h*0.6)
+    text = get_cached_font(None, 32).render(_("coup_started"), True, (255, 255, 255))
+    textpos = text.get_rect(centerx=w * 0.5, centery=h * 0.6)
     screen.blit(text, textpos)
 
-    quit_button = pygame.Rect(w*0.4, h*0.7, w*0.2, h*0.2)
+    quit_button = pygame.Rect(w * 0.4, h * 0.7, w * 0.2, h * 0.2)
     pygame.draw.rect(screen, (255, 100, 100), quit_button)
 
-    text = pygame.font.Font(None, 30).render("Quit", True, (255,255,255))
+    is_hover = quit_button.collidepoint(pygame.mouse.get_pos())
+    text = get_cached_font(None, 38 if is_hover else 30).render("Quit", True, (255, 255, 255))
 
-    if quit_button.collidepoint(pygame.mouse.get_pos()):
-        text = pygame.font.Font(None, 38).render("Quit", True, (255,255,255))
-
+    if is_hover:
         if pygame.mouse.get_pressed()[0] and not mouseDown:
             return "salir"
 
@@ -2369,10 +2353,9 @@ def gameover_scene(screen, events):
 
     for event in events:
         if event.type == pygame.QUIT:
-            print("hi")
             return "salir"
 
-    pygame.display.flip()
+    return "gameover"
 
    # MAIN FUNCTION (ASYNC FOR WEB / DESKTOP COMPATIBILITY)
 async def async_main(username=None):
