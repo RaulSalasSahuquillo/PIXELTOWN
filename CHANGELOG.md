@@ -2,6 +2,20 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [Beta v3.1.3] - 2026-09-25
+
+### Added
+- **Sequential Village Soundtrack Playback (OST Playlist)**:
+  - Implemented continuous sequential playback of all OST soundtracks located in `assets/PIXELTOWN_OST/` (`Aldea_soundtrack.ogg`, `THIS_IS_PIXELTOWN.ogg`, `WeAreChampions.ogg`, `anewbegining.ogg`, `wHy so seRioUs¿.ogg`) once inside the village.
+  - Songs now play in a seamless rotation: when one track finishes, the next track immediately starts automatically, looping back to the beginning upon reaching the end of the playlist.
+  - Added automatic sound effect filtering to exclude non-music audio files (such as `efectoconstruccion.ogg`) from the background music playlist.
+  - Preserved mute/unmute volume state across sequential track transitions.
+  - Fixed audio transition when loading saved games directly into the village, ensuring the village playlist begins immediately instead of continuing the title menu music.
+
+### Changed
+- **Minigame Audio Pause State**:
+  - Updated Tetris pause menu in `src/tetris.py` to use `pygame.mixer.music.pause()` and `pygame.mixer.music.unpause()`, preventing tracks from restarting from 0 or resetting playlist state.
+
 ## [Beta v3.1.2] - 2026-09-07
 
 ### Fixed

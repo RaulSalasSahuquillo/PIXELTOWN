@@ -67,6 +67,18 @@ sound_on = 1 # Volume toggle (0 for off, 1 for on)
 mouseDown = False # if mouse is down in the previous frame, it is True
 alert = ["", 0] # [message, timer]
 
+# VILLAGE MUSIC PLAYLIST STATE (Beta v3.1.3)
+MUSIC_ENDEVENT = pygame.USEREVENT + 10
+current_music_mode = "intro" # "intro", "menu", "village", "gameover"
+village_playlist = []
+current_village_track_index = 0
+VILLAGE_STATES = {
+    "mapainicial", "acciones", "misiones", "tienda", "info", "infodos",
+    "minijuegos", "snakegame", "tetrisgame", "solarsystem", "spaceshipgame", "spaceship",
+    "productos", "prestamo", "facturar", "impuestos", "productos2",
+    "vender_edificio", "adorno", "construccion", "colocando_edificio"
+}
+
 # SESSION AND SAVES STATE
 logged_in_username = None
 last_saved_time = 0
@@ -421,6 +433,90 @@ def get_building_images():
                 _BUILDINGS_64_CACHE[b_type] = None
     return _BUILDINGS_64_CACHE
 
+def get_village_playlist():
+    global village_playlist
+    if village_playlist:
+        return village_playlist
+    supported_exts = ('.ogg', '.mp3', '.wav')
+    tracks = []
+    if os.path.exists(PIXELTOWN_OST_DIR):
+        for fname in sorted(os.listdir(PIXELTOWN_OST_DIR)):
+            if fname.lower().endswith(supported_exts):
+                # Filter out sound effects (e.g. efectoconstruccion.ogg)
+                if not fname.lower().startswith('efecto') and 'effect' not in fname.lower():
+                    tracks.append(fname)
+    # Ensure Aldea_soundtrack.ogg is the first song played when entering the village
+    if "Aldea_soundtrack.ogg" in tracks:
+        tracks.remove("Aldea_soundtrack.ogg")
+        tracks.insert(0, "Aldea_soundtrack.ogg")
+    village_playlist = tracks
+    return village_playlist
+
+def play_village_track(index=0):
+    global current_village_track_index, current_music_mode, sound_on
+    playlist = get_village_playlist()
+    if not playlist:
+        return False
+    total = len(playlist)
+    attempts = 0
+    while attempts < total:
+        idx = (index + attempts) % total
+        track_name = playlist[idx]
+        track_path = os.path.join(PIXELTOWN_OST_DIR, track_name)
+        try:
+            if not pygame.mixer.get_init():
+                pygame.mixer.init()
+            pygame.mixer.music.load(track_path)
+            pygame.mixer.music.set_volume(0.0 if sound_on == 0 else 1.0)
+            pygame.mixer.music.play(0)
+            try:
+                pygame.mixer.music.set_endevent(MUSIC_ENDEVENT)
+            except Exception:
+                pass
+            current_village_track_index = idx
+            current_music_mode = "village"
+            print(f"[PIXELTOWN OST] Reproduciendo ({idx + 1}/{total}): {track_name}")
+            return True
+        except pygame.error as e:
+            print(f"[PIXELTOWN OST] Error al cargar pista {track_name}: {e}")
+            attempts += 1
+    return False
+
+def play_next_village_track():
+    global current_village_track_index
+    playlist = get_village_playlist()
+    if not playlist:
+        return False
+    next_index = (current_village_track_index + 1) % len(playlist)
+    return play_village_track(next_index)
+
+def update_village_music():
+    global current_music_mode
+    if current_music_mode == "village":
+        if not pygame.mixer.music.get_busy() and pygame.mixer.music.get_pos() == -1:
+            play_next_village_track()
+
+def start_village_music():
+    global current_music_mode
+    if current_music_mode != "village":
+        try:
+            pygame.mixer.music.stop()
+        except Exception:
+            pass
+        play_village_track(0)
+
+def start_menu_music():
+    global current_music_mode, sound_on
+    if current_music_mode != "menu":
+        current_music_mode = "menu"
+        try:
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "anewbegining.ogg"))
+            pygame.mixer.music.set_volume(0.0 if sound_on == 0 else 1.0)
+            pygame.mixer.music.play(-1)
+        except pygame.error as e:
+            print(f"[PIXELTOWN OST] No se pudo cargar música del menú: {e}")
+
 def sound_button(screen):
     global sound_on, mouseDown
 
@@ -507,12 +603,7 @@ async def intro_scene(screen, clock):
         await asyncio.sleep(0)
         frame += 1
 
-    try:
-        pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "anewbegining.ogg"))
-        pygame.mixer.music.play(-1)
-    except pygame.error as e:
-        print(f"No se pudo cargar el archivo de música: {e}")
-
+    start_menu_music()
     return "menu"
 
 def menu_scene(screen, title_font, button_font, events): # menu_scene
@@ -811,10 +902,11 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
     if happiness < 10:
         print(_("citizens_unhappy"))
         print(_("coup_started"))
+        current_music_mode = "gameover"
         try:
-            if not pygame.mixer.music.get_busy():
-                pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "efectodestruccion.ogg"))
-                pygame.mixer.music.play()
+            pygame.mixer.music.stop()
+            pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "efectodestruccion.ogg"))
+            pygame.mixer.music.play()
         except pygame.error as e:
             print(f"No se pudo cargar el archivo de música: {e}")
         finally:
@@ -835,12 +927,6 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
                 else:
                     last_saved_time = time.time()
                     save_message = _("guest_cannot_save")
-    try:
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.load(os.path.join(PIXELTOWN_OST_DIR, "Aldea_soundtrack.ogg"))
-            pygame.mixer.music.play(-1)
-    except pygame.error as e:
-        print(f"No se pudo cargar el archivo de música: {e}")
 
     sound_button(screen)
     
@@ -2464,6 +2550,12 @@ async def async_main(username=None):
         global real_screen, real_width, real_height, w, h
         nonlocal pending_size, last_resize_time
         events = _original_event_get(*args, **kwargs)
+        if current_music_mode == "village":
+            for event in events:
+                if event.type == MUSIC_ENDEVENT:
+                    play_next_village_track()
+                    break
+            update_village_music()
         if _minigame_active:
             return events
         modified_events = []
@@ -2527,6 +2619,15 @@ async def async_main(username=None):
 
     # MAIN GAME LOOP
     while game_state != "salir": # quit
+        # Music state management across scenes (Beta v3.1.3)
+        if game_state == "menu":
+            start_menu_music()
+        elif game_state in VILLAGE_STATES:
+            if current_music_mode != "village":
+                start_village_music()
+            else:
+                update_village_music()
+
         events = pygame.event.get()
 
         if game_state == "intro":

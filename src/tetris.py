@@ -235,9 +235,15 @@ async def runGame():
                 if (event.key == K_p):
                     # Pausing the game
                     DISPLAYSURF.fill(BGCOLOR)
-                    pygame.mixer.music.stop()
+                    try:
+                        pygame.mixer.music.pause()
+                    except Exception:
+                        pass
                     showTextScreen('Paused') # pause until a key press
-                    pygame.mixer.music.play(-1, 0.0)
+                    try:
+                        pygame.mixer.music.unpause()
+                    except Exception:
+                        pass
                     lastFallTime = time.time()
                     lastMoveDownTime = time.time()
                     lastMoveSidewaysTime = time.time()
