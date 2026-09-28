@@ -1,5 +1,7 @@
 # PIXELTOWN 🏙️
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20our%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/MzKdzDeFZ7)
+
 Welcome to **PIXELTOWN**! This is a 2D city-building simulation game built with Python and Pygame. As the newly appointed leader, your job is to build the best city possible, managing resources, constructing buildings, and keeping your citizens happy. Beware—if their happiness drops too low, a coup d'état might destroy everything you've built!
 
 ## What is PIXELTOWN?
@@ -71,6 +73,10 @@ The project is structured cleanly to keep the logic and assets organized:
 5. If playing in Desktop mode, choose your language, then **register a new account** or **log in** with your username and password (or select **Play as Guest**).
 6. If it's your first time, follow the onboarding prompts to enter your name and choose your city's name. Otherwise, it will load your previous progress automatically!
 7. Click the **Save Progress** button inside the game map or exit normally to save your progress. Have fun and try not to get overthrown!
+
+## Community & Discord
+
+Join our official [Discord Server](https://discord.gg/MzKdzDeFZ7) to chat with the developer, suggest new features, discuss ideas, and follow development updates!
 
 ## Contributing
 

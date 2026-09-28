@@ -394,6 +394,20 @@
             animation-iteration-count: infinite;
         }
 
+        .btn-discord {
+            background-color: #5865F2;
+            font-size: 1rem;
+            padding: 20px 30px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .btn-discord:hover {
+            background-color: #4752C4;
+            animation: shake 0.5s;
+            animation-iteration-count: infinite;
+        }
+
         /* IDE Styles */
         .ide-container {
             background-color: #000;
@@ -557,9 +571,14 @@
             <p><strong>PIXELTOWN</strong> is an open-source project and we are actively looking for contributors! Do you
                 want to build new buildings, tweak the economy, or fix bugs?</p>
             <p>Join our team and help us make the best 2D city-builder in Python!</p>
-            <a href="https://github.com/RaulSalasSahuquillo/PIXELTOWN" target="_blank" class="btn btn-github">
-                ► CONTRIBUTE ON GITHUB
-            </a>
+            <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                <a href="https://github.com/RaulSalasSahuquillo/PIXELTOWN" target="_blank" class="btn btn-github">
+                    ► CONTRIBUTE ON GITHUB
+                </a>
+                <a href="https://discord.gg/MzKdzDeFZ7" target="_blank" class="btn btn-discord">
+                    💬 JOIN DISCORD SERVER
+                </a>
+            </div>
         </section>
 
         <section class="pixel-box">
@@ -573,8 +592,8 @@
         <section class="pixel-box">
             <h2>PIXELTOWN YOUTUBE</h2>
             <div style="text-align: center; margin-top: 20px;">
-                <iframe width="100%" height="400" src="https://www.youtube.com/embed/fiXHECX0t3A"
-                    title="PIXELTOWN: The Invitation — Build PIXELTOWN With Us" frameborder="0"
+                <iframe width="100%" height="400" src="https://www.youtube.com/embed/gxk0Y1gbEvc"
+                    title="PIXELTOWN for Developers : Join the Development! | Raúl Salas Sahuquillo" frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
                     style="border: var(--pixel-border); box-shadow: 4px 4px 0px #000; max-width: 100%;"></iframe>

@@ -1566,6 +1566,14 @@ def info_two_scene(screen, title_font, button_font, events, normal_font):
     texto_rect_volver = texto_surf_volver.get_rect(center=back_button.center)
     screen.blit(texto_surf_volver, texto_rect_volver)
 
+    # Discord button (opens https://discord.gg/MzKdzDeFZ7)
+    discord_button = pygame.Rect(450, 520, 300, 45)
+    discord_color = (114, 137, 218) if discord_button.collidepoint(mouse_pos) else (88, 101, 242)
+    pygame.draw.rect(screen, discord_color, discord_button, border_radius=6)
+    discord_text_surf = normal_font.render(_("discord_button"), True, (255, 255, 255))
+    discord_text_rect = discord_text_surf.get_rect(center=discord_button.center)
+    screen.blit(discord_text_surf, discord_text_rect)
+
     # Back to city button
     city_button = pygame.Rect(930, 520, 250, 45)
     city_color = (200, 200, 100) if city_button.collidepoint(mouse_pos) else (97, 175, 14)
@@ -1591,6 +1599,12 @@ def info_two_scene(screen, title_font, button_font, events, normal_font):
                 return "mapainicial"
             elif back_button.collidepoint(event.pos):
                 return "info"
+            elif discord_button.collidepoint(event.pos):
+                import webbrowser
+                try:
+                    webbrowser.open("https://discord.gg/MzKdzDeFZ7")
+                except Exception as e:
+                    print(f"Could not open Discord link: {e}")
 
     return "infodos"
 

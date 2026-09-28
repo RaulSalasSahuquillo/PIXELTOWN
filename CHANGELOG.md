@@ -2,6 +2,20 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [v3.1.31] - 2026-09-28
+
+### Added
+- **Official Discord Community Integration**:
+  - Re-introduced the Discord community section and invite link (`https://discord.gg/MzKdzDeFZ7`) to the second in-game Information screen (`infodos` / `info_two_scene`).
+  - Added an interactive Discord button styled with Discord Blurple branding in `info_two_scene` (`src/game.py`), allowing players to open the invite link directly in their default browser with one click.
+  - Added bilingual locale strings for Discord text and button label (`discord_button`) in `src/locals/es.json` and `src/locals/en.json`.
+  - Added an official Discord server badge and a dedicated `## Community & Discord` section to `README.md`.
+  - Added a retro-styled `JOIN DISCORD SERVER` button (`.btn-discord`) alongside the GitHub button on the project website (`docs/index.html` and `docs/real_index.html`).
+
+### Changed
+- **Official YouTube Video Update**:
+  - Replaced the embedded YouTube video on the project website (`docs/index.html` and `docs/real_index.html`) with the new developer invitation video: `https://www.youtube.com/embed/gxk0Y1gbEvc` (*PIXELTOWN for Developers : Join the Development!*).
+
 ## [Beta v3.1.3] - 2026-09-25
 
 ### Added
