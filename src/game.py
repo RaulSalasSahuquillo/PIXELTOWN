@@ -970,9 +970,8 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
             pygame.mixer.music.play()
         except pygame.error as e:
             print(f"No se pudo cargar el archivo de música: {e}")
-        finally:
-            print(_("game_over"))
-            return "gameover"
+        print(_("game_over"))
+        return "gameover"
 
     # Keyboard navigation
     keys = pygame.key.get_pressed()

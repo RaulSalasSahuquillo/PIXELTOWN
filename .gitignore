@@ -4,6 +4,8 @@
 PIXELTOWN_env/
 .DS_Store
 
+.idea/
+
 # PyInstaller & Packaging
 dist/
 build/
