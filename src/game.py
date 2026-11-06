@@ -32,6 +32,7 @@ from characters import bipo, daemon, person, arrow, bipo_welcome
 from text import title, info_text_1, info_text_2
 from localization import _, get_language
 from pixeltown_titlescreen import render_title_background
+from terrain import get_terrain, get_camera, WORLD_WIDTH, WORLD_HEIGHT
 
 # PATH CONFIGURATION (Don't mess with these!)
 # When running as a PyInstaller bundle, files are extracted to sys._MEIPASS
@@ -433,6 +434,23 @@ def get_building_images():
                 _BUILDINGS_64_CACHE[b_type] = None
     return _BUILDINGS_64_CACHE
 
+_SCALED_BUILDINGS_CACHE = {}
+_global_frame_tick = 0
+
+def get_scaled_building_image(building_type, size):
+    """Retrieve cached icon surface for building at specific pixel size."""
+    key = (building_type, size)
+    if key not in _SCALED_BUILDINGS_CACHE:
+        cfg = BUILDINGS_CONFIG.get(building_type)
+        if cfg:
+            try:
+                _SCALED_BUILDINGS_CACHE[key] = get_cached_image(cfg["imagen"], (size, size))
+            except (pygame.error, FileNotFoundError):
+                _SCALED_BUILDINGS_CACHE[key] = None
+        else:
+            _SCALED_BUILDINGS_CACHE[key] = None
+    return _SCALED_BUILDINGS_CACHE[key]
+
 def get_village_playlist():
     global village_playlist
     if village_playlist:
@@ -826,79 +844,122 @@ def display_text(screen, font, text, x, y, color=(0, 0, 0), line_spacing=5):
 
 
 def initial_map_scene(screen, title_font, button_font, events, normal_font, player_data):
-    global level, experience, logged_in_username, last_saved_time, save_message, alert
-    screen.fill((255, 255, 255))  # White background (Maybe a bit too bright?)
-    actions_button = pygame.Rect(900, 500, 250, 50)
-    save_button = pygame.Rect(125, 500, 250, 50)
-    mouse_pos = pygame.mouse.get_pos()
-    
+    global level, experience, logged_in_username, last_saved_time, save_message, alert, _global_frame_tick
+    terrain = get_terrain()
+    camera = get_camera()
+    _global_frame_tick += 1
+
+    # Render realistic valley terrain with water animations
+    terrain.render(screen, camera, _global_frame_tick)
+
+    # Render existing buildings transformed and scaled through camera
+    b_size = max(16, int(64 * camera.zoom))
+    for building in buildings:
+        tipo = building["tipo"]
+        pos = building["pos"]
+        sx, sy = camera.world_to_screen(pos)
+        if -b_size <= sx <= screen.get_width() and -b_size <= sy <= screen.get_height():
+            b_img = get_scaled_building_image(tipo, b_size)
+            if b_img is not None:
+                screen.blit(b_img, (int(sx), int(sy)))
+            else:
+                pygame.draw.rect(screen, (255, 0, 0), (int(sx), int(sy), b_size, b_size), 2)
+
+    # Experience level check
     if experience >= 100 and level < 5:
         experience = 0
         level += 1
     elif experience >= 1000 and (level >= 5 and level < 10):
         experience = 0
         level += 1
+
+    # HUD Buttons
+    actions_button = pygame.Rect(900, 500, 250, 50)
+    save_button = pygame.Rect(125, 500, 250, 50)
+    sound_rect = pygame.Rect(50, 500, 50, 50)
+    view_stats_button = pygame.Rect(screen.get_width() - 170, 15, 150, 35)
+    reset_cam_button = pygame.Rect(screen.get_width() - 320, 15, 135, 35)
+    mouse_pos = pygame.mouse.get_pos()
+
+    # Draw Actions button
     button_color = (255, 100, 100) if actions_button.collidepoint(mouse_pos) else (200, 50, 50)
-    pygame.draw.rect(screen, button_color, actions_button)
+    pygame.draw.rect(screen, button_color, actions_button, border_radius=6)
     texto_surf_boton = normal_font.render(_("actions"), True, (255, 255, 255))
     texto_rect_boton = texto_surf_boton.get_rect(center=actions_button.center)
     screen.blit(texto_surf_boton, texto_rect_boton)
 
-    # Save button drawing
+    # Draw Save button
     if logged_in_username:
         save_button_color = (100, 200, 100) if save_button.collidepoint(mouse_pos) else (50, 150, 50)
         save_text = _("save_progress")
     else:
         save_button_color = (180, 180, 180)
         save_text = _("guest_cannot_save")
-        
-    pygame.draw.rect(screen, save_button_color, save_button)
+
+    pygame.draw.rect(screen, save_button_color, save_button, border_radius=6)
     texto_surf_guardar = normal_font.render(save_text, True, (255, 255, 255))
     texto_rect_guardar = texto_surf_guardar.get_rect(center=save_button.center)
     screen.blit(texto_surf_guardar, texto_rect_guardar)
 
-    # Success/Warning message
+    # Success/Warning save message
     if time.time() - last_saved_time < 3:
-        text_color = (0, 128, 0) if logged_in_username else (200, 0, 0)
+        text_color = (0, 220, 0) if logged_in_username else (255, 80, 80)
         display_text(screen, normal_font, save_message, 50, 460, color=text_color)
 
-    user_name = player_data.get('nombre_usuario', 'Tú')
-    city_name = player_data.get('nombre_ciudad', 'PixelTown')
-    view_stats_button = pygame.Rect(screen.get_width() - 170, 15, 150, 35)
-    mouse_pos = pygame.mouse.get_pos()
-    button_color = (255, 100, 100) if view_stats_button.collidepoint(mouse_pos) else (200, 50, 50)
-    pygame.draw.rect(screen, button_color, view_stats_button)
-    texto_surf_boton = normal_font.render(_("view_stats"), True, (255, 255, 255))
-    texto_rect_boton = texto_surf_boton.get_rect(center=view_stats_button.center)
-    screen.blit(texto_surf_boton, texto_rect_boton)
+    # Draw View Stats button
+    stats_btn_color = (255, 100, 100) if view_stats_button.collidepoint(mouse_pos) else (200, 50, 50)
+    pygame.draw.rect(screen, stats_btn_color, view_stats_button, border_radius=5)
+    texto_surf_stats = normal_font.render(_("view_stats"), True, (255, 255, 255))
+    texto_rect_stats = texto_surf_stats.get_rect(center=view_stats_button.center)
+    screen.blit(texto_surf_stats, texto_rect_stats)
+
+    # Draw Reset Camera button / Zoom indicator
+    cam_btn_color = (70, 130, 180) if reset_cam_button.collidepoint(mouse_pos) else (45, 90, 130)
+    pygame.draw.rect(screen, cam_btn_color, reset_cam_button, border_radius=5)
+    zoom_pct = int(camera.zoom * 100)
+    cam_btn_text = f"Zoom: {zoom_pct}% | R"
+    texto_surf_cam = normal_font.render(cam_btn_text, True, (255, 255, 255))
+    texto_rect_cam = texto_surf_cam.get_rect(center=reset_cam_button.center)
+    screen.blit(texto_surf_cam, texto_rect_cam)
+
+    # Draw Minimap
+    terrain.draw_minimap(screen, camera, buildings, 15, 15)
+
+    # Draw camera controls hint pill at bottom center
+    hint_surf = normal_font.render(_("camera_hint"), True, (240, 240, 240))
+    hint_bg = pygame.Surface((hint_surf.get_width() + 24, hint_surf.get_height() + 10), pygame.SRCALPHA)
+    hint_bg.fill((20, 30, 25, 200))
+    hint_x = (screen.get_width() - hint_bg.get_width()) // 2
+    hint_y = screen.get_height() - hint_bg.get_height() - 10
+    screen.blit(hint_bg, (hint_x, hint_y))
+    pygame.draw.rect(screen, (140, 180, 140), (hint_x, hint_y, hint_bg.get_width(), hint_bg.get_height()), 1, border_radius=4)
+    screen.blit(hint_surf, (hint_x + 12, hint_y + 5))
+
+    # Show stats panel when hovered
     if view_stats_button.collidepoint(mouse_pos):
-        display_text(screen, normal_font, _("leader").format(username=user_name), 10, 10)
-        display_text(screen, normal_font, _("city").format(cityname=city_name), 10, 50)
-        display_text(screen, normal_font, _("money").format(money=money), 10, 90)
-        display_text(screen, normal_font, _("population").format(population=population), 10, 130)
-        display_text(screen, normal_font, _("happiness").format(happiness=happiness), 10, 170)
-        display_text(screen, normal_font, _("buildings").format(count=len(buildings)), 10, 210)
-        display_text(screen, normal_font, _("experience").format(experience=experience), 10, 250)
-        display_text(screen, normal_font, _("debt").format(debt=debt), 10, 290)
-        display_text(screen, normal_font, _("level").format(level=level), 10, 330)
+        stats_panel = pygame.Surface((340, 370), pygame.SRCALPHA)
+        stats_panel.fill((20, 30, 25, 225))
+        stats_x = screen.get_width() - 360
+        stats_y = 55
+        screen.blit(stats_panel, (stats_x, stats_y))
+        pygame.draw.rect(screen, (200, 200, 150), (stats_x, stats_y, 340, 370), 2, border_radius=6)
 
-    # Cached building images
-    building_images = get_building_images()
+        user_name = player_data.get('nombre_usuario', 'Tú')
+        city_name = player_data.get('nombre_ciudad', 'PixelTown')
+        display_text(screen, normal_font, _("leader").format(username=user_name), stats_x + 15, stats_y + 15, color=(255, 255, 255))
+        display_text(screen, normal_font, _("city").format(cityname=city_name), stats_x + 15, stats_y + 50, color=(255, 255, 255))
+        display_text(screen, normal_font, _("money").format(money=money), stats_x + 15, stats_y + 85, color=(255, 255, 255))
+        display_text(screen, normal_font, _("population").format(population=population), stats_x + 15, stats_y + 120, color=(255, 255, 255))
+        display_text(screen, normal_font, _("happiness").format(happiness=happiness), stats_x + 15, stats_y + 155, color=(255, 255, 255))
+        display_text(screen, normal_font, _("buildings").format(count=len(buildings)), stats_x + 15, stats_y + 190, color=(255, 255, 255))
+        display_text(screen, normal_font, _("experience").format(experience=experience), stats_x + 15, stats_y + 225, color=(255, 255, 255))
+        display_text(screen, normal_font, _("debt").format(debt=debt), stats_x + 15, stats_y + 260, color=(255, 255, 255))
+        display_text(screen, normal_font, _("level").format(level=level), stats_x + 15, stats_y + 295, color=(255, 255, 255))
 
-    # Draw existing buildings (The real estate)
-    for building in buildings:
-        tipo = building["tipo"]
-        pos = building["pos"]
-        if building_images.get(tipo) is not None:
-            screen.blit(building_images[tipo], pos)
-        else:
-            pygame.draw.rect(screen, (255, 0, 0), (*pos, 64, 64), 2)
+    # Sound button
+    sound_button(screen)
 
-    try:
-        rio_img = get_cached_image('river.png', (300, 300))
-        screen.blit(rio_img, (450, 200))
-    except pygame.error as e:
-        print(f"No se pudo cargar la imagen: {e}")
+    # Happiness failure check
     if happiness < 10:
         print(_("citizens_unhappy"))
         print(_("coup_started"))
@@ -912,24 +973,78 @@ def initial_map_scene(screen, title_font, button_font, events, normal_font, play
         finally:
             print(_("game_over"))
             return "gameover"
+
+    # Keyboard navigation
+    keys = pygame.key.get_pressed()
+    camera.handle_keyboard(keys)
+
+    # Process events
     for event in events:
         if event.type == pygame.QUIT:
             return "salir"
-        if event.type == pygame.MOUSEBUTTONUP:
-            if actions_button.collidepoint(event.pos):
-                print("Cambiando a la escena de acciones...")
-                return "acciones"
-            if save_button.collidepoint(event.pos):
-                if logged_in_username:
-                    if save_progress(logged_in_username):
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                camera.reset_view()
+        elif event.type == pygame.MOUSEWHEEL:
+            zoom_factor = 1.15 ** event.y
+            camera.zoom_at(pygame.mouse.get_pos(), zoom_factor)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                camera.zoom_at(event.pos, 1.15)
+            elif event.button == 5:
+                camera.zoom_at(event.pos, 1.0 / 1.15)
+            elif event.button in (2, 3):
+                camera.start_drag(event.pos)
+            elif event.button == 1:
+                minimap_rect = pygame.Rect(15, 15, 150, 100)
+                ui_clicked = (
+                    actions_button.collidepoint(event.pos) or
+                    save_button.collidepoint(event.pos) or
+                    view_stats_button.collidepoint(event.pos) or
+                    reset_cam_button.collidepoint(event.pos) or
+                    sound_rect.collidepoint(event.pos) or
+                    minimap_rect.collidepoint(event.pos)
+                )
+                if minimap_rect.collidepoint(event.pos):
+                    # Jump camera to clicked area on minimap
+                    mm_x = event.pos[0] - 15
+                    mm_y = event.pos[1] - 15
+                    target_wx = (mm_x / 150.0) * camera.world_w - (camera.screen_w / camera.zoom) / 2.0
+                    target_wy = (mm_y / 100.0) * camera.world_h - (camera.screen_h / camera.zoom) / 2.0
+                    camera.x = target_wx
+                    camera.y = target_wy
+                    camera.clamp()
+                elif not ui_clicked:
+                    camera.start_drag(event.pos)
+        elif event.type == pygame.MOUSEMOTION:
+            minimap_rect = pygame.Rect(15, 15, 150, 100)
+            if pygame.mouse.get_pressed()[0] and minimap_rect.collidepoint(event.pos):
+                mm_x = event.pos[0] - 15
+                mm_y = event.pos[1] - 15
+                target_wx = (mm_x / 150.0) * camera.world_w - (camera.screen_w / camera.zoom) / 2.0
+                target_wy = (mm_y / 100.0) * camera.world_h - (camera.screen_h / camera.zoom) / 2.0
+                camera.x = target_wx
+                camera.y = target_wy
+                camera.clamp()
+            else:
+                camera.update_drag(event.pos)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            was_dragged = camera.end_drag() if camera.is_dragging else False
+            if not was_dragged and event.button == 1:
+                if actions_button.collidepoint(event.pos):
+                    print("Cambiando a la escena de acciones...")
+                    return "acciones"
+                if save_button.collidepoint(event.pos):
+                    if logged_in_username:
+                        if save_progress(logged_in_username):
+                            last_saved_time = time.time()
+                            save_message = _("progress_saved")
+                    else:
                         last_saved_time = time.time()
-                        save_message = _("progress_saved")
-                else:
-                    last_saved_time = time.time()
-                    save_message = _("guest_cannot_save")
+                        save_message = _("guest_cannot_save")
+                if reset_cam_button.collidepoint(event.pos):
+                    camera.reset_view()
 
-    sound_button(screen)
-    
     return "mapainicial"
 
 
@@ -1961,7 +2076,7 @@ def construction_scene(screen, title_font, button_font, events, normal_font):
 
 
 def placement_scene(screen, events, normal_font, building_type):
-    global buildings, money, experience, alert
+    global buildings, money, experience, alert, _global_frame_tick
 
     if building_type not in BUILDINGS_CONFIG:
         print(f"Error: Tipo de edificio '{building_type}' desconocido.")
@@ -1971,70 +2086,109 @@ def placement_scene(screen, events, normal_font, building_type):
     cancel_scene = "adorno" if is_ornament else "construccion"
 
     config = BUILDINGS_CONFIG[building_type]
-    image_path = config["imagen"]
     cost = config["costo"]
     exp_reward = config["experiencia"]
 
-    # background/map
-    screen.fill((255, 255, 255))
-    try:
-        rio_img = get_cached_image('river.png', (300, 300))
-        screen.blit(rio_img, (450, 200))
-    except pygame.error as e:
-        print(f"No se pudo cargar la imagen: {e}")
+    # Background realistic terrain rendered through camera
+    terrain = get_terrain()
+    camera = get_camera()
+    _global_frame_tick += 1
+    terrain.render(screen, camera, _global_frame_tick)
 
-    # River zone — buildings cannot be placed here
-    RIO_RECT = pygame.Rect(488, 223, 250, 265)
-
-    display_text(screen, normal_font, _("money").format(money=money), 10, 10)
-    display_text(screen, normal_font, _("buildings_short").format(count=len(buildings)), 10, 40)
-    display_text(screen, normal_font, _("experience").format(experience=experience), 10, 70)
-    display_text(screen, normal_font, _("debt").format(debt=debt), 10, 100)
-    display_text(screen, normal_font, _("level").format(level=level), 10, 130)
-
-    # Cached building images
-    building_images = get_building_images()
-
+    # Render existing buildings transformed and scaled through camera
+    b_size = max(16, int(64 * camera.zoom))
     for ed in buildings:
-        if building_images.get(ed["tipo"]) is not None:
-            screen.blit(building_images[ed["tipo"]], ed["pos"])
+        sx, sy = camera.world_to_screen(ed["pos"])
+        if -b_size <= sx <= screen.get_width() and -b_size <= sy <= screen.get_height():
+            b_img = get_scaled_building_image(ed["tipo"], b_size)
+            if b_img is not None:
+                screen.blit(b_img, (int(sx), int(sy)))
+            else:
+                pygame.draw.rect(screen, (255, 0, 0), (int(sx), int(sy), b_size, b_size), 2)
 
-    # Ghost building preview with fluid tracking & placement validity indicator
+    # Ghost building preview with fluid tracking in world coordinates
     mouse_pos = pygame.mouse.get_pos()
-    ghost_pos = (mouse_pos[0] - 32, mouse_pos[1] - 32)
-    building_rect = pygame.Rect(ghost_pos[0], ghost_pos[1], 64, 64)
-    is_invalid = building_rect.colliderect(RIO_RECT)
+    world_mouse = camera.screen_to_world(mouse_pos)
+    ghost_world_pos = (int(world_mouse[0] - 32), int(world_mouse[1] - 32))
+    building_rect = pygame.Rect(ghost_world_pos[0], ghost_world_pos[1], 64, 64)
+    is_invalid = terrain.is_river_collision(building_rect)
+
+    # Project ghost position to screen
+    ghost_screen_pos = camera.world_to_screen(ghost_world_pos)
 
     try:
-        base_ghost = get_cached_image(image_path, (64, 64))
-        ghost = base_ghost.copy()
-        if is_invalid:
-            # Soft red tint when hovering over invalid terrain (river)
-            red_overlay = pygame.Surface((64, 64), pygame.SRCALPHA)
-            red_overlay.fill((255, 50, 50, 120))
-            ghost.blit(red_overlay, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
-            ghost.set_alpha(190)
-        else:
-            ghost.set_alpha(180)
-        screen.blit(ghost, ghost_pos)
-    except pygame.error:
+        base_ghost = get_scaled_building_image(building_type, b_size)
+        if base_ghost is not None:
+            ghost = base_ghost.copy()
+            if is_invalid:
+                # Soft red tint when hovering over invalid terrain (river)
+                red_overlay = pygame.Surface((b_size, b_size), pygame.SRCALPHA)
+                red_overlay.fill((255, 50, 50, 140))
+                ghost.blit(red_overlay, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+                ghost.set_alpha(190)
+            else:
+                ghost.set_alpha(180)
+            screen.blit(ghost, (int(ghost_screen_pos[0]), int(ghost_screen_pos[1])))
+    except Exception:
         pass
 
-    display_text(screen, normal_font,
-                 _("placement_hint").format(cost=cost),
-                 10, screen.get_height() - 30)
+    # Stats HUD overlay
+    stats_bg = pygame.Surface((220, 145), pygame.SRCALPHA)
+    stats_bg.fill((20, 30, 25, 190))
+    screen.blit(stats_bg, (10, 10))
+    pygame.draw.rect(screen, (160, 180, 150), (10, 10, 220, 145), 1, border_radius=4)
+
+    display_text(screen, normal_font, _("money").format(money=money), 20, 16, color=(255, 255, 255))
+    display_text(screen, normal_font, _("buildings_short").format(count=len(buildings)), 20, 44, color=(255, 255, 255))
+    display_text(screen, normal_font, _("experience").format(experience=experience), 20, 72, color=(255, 255, 255))
+    display_text(screen, normal_font, _("debt").format(debt=debt), 20, 100, color=(255, 255, 255))
+    display_text(screen, normal_font, _("level").format(level=level), 20, 128, color=(255, 255, 255))
+
+    # Bottom placement hint bar
+    hint_txt = _("placement_hint").format(cost=cost)
+    hint_surf = normal_font.render(hint_txt, True, (255, 255, 255))
+    hint_bar = pygame.Surface((hint_surf.get_width() + 24, hint_surf.get_height() + 10), pygame.SRCALPHA)
+    hint_bar.fill((20, 30, 25, 210))
+    hx = (screen.get_width() - hint_bar.get_width()) // 2
+    hy = screen.get_height() - hint_bar.get_height() - 10
+    screen.blit(hint_bar, (hx, hy))
+    pygame.draw.rect(screen, (200, 200, 150), (hx, hy, hint_bar.get_width(), hint_bar.get_height()), 1, border_radius=4)
+    screen.blit(hint_surf, (hx + 12, hy + 5))
+
+    # Keyboard navigation
+    keys = pygame.key.get_pressed()
+    camera.handle_keyboard(keys)
 
     for event in events:
         if event.type == pygame.QUIT:
             return "salir"
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:
+                camera.reset_view()
+        elif event.type == pygame.MOUSEWHEEL:
+            zoom_factor = 1.15 ** event.y
+            camera.zoom_at(pygame.mouse.get_pos(), zoom_factor)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 4:
+                camera.zoom_at(event.pos, 1.15)
+            elif event.button == 5:
+                camera.zoom_at(event.pos, 1.0 / 1.15)
+            elif event.button in (1, 2):
+                camera.start_drag(event.pos)
+            elif event.button == 3:
+                print(_("placement_cancelled"))
+                return cancel_scene
+        elif event.type == pygame.MOUSEMOTION:
+            camera.update_drag(event.pos)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            was_dragged = camera.end_drag() if camera.is_dragging else False
+            if event.button == 1 and not was_dragged:
                 if is_ornament and sum(1 for b in buildings if b.get("tipo") == building_type) >= 5:
                     print(_("ornament_limit_reached"))
                     alert = [_("ornament_limit_reached"), 60]
                     return "adorno"
                 if money >= cost:
-                    final_pos = ghost_pos
+                    final_pos = ghost_world_pos
                     if is_invalid:
                         print(_("cannot_build_on_river"))
                         alert = [_("cannot_build_on_river"), 60]
@@ -2047,9 +2201,7 @@ def placement_scene(screen, events, normal_font, building_type):
                 else:
                     print(_("not_enough_money"))
                     return cancel_scene
-            if event.button == 3:
-                print(_("placement_cancelled"))
-                return cancel_scene
+
     return "colocando_edificio"
 
 def billing_scene(screen, title_font, button_font, events, normal_font, player_data):
@@ -2734,7 +2886,18 @@ async def async_main(username=None):
 
 def main(username=None):
     """Synchronous entry point that runs async_main via asyncio.run for backward compatibility."""
-    return asyncio.run(async_main(username=username))
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = None
+
+    if loop and loop.is_running():
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(lambda: asyncio.run(async_main(username=username)))
+            return future.result()
+    else:
+        return asyncio.run(async_main(username=username))
 
 # SCRIPT ENTRY POINT
 if __name__ == '__main__':

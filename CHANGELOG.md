@@ -2,6 +2,57 @@
 
 All notable changes to the PIXELTOWN project will be documented in this file.
 
+## [v3.2.0] - 2026-10-13
+
+### Added
+- **Expansive Realistic Village Valley & Terrain Engine (`src/terrain.py`)**:
+  - Replaced the plain white screen and static river box with a vast, high-detail procedurally generated terrain of 3600x2400 pixels (12x larger than the viewport).
+  - Rich multi-layered meadow grass textures with fine micro-blades, clover patches, sunlit elevations, and fertile loam clearings ready for construction.
+  - Natural dirt footpaths and walking trails winding across the valley connecting building districts.
+  - Natural spline-based winding river cutting gracefully across the entire territory, featuring layered earthen banks, golden sand beaches, shallow turquoise waters, deep sapphire channels, reeds, and smooth river stones.
+  - Animated shimmering water surface ripples flowing gently downstream.
+  - Perimeter ancient forest border with dense pine and oak tree canopies framing the peaceful valley clearing.
+  - Thousands of clustered meadow wildflowers (white daisies, bluebells, golden dandelions, and wild poppies).
+- **Interactive Camera System with Drag & Zoom**:
+  - Smooth mouse drag panning: click and drag on empty terrain (or middle/right click anywhere) to freely explore the entire 3600x2400 map.
+  - Full mouse wheel zoom: zoom smoothly between 0.35x (wide valley overview) and 2.2x (close-up detailed inspection), mathematically anchored to the mouse cursor position.
+  - Keyboard navigation: pan the viewport using `WASD` or Arrow Keys.
+  - Quick view reset: press `R` or click the HUD camera button to center the camera and reset zoom to 1.0x.
+  - Interactive minimap radar: compact radar overlay in the top-left corner displaying the full valley, river curve, building markers, and current camera viewport. Click or drag on the minimap to instantly jump the camera anywhere.
+- **Camera-Aware Building Placement & River Collision**:
+  - Integrated the full camera navigation and zoom into `placement_scene`, allowing players to pan and zoom while choosing building sites.
+  - Ghost building preview tracks the cursor accurately in world space and scales dynamically with camera zoom.
+  - Added precise 1-bit river collision mask (`is_river_collision`) preventing buildings from being constructed over the water, tinting the ghost preview soft red when hovering over the river.
+- **Bilingual Camera HUD & Controls Hints**:
+  - Added camera controls hint bar and zoom indicator in Spanish and English (`src/locals/es.json`, `src/locals/en.json`).
+  - Styled statistics tooltip window with high-contrast translucent background for easy reading over the lush landscape.
+
+### Changed
+- **Complete Visual Asset Overhaul to Authentic Minimalist Human-Made Pixel-Art**:
+  - **Zero AI Artifacts & True Low-Res Integer Grid**: Redesigned all 46 visual assets in `assets/images/` from scratch on authentic integer pixel grids (`32x32`, `48x48`, `64x64`) with zero anti-aliasing blur, zero mixels, and nearest-neighbor upscaling, replacing all previously AI-generated graphics with a cohesive, human-crafted retro aesthetic.
+  - **Unified 2.5D Top-Down RPG Perspective for All Map Buildings**:
+    - Removed disconnected isometric concrete and grass slabs that clashed with the terrain, replacing them with a uniform 2.5D top-down / 3/4 perspective with soft contact ground shadows (`(16, 24, 14, 85)`) and crisp `1px` dark outlines (`#1c1826`).
+    - Standardized all 9 buildings (`house.png`, `mailoffice.png`, `supermarket.png`, `restaurant.png`, `gym.png`, `tarraco.png`, `school.png`, `policestation.png`, `townhall.png`) on an exact `32x32` native grid (upscaled cleanly to `256x256`), mapping 1:1 to the terrain engine's `2x2` pixel grid at default camera zoom.
+    - Converted `restaurant.png` from a giant floating pot into a charming brick-and-mortar bistro with café awning, warm dining window, and cloche platter sign.
+    - Redesigned `supermarket.png` and `gym.png` with legible 3x5 bitmap pixel font signage and clean architectural layout.
+    - Enhanced `tarraco.png` with classic Roman tiered arches, arena floor, and velarium banners.
+    - Improved `school.png` with a symmetrical bell tower clock, and `townhall.png` with classical marble columns, clock pediment, and copper dome.
+  - **Properly Scaled & Reframed Map Ornaments**:
+    - Fixed severe padding issues in `fountain.png`, `statue.png`, `trashcan.png`, and `sewer.png` (which previously occupied ~15% of the canvas and appeared as tiny 8px specks on the map), expanding them to fill ~85% of their canvas for crisp readability.
+    - Redesigned `statue.png` to depict the iconic heroic **Pink Monster Statue** ("Estatua del Monstruo Rosa") on a stepped marble plinth with a golden plaque.
+    - Reworked `ornament_mytownmyrules.png` from a photorealistic painted rock into a chiseled stone monument with a wooden/golden town plaque.
+    - Optimized `tree.png` and `bush.png` with multi-layered foliage matching the grass palette of `src/terrain.py`, aligning trunk bases to rest flush on terrain shadows.
+    - Refined `streetlamp.png` with a clean wrought-iron post and glowing golden glass panes, and `water_feature.png` with koi fish, lily pads, and lotus flowers.
+  - **Crisp Retro Arcade UI, Action, Shop & Billing Icons**:
+    - Overhauled all menu badges: `shop.png`, `earn_money.png` (eliminating the old AI grid lines), `info.png`, `minigames.png`, `mission.png`, `construction.png`, `products.png`, `decoration.png`, `taxes.png`, `sell_building.png`, `loan.png`, and sound toggles `soundon.png`/`soundoff.png`.
+  - **Minigame Logos & Starfighter Sprites**:
+    - Replaced garbled AI text with authentic pixel-art arcade badges: `snakelogo.png`, `tetrislogo.png`, `solarsystemlogo.png`, and `spaceshiplogo.png`.
+    - Redesigned `spaceship_yellow.png` and `spaceship_red.png` as clean 16-bit retro starfighters with proper orientation for in-game rotation in `src/spaceship.py`, and generated a clean pixel-art starfield in `space.png`.
+  - **Characters, Welcome Screens & Lovyc Products**:
+    - Recreated the beloved Pink Monster helper (`toy.png` and `toyspeaking.png`) with clean cel-shaded pink fur, expressive eyes, curved horns, and animated talking states.
+    - Replaced blurry welcome screens (`welcome.png`, `welcome-en.png`) with crisp pixel-art banner illustrations in Spanish and English.
+    - Redesigned Lovyc cosmetic product icons (`lovyc.png`, `lovyc_mask.png`, `lovyc_shampoo.png`, `lovyc_wipes.png`) with legible "LOVYC" pixel branding, eliminating AI gibberish text.
+
 ## [v3.1.31] - 2026-09-28
 
 ### Added
@@ -55,7 +106,7 @@ All notable changes to the PIXELTOWN project will be documented in this file.
   - Added dynamic port detection with automatic fallback to port 8001 when port 8000 is occupied by other processes (e.g. FastAPI / Uvicorn).
   - Declared PEP 723 dependency metadata (`# /// script`) in `main.py` ensuring automated runtime packaging of `pygame-ce`.
   - Added bilingual web startup flow with dynamic query string detection (`?lang=en`, `?lang=es`), `localStorage` persistence, and browser locale fallback (`navigator.language`).
-  - Integrated floating in-browser language switcher widget (`🌐 🇪🇸 ES | 🇬🇧 EN`) on the web canvas page for instant language switching without leaving the browser.
+  - Integrated floating in-browser language switcher widget (`🇪🇸 ES | 🇬🇧 EN`) on the web canvas page for instant language switching without leaving the browser.
 - **Language-First Tkinter Dual-Mode Launcher**:
   - Implemented interactive launcher GUI (`start_launcher.py` / `src/terminal.py`).
   - **Step 1**: Prompts user first for preferred language (`🇪🇸 Español` vs `🇬🇧 English`).

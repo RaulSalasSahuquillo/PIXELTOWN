@@ -13,7 +13,7 @@ Only the latest version on the `main` branch receives security updates.
 
 If you discover a security vulnerability in PIXELTOWN, **please do not open a public issue.** Instead, report it privately:
 
-1. **Email**: Send a detailed description to **salassahuquilloraul@gmail.com** with the subject line `[SECURITY] PIXELTOWN`.
+1. **Email**: Send a detailed description to **raulsalassahuquillo.dev@gmail.com** with the subject line `[SECURITY] PIXELTOWN`.
 2. Include:
    - A clear description of the vulnerability.
    - Steps to reproduce it.
